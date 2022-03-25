@@ -5,6 +5,7 @@
 .data
 .init main
 
+.float pi 3.14159
 .i32 value 42
 .string hw "hellow world"
 
@@ -19,7 +20,7 @@ main:
 
   nop
 
-
-
-
+  
+  mov i0 $value
+  mov f0 $pi
 ```

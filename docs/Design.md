@@ -14,14 +14,13 @@ skiff itsself will be an application to execute skiff binaries
 
 ### General purpose registers
 
-There are 3 primary register 'types' integer, float, and string.
+There are 2 primary register 'types' integer and float.
 These registers are for basic operations of the primitive types. 
 There exists 10 registers for each given type. These registers are as follows:
 
 ```
      int registers: i0, i1, i2 ... i9
    float registers: f0, f1, f2 ... f9
-  string registers: s0, s1, s2 ... s9
 ```
 
 Bytecode values of each register:
@@ -32,9 +31,6 @@ Bytecode values of each register:
 
   f0 : 0x10 | f1 : 0x11 | f2 : 0x12 | f3 : 0x13 | f4 : 0x14
   f5 : 0x15 | f6 : 0x16 | f7 : 0x17 | f8 : 0x18 | f9 : 0x19
-
-  s0 : 0x20 | s1 : 0x21 | s2 : 0x22 | s3 : 0x23 | s4 : 0x24
-  s5 : 0x25 | s6 : 0x26 | s7 : 0x27 | s8 : 0x28 | s9 : 0x29
 ```
 
 As can be ssen above, each register of a type is prefixed by a letter which represents
@@ -51,15 +47,8 @@ the type of data it holds
 ### Read-only Device registers
 
 ```
-  kb  : 0x40  - Keyboard input register (string data)
+  kb  : 0x40  - Keyboard input register
   > More will be added in the future to support disk/network i/o
-```
-
-### Operation registers
-
-```
-  fc : 0x50   - Fail check. '1' is written to this integer register if a conversion 
-                operation fails (stoi, etc)
 ```
 
 # ASM Directives
@@ -122,12 +111,6 @@ Example:
   .float pi 3.14159
 ```
 
-### Variable Directive Encoding
-
-Each directive containing a variable will contain 2 bytes indicating byte length of the item,
-followed by the bytes of the item in memory. This is to ensure that strings can be read in
-from memory easily, but at the cost of a 2-byte overhead with all constants.
-
 ## .code
 
 Indicates the start of 'code' space. No more directives shall follow this
@@ -184,9 +167,6 @@ Example:
   mov <register> <register>
 ```
 
-Any of the integer, float, or string registers can be placed as the first argument.
-The second argument, the variable, will take one of three forms:
-
 ```
   mov i0 $var   ; Moves the value of 'var' into integer register 0
   mov i0 #var   ; Moves the length of 'var' (in bytes) into integer register 0
@@ -239,18 +219,6 @@ Bytecode:
   1 byte   |    8 bytes
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## itof
 
 Convert data in a float register into an integer.
@@ -258,69 +226,36 @@ Convert data in a float register into an integer.
 Example:
 
 ```
-  itof i0 f0 
+  itof f0 i0 
 ```
 
 Bytecode:
 
 ```
-  0x06   | <int register> | <float register>
-  1 byte |     1 byte     |      1 byte
-```
-
-The first argument must be an integer register. The second must be a float register.
-
-## itos
-
-Convert data in an int register into a string.
-
-Example:
-
-```
-  itof i0 f0 
-```
-
-Bytecode:
-
-```
-  0x07   | <float register> | <int register>
+  0x06   | <float register> | <int register>
   1 byte |     1 byte       |   1 byte
 ```
 
-The first argument must be a float register. The second must be an integer register.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+The first argument must be a float register, with the second being an integer register.
 
 ## ftoi
 
-Convert data in an int register into an float.
+Convert data in a float register into an int.
 
 Example:
 
 ```
-  itof i0 f0 
+  ftoi i0 f0 
 ```
 
 Bytecode:
 
 ```
-  0x07   | <float register> | <int register>
-  1 byte |     1 byte       |   1 byte
+  0x07   | <int register> | <float register>
+  1 byte |     1 byte     |   1 byte
 ```
 
-The first argument must be a float register. The second must be an integer register.
+The first argument must be an integer register, with the second being a float register
 
 
 
