@@ -8,7 +8,7 @@ include_directories(
 
 add_executable(libskiff_unit_tests
         ${PROJECT_SOURCES}
-        coder_tests.cpp
+        example.cpp
         main.cpp)
 
 

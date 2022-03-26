@@ -66,6 +66,7 @@ add_executable(${PROJECT_NAME}
         skiffd.cpp)
 
 target_link_libraries(${PROJECT_NAME}
+  skiff::libutil
   skiff::libskiff
 )
 
