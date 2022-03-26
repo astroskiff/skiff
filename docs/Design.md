@@ -1,94 +1,74 @@
-
-### Use
-
-A vm that should be easy to target from a high level language. 
-
-*libskiff* should offer all interfaces and whatever is necessary to build, write-out, and verify skiff binaries.
-
-skiff itsself will be an application to execute skiff binaries
-
-
 # VM Layout
 
 ## Registers:
 
-### General purpose registers
 
-There are 2 primary register 'types' integer and float.
-These registers are for basic operations of the primitive types. 
-There exists 10 registers for each given type. These registers are as follows:
+|    Register  |  Byte code  |  Description  |
+|----|----|----|----|
+| x0 | 0x00 | `Read-only` '0' constant |
+| x1 | 0x00 | `Read-only` '1' constant |
+| ip | 0x02 | `Read-only` Instruction pointer |
+| fp | 0x03 | `Read-only` Stack pointer |
+| i0 | 0x10 | Integer Register |
+| i1 | 0x11 | Integer Register |
+| i2 | 0x12 | Integer Register |
+| i3 | 0x13 | Integer Register |
+| i4 | 0x14 | Integer Register |
+| i5 | 0x15 | Integer Register |
+| i6 | 0x16 | Integer Register |
+| i7 | 0x17 | Integer Register |
+| i8 | 0x18 | Integer Register |
+| i9 | 0x19 | Integer Register |
+| f0 | 0x20 | Floating Point Register |
+| f1 | 0x21 | Floating Point Register |
+| f2 | 0x22 | Floating Point Register |
+| f3 | 0x23 | Floating Point Register |
+| f4 | 0x24 | Floating Point Register |
+| f5 | 0x25 | Floating Point Register |
+| f6 | 0x26 | Floating Point Register |
+| f7 | 0x27 | Floating Point Register |
+| f8 | 0x28 | Floating Point Register |
+| f9 | 0x29 | Floating Point Register | 
 
-```
-     int registers: i0, i1, i2 ... i9
-   float registers: f0, f1, f2 ... f9
-```
-
-Bytecode values of each register:
-
-```
-  i0 : 0x00 | i1 : 0x01 | i2 : 0x02 | i3 : 0x03 | i4 : 0x04
-  i5 : 0x05 | i6 : 0x06 | i7 : 0x07 | i8 : 0x08 | i9 : 0x09
-
-  f0 : 0x10 | f1 : 0x11 | f2 : 0x12 | f3 : 0x13 | f4 : 0x14
-  f5 : 0x15 | f6 : 0x16 | f7 : 0x17 | f8 : 0x18 | f9 : 0x19
-```
-
-As can be ssen above, each register of a type is prefixed by a letter which represents
-the type of data it holds
-
-### Read-only const registers
-
-```
-  r0 : 0x30   - Always contains '0'
-  r1 : 0x31   - Always contains '1'
-  ip : 0x32   - Current instruction address
-```
-
-### Read-only Device registers
-
-```
-  kb  : 0x40  - Keyboard input register
-  > More will be added in the future to support disk/network i/o
-```
 
 # ASM Directives
 
 ## .data
 
+**Description:**
 Should be the first thing listed in a file. Starts the data segment where all of the other directives should exist.
 
-Example:
-
+**Example:**
 ```
   .data
 ```
 
 ##  .init
 
+**Description:**
 Used to define the name of the first label to start execution from
 
-Example:
-
+**Example:**
 ```
   .init main
 ```
 
 ## .string
 
+**Description:**
 Defines a string 
 
-Example:
-
+**Example:**
 ```
   .string string_name "Body of the string"
 ```
 
 ## .i8 .. .i64, .u8 .. u64 
 
+**Description:**
 Defines a specifically sized integer
 
-Example:
-
+**Example:**
 ```
   .i8 int_one 42
   .i16 int_two 33
@@ -103,181 +83,38 @@ Example:
 
 ## .float 
 
+**Description:**
 Defines a floating point number
 
-Example:
-
+**Example:**
 ```
   .float pi 3.14159
 ```
 
 ## .code
 
+**Description:**
 Indicates the start of 'code' space. No more directives shall follow this
 
-Example:
-
+**Example:**
 ```
   .code
 ```
 
-# ASM Instructions
+# Instructions
 
 ## Labels
 
-*not _technically_ an instruction*
-
-Lables mark areas within the code that can be accessed via various commands (more below)
-
-Example:
-
-```
-
-some_label_name:
-
-```
+**Format:** [label_name]:
+**Description:** Labels mark locations within instructions, and have no direct encoding within the instruction space. 
+**Example:** `my_label:`
 
 ## nop
-
-No operation 
-
-Example:
-
 ```
-  nop
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
-
-Bytecode:
-
-```
-    0x00
-  1 byte  
-```
-
-This instruction does nothing.
-
-## mov
-
-Move data into a register
-
-Example:
-
-```
-  mov <register> <variable>
-  mov <register> <register>
-```
-
-```
-  mov i0 $var   ; Moves the value of 'var' into integer register 0
-  mov i0 #var   ; Moves the length of 'var' (in bytes) into integer register 0
-  mov i0 &value ; Moves the memory location of 'var' into integer register 0
-  mov i0 i9     ; Moves the value from integer register 9 into integer register 0
-```
-
-Read-only registers are not be allowed for the first argument of a 'mov' instruction
-but they are a valid second argument.
-
-Bytecode:
-
-```
-'value' variant 
-
-    0x01   | <register> |  <variable address>
-  1 byte   |  1 byte    |      8 bytes 
-  
-
-'length' variant
-
-    0x02   | <register> | <variable length>
-  1 byte   |  1 byte    |      8 bytes
-
-'address' variant 
-
-    0x03   | <register> |  <variable address>
-  1 byte   |  1 byte    |      8 bytes
-
-'register' variant
-
-    0x04   | <register> | <register>
-  1 byte   |  1 byte    |  1 byte  
-```
-
-## jmp
-
-Jump to a label unconditionally
-
-Example:
-
-```
-  jmp label_name
-```
-
-Bytecode:
-
-```
-    0x05   | <label address>
-  1 byte   |    8 bytes
-```
-
-## itof
-
-Convert data in a float register into an integer.
-
-Example:
-
-```
-  itof f0 i0 
-```
-
-Bytecode:
-
-```
-  0x06   | <float register> | <int register>
-  1 byte |     1 byte       |   1 byte
-```
-
-The first argument must be a float register, with the second being an integer register.
-
-## ftoi
-
-Convert data in a float register into an int.
-
-Example:
-
-```
-  ftoi i0 f0 
-```
-
-Bytecode:
-
-```
-  0x07   | <int register> | <float register>
-  1 byte |     1 byte     |   1 byte
-```
-
-The first argument must be an integer register, with the second being a float register
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+**Format:** nop
+**Description:** A no-operation. This instruction does nothing.
+**Example:**	`nop`
 
 
