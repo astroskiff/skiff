@@ -128,7 +128,9 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Opcode:** 0x00
 **Instruction Layout:**
 ```
+	[ ------------- Empty ---------- ]  [ Opcode ]
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ ------------------ Empty ----------------- ]
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `nop`
@@ -142,7 +144,7 @@ Indicates the start of 'code' space. No more directives shall follow this
 	[ ------------- Empty ---------- ]  [ Opcode ]
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0001 
 
-	[ -------------- Return Code -------------- ]
+	[ ------------------ Empty ----------------- ]
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `exit <signed 64-bit number>`
@@ -160,9 +162,9 @@ Indicates the start of 'code' space. No more directives shall follow this
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 
-**Format:** `blt <register lhs> <register rhs> <address>`
+**Format:** `blt <register lhs> <register rhs> <label>`
 **Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs < rhs`
-**Example:**	`blt i0 i1 &label_name	; Branch to a label`
+**Example:**	`blt i0 i1 label_name	; Branch to a label`
 
 ## bgt
 **Opcode** 0x03
@@ -175,9 +177,9 @@ Indicates the start of 'code' space. No more directives shall follow this
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 
-**Format:** `bgt <register lhs> <register rhs> <address>`
+**Format:** `bgt <register lhs> <register rhs> <label>`
 **Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs > rhs`
-**Example:**	`blt i0 i1 &label_name	; Branch to a label`
+**Example:**	`blt i0 i1 label_name	; Branch to a label`
 
 ## beq
 **Opcode** 0x04
@@ -190,6 +192,52 @@ Indicates the start of 'code' space. No more directives shall follow this
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 
-**Format:** `beq <register lhs> <register rhs> <address>`
+**Format:** `beq <register lhs> <register rhs> <label>`
 **Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs = rhs`
-**Example:**	`beq i0 i1 &label_name	; Branch to a label`
+**Example:**	`beq i0 i1 label_name	; Branch to a label`
+
+## jmp
+**Opcode** 0x05
+**Instruction Layout:**
+```
+	[ ------------- Empty ---------- ]  [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0101 
+	
+	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+
+**Format:** `jmp <label>`
+**Description:** Unconditionally jump to a label.
+**Example:**	`jmp label_name`
+
+## call
+**Opcode** 0x06
+**Instruction Layout:**
+```
+	[ ------------- Empty ---------- ]  [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0110 
+	
+	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+
+**Format:** `call <label>`
+**Description:** Unconditionally go to a label, pushing the next address to the call stack. This will allow a return to the next instruction from the call destination.
+**Example:**	`call label_name`
+
+## ret
+**Opcode** 0x07
+**Instruction Layout:**
+```
+	[ ------------- Empty ---------- ]  [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0111 
+	
+	[ ------------------ Empty ----------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+
+**Format:** `ret`
+**Description:** Return to the next address in the call stack. If the call stack is empty, execution will be halted.
+**Example:**	`ret`
+
