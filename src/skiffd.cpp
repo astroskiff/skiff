@@ -18,9 +18,12 @@ void handle_assebmled_t(skiff_assemble::assembled_t assembled,
               << std::endl;
   }
 
-  if (assembled.warnings != std::nullopt) {
+  if (assembled.errors != std::nullopt) {
     std::cout << assembled.errors.value().size() << " errors were generated"
               << std::endl;
+    for(auto &e: *assembled.errors) {
+      std::cout << e << std::endl;
+    }
   }
 
   // TODO: Make this an argument option to turn on at one point
@@ -57,7 +60,7 @@ int main(int argc, char **argv)
     handle_assebmled_t(result, opts->assemble_file->file_out);
   }
 
-  std::cout << "No input given. Use -h for help" << std::endl;
+//  std::cout << "No input given. Use -h for help" << std::endl;
 
   return 0;
 }
