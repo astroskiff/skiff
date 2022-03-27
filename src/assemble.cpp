@@ -77,6 +77,9 @@ private:
   bool build_blt();
   bool build_bgt();
   bool build_beq();
+  bool build_jmp();
+  bool build_call();
+  bool build_ret();
 };
 
 inline std::vector<std::string> chunk_line(std::string line)
@@ -147,6 +150,12 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
               std::bind(&skiff_assemble::assembler_c::build_bgt, this)},
       match_t{std::regex("^beq"),
               std::bind(&skiff_assemble::assembler_c::build_beq, this)},
+      match_t{std::regex("^jmp"),
+              std::bind(&skiff_assemble::assembler_c::build_jmp, this)},
+      match_t{std::regex("^call"),
+              std::bind(&skiff_assemble::assembler_c::build_call, this)},
+      match_t{std::regex("^ret"),
+              std::bind(&skiff_assemble::assembler_c::build_ret, this)},
   };
 }
 
@@ -442,6 +451,24 @@ bool assembler_c::build_bgt()
 }
 
 bool assembler_c::build_beq()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_jmp()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_call()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_ret()
 {
   add_debug(__func__);
   return false;
