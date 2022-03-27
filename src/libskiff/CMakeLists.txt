@@ -3,6 +3,7 @@ project (libskiff)
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
 
 add_library(${PROJECT_NAME} 
+  src/floating_point.cpp
   src/instruction_generator.cpp)
 
 add_library(skiff::libskiff ALIAS ${PROJECT_NAME})

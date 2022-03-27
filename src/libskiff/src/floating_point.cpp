@@ -1,7 +1,7 @@
-#include "libutil/floating_point.hpp"
+#include "libskiff/floating_point.hpp"
 #include <cmath>
 
-namespace libutil {
+namespace libskiff {
 namespace floating_point {
 
 namespace {
@@ -74,4 +74,4 @@ double from_uint64_t(const uint64_t value)
 }
 
 } // namespace floating_point
-} // namespace libutil
+} // namespace libskiff

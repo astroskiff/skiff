@@ -1,6 +1,6 @@
 #include "libskiff/instruction_generator.hpp"
 
-#include <libutil/floating_point.hpp>
+#include <libskiff/floating_point.hpp>
 #include <limits>
 
 namespace libskiff {
@@ -139,7 +139,7 @@ instruction_generator_c::generate_i64_constant(const int64_t value)
 std::vector<uint8_t>
 instruction_generator_c::generate_fp_constant(const double value)
 {
-  auto encoded_bytes = pack_8(libutil::floating_point::to_uint64_t(value));
+  auto encoded_bytes = pack_8(libskiff::floating_point::to_uint64_t(value));
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }

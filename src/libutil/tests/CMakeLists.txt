@@ -11,7 +11,6 @@ add_executable(libutil_unit_tests
         generate_random.cpp
         random_string.cpp
         random_entry.cpp
-        floating_point.cpp
         main.cpp)
 
 

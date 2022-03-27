@@ -3,8 +3,7 @@ project (libutil)
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
 
 add_library(${PROJECT_NAME} 
-  src/random_string.cpp
-  src/floating_point.cpp)
+  src/random_string.cpp)
 
 add_library(skiff::libutil ALIAS ${PROJECT_NAME})
 

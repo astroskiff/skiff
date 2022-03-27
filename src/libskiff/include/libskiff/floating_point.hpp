@@ -1,9 +1,9 @@
-#ifndef LIBUTIL_FLOATING_POINT_HPP
-#define LIBUTIL_FLOATING_POINT_HPP
+#ifndef LIBSKIFF_FLOATING_POINT_HPP
+#define LIBSKIFF_FLOATING_POINT_HPP
 
 #include <cstdint>
 
-namespace libutil {
+namespace libskiff {
 namespace floating_point {
 
 //! \brief Components of a floating point data type
@@ -42,5 +42,5 @@ extern bool are_equal(const double lhs, const double rhs,
                       const double precision = 0.00001);
 
 } // namespace floating_point
-} // namespace libutil
+} // namespace libskiff
 #endif
