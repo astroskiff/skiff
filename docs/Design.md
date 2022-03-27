@@ -63,6 +63,12 @@ Defines a string
   .string string_name "Body of the string"
 ```
 
+Encoded strings in the data section take the form: 
+
+```
+	<unsigned 16-bit 'length'> <string data> 
+```
+
 ## .i8 .. .i64, .u8 .. u64 
 
 **Description:**
@@ -101,6 +107,15 @@ Indicates the start of 'code' space. No more directives shall follow this
   .code
 ```
 
+# Symbol Usage
+
+| Symbol | Description |
+|----|----
+| & | Address of constant / label
+| $ | Value of constant
+| # | Length of constant 
+| @ | Raw 64-bit value
+
 # Instructions
 
 ## Labels
@@ -110,11 +125,71 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Example:** `my_label:`
 
 ## nop
+**Opcode:** 0x00
+**Instruction Layout:**
 ```
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
-**Format:** nop
+**Format:** `nop`
 **Description:** A no-operation. This instruction does nothing.
 **Example:**	`nop`
 
+## exit
+**Opcode** 0x01
+**Instruction Layout:**
+```
+	[ ------------- Empty ---------- ]  [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0001 
 
+	[ -------------- Return Code -------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `exit <signed 64-bit number>`
+**Description:** Exit execution with a return code
+**Example:**	`exit 1`
+
+## blt
+**Opcode** 0x02
+**Instruction Layout:**
+```
+	[ Empty ]  [ LHS Reg ] [ RHS Reg ] [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0010 
+	
+	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+
+**Format:** `blt <register lhs> <register rhs> <address>`
+**Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs < rhs`
+**Example:**	`blt i0 i1 &label_name	; Branch to a label`
+
+## bgt
+**Opcode** 0x03
+**Instruction Layout:**
+```
+	[ Empty ]  [ LHS Reg ] [ RHS Reg ] [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0011 
+	
+	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+
+**Format:** `bgt <register lhs> <register rhs> <address>`
+**Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs > rhs`
+**Example:**	`blt i0 i1 &label_name	; Branch to a label`
+
+## beq
+**Opcode** 0x04
+**Instruction Layout:**
+```
+	[ Empty ]  [ LHS Reg ] [ RHS Reg ] [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0100 
+	
+	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+
+**Format:** `beq <register lhs> <register rhs> <address>`
+**Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs = rhs`
+**Example:**	`beq i0 i1 &label_name	; Branch to a label`
