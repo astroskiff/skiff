@@ -57,5 +57,7 @@ int main(int argc, char **argv)
     handle_assebmled_t(result, opts->assemble_file->file_out);
   }
 
+  std::cout << "No input given. Use -h for help" << std::endl;
+
   return 0;
 }
