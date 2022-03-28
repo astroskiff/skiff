@@ -53,6 +53,23 @@ Used to define the name of the first label to start execution from
   .init main
 ```
 
+## .debug  
+
+| Level | Meaning |
+|----|----|
+| 0 | No debug, same as not being defined |
+| 1 | Minimal debug |
+| 2 | Moderate debug |
+| 3 | Extreme debug |
+
+**Description:**
+Indicates to the VM that debug mode should be enabled at a specified level. This directive is not required.
+
+**Example:**
+```
+  .debug 1
+```
+
 ## .string
 
 **Description:**
