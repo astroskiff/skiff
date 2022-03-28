@@ -15,6 +15,12 @@ struct options_t {
   std::optional<assemble_t> assemble_file;
 };
 
+static void show_usage()
+{
+  std::cout << "[-a | --assemble] <file>\tAssemble a file\n"
+               "[-o | --out     ] <file>\tOutput file for assemble command\n";
+}
+
 static void display_opts(skiff_opt::options_t opts)
 {
   if (opts.assemble_file != std::nullopt) {
@@ -66,6 +72,12 @@ static std::optional<options_t> build_options(std::vector<std::string> opts)
       options.assemble_file->file_out = {opts[i + 1]};
       i++;
       continue;
+    }
+
+    // Help
+    if (opts[i] == "-h" || opts[i] == "--help") {
+      show_usage();
+      std::exit(EXIT_SUCCESS);
     }
   }
   return {options};

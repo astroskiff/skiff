@@ -43,6 +43,16 @@ if(WITH_ASAN)
 endif()
 
 #
+# Lib Util
+#
+add_subdirectory(libutil)
+
+#
+# Lib Skiff
+#
+add_subdirectory(libskiff)
+
+#
 # Build 
 #
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
@@ -54,6 +64,11 @@ set(PROJECT_SOURCES
 add_executable(${PROJECT_NAME}
         ${PROJECT_SOURCES}
         skiffd.cpp)
+
+target_link_libraries(${PROJECT_NAME}
+  skiff::libutil
+  skiff::libskiff
+)
 
 #
 # Tests

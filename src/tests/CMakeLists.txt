@@ -13,8 +13,9 @@ add_executable(unit_tests
 
 
 target_link_libraries(unit_tests
-        ${CPPUTEST_LDFLAGS})
-
+        ${CPPUTEST_LDFLAGS}
+        skiff::libskiff
+        skiff::libutil)
       #add_custom_target(copy-test-files ALL
       # COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/test_files ${CMAKE_BINARY_DIR}/tests/test_files
       #  )
