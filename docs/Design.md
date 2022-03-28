@@ -4,7 +4,7 @@
 
 
 |    Register  |  Byte code  |  Description  |
-|----|----|----|----|
+|----|----|----|
 | x0 | 0x00 | `Read-only` '0' constant |
 | x1 | 0x00 | `Read-only` '1' constant |
 | ip | 0x02 | `Read-only` Instruction pointer |
@@ -241,3 +241,234 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Description:** Return to the next address in the call stack. If the call stack is empty, execution will be halted.
 **Example:**	`ret`
 
+## mov
+**Opcode** 0x08
+**Instruction Layout:**
+```
+	[ ------ Length ----- ] [ Variant ] [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 1000 
+	
+	[ ------------------ Value ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+
+**Format:** `mov <register> <source>`
+**Description:** Move some data into a given register. If the second 32-bit section contains the data to be moved into the register, the variant byte will be set to `1`, otherwise, the data in the second section will be used as an address, and `length` number of bytes will be copied into the register from the address. Since a register is 8 bytes, the most amount of data that will be copied is 8 bytes.
+
+**Example:**	
+```
+	mov i0 &my_int	; Address of my_int
+	mov i0 &label	; Label address
+	mov i0 #my_int	; Value of my_int
+	mov i0 @33		; Move raw value into i0
+```
+
+## add
+**Opcode** 0x09
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 1001 
+	
+	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `add <dest register> <lhs register> <rhs register>`
+**Example:**	`add i0 i0 i1`
+**Description:** Adds the value of two integer registers.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## sub
+**Opcode** 0x0A
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 1010 
+	
+	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `sub <dest register> <lhs register> <rhs register>`
+**Example:**	`sub i0 i0 i1`
+**Description:** Subtracts the value of two integer registers.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## div
+**Opcode** 0x0B
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 1011 
+	
+	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `div <dest register> <lhs register> <rhs register>`
+**Example:**	`div i0 i0 i1`
+**Description:** Divides the value of two integer registers.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## mul
+**Opcode** 0x0C
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 1100 
+	
+	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `mul <dest register> <lhs register> <rhs register>`
+**Example:**	`mul i0 i0 i1`
+**Description:** Multiplies the value of two integer registers.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## addf
+**Opcode** 0x0D
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 1101 
+	
+	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `addf <dest register> <lhs register> <rhs register>`
+**Example:**	`addf f0 f0 f1`
+**Description:** Adds the value of two floating point registers.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## subf
+**Opcode** 0x0E
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 1110 
+	
+	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `subf <dest register> <lhs register> <rhs register>`
+**Example:**	`subf f0 f0 f1`
+**Description:** Subtracts the value of two floating point registers.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## divf
+**Opcode** 0x0F
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 1111 
+	
+	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `divf <dest register> <lhs register> <rhs register>`
+**Example:**	`divf f0 f0 f1`
+**Description:** Divides the value of two floating point registers.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## mulf
+**Opcode** 0x10
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 0000 
+	
+	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `mulf <dest register> <lhs register> <rhs register>`
+**Example:**	`mulf f0 f0 f1`
+**Description:** Multiplies the value of two floating point registers.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## lsh
+**Opcode** 0x11
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 0001 
+	
+	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `lsh <dest register> <lhs register> <rhs register>`
+**Example:**	`lsh i0 i0 i1`
+**Description:** Left shifts the value of a register by the value of another.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## rsh
+**Opcode** 0x12
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 0010 
+	
+	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `rsh <dest register> <lhs register> <rhs register>`
+**Example:**	`rsh i0 i0 i1`
+**Description:** Right shifts the value of a register by the value of another.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## and
+**Opcode** 0x13
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 0011 
+	
+	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `and <dest register> <lhs register> <rhs register>`
+**Example:**	`and i0 i0 i1`
+**Description:** Logical AND the value of a register by the value of another.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## or
+**Opcode** 0x13
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 0011 
+	
+	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `or <dest register> <lhs register> <rhs register>`
+**Example:**	`or i0 i0 i1`
+**Description:** Logical OR the value of a register by the value of another.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## xor
+**Opcode** 0x14
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 0100 
+	
+	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `xor <dest register> <lhs register> <rhs register>`
+**Example:**	`xor i0 i0 i1`
+**Description:** Logical XOR the value of a register by the value of another.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## not
+**Opcode** 0x15
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 0101 
+	
+	[ Dest Reg ] [  Reg   ] [ ------ Empty ----- ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `not <dest register> <register>`
+**Example:**	`not i0 i0`
+**Description:** Logical NOT the value of a register.
+**Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
