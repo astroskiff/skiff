@@ -3,6 +3,7 @@
 #include <libutil/generate_random.hpp>
 #include <limits>
 #include <stdint.h>
+#include <iostream>
 
 TEST_GROUP(floating_point){void setup(){}
                            void teardown(){

@@ -53,10 +53,7 @@ double construct(const struct deconstructed_t dd)
 
 bool are_equal(const double lhs, const double rhs, double precision)
 {
-  if (((lhs - precision) < rhs) && ((lhs + precision) > rhs)) {
-    return 1;
-  }
-  return 0;
+  return std::fabs(lhs - rhs) < precision;
 }
 
 uint64_t to_uint64_t(const double value)

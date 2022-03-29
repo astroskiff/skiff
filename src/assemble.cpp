@@ -2,12 +2,27 @@
 
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <regex>
+#include <sstream>
 #include <unordered_map>
+
+#include <libskiff/instruction_generator.hpp>
 
 namespace skiff_assemble {
 
 namespace {
+
+template <class T> std::optional<T> get_number(const std::string value)
+{
+  T value_out = 0;
+  std::stringstream ss(value);
+  ss >> value_out;
+  if (ss.fail()) {
+    return std::nullopt;
+  }
+  return value_out;
+}
 
 class assembler_c {
 public:
@@ -23,6 +38,25 @@ private:
     INSTRUCTION_DIGESTION,
   };
 
+  enum class constant_type_e {
+    STRING,
+    FLOAT,
+    U8,
+    U16,
+    U32,
+    U64,
+    I8,
+    I16,
+    I32,
+    I64,
+  };
+
+  struct constant_value_t {
+    constant_type_e type;
+    uint64_t address;
+    std::vector<uint8_t> data;
+  };
+
   struct match_t {
     std::regex reg;
     std::function<bool()> call;
@@ -32,11 +66,18 @@ private:
     bool init;
     bool code;
     bool data;
+    bool debug;
     bool data_first;
+  };
+
+  struct directive_options_t {
+    std::string init_label;
+    uint8_t debug_level;
   };
 
   const std::string &_input_file;
   uint64_t _current_line_number{0};
+  uint64_t _constant_address_counter{0};
   state_e _state{state_e::DIRECTIVE_DIGESTION};
   assembled_t _result{.stats = {.num_instructions = 0},
                       .errors = std::nullopt,
@@ -46,11 +87,13 @@ private:
   std::vector<match_t> _directive_match;
   std::vector<match_t> _instruction_match;
 
-  directive_checks_t _directive_checks = {false, false, false, false};
+  directive_checks_t _directive_checks = {false, false, false, false, false};
   std::unordered_map<std::string, uint64_t> _label_to_location;
+  std::unordered_map<std::string, constant_value_t> _constant_name_to_value;
   uint64_t _expected_bin_size{0};
-  std::string _init_label;
   std::vector<std::string> _current_chunks;
+  directive_options_t _directive_options;
+  libskiff::instructions::instruction_generator_c _ins_gen;
 
   std::string remove_comments(const std::string &str);
   void add_error(const std::string &str);
@@ -59,8 +102,11 @@ private:
   void pre_scan();
   void parse(const std::vector<match_t> &function_match);
 
+  bool add_constant(std::string name, constant_type_e type,
+                    std::vector<uint8_t> value);
   bool directive_init();
   bool directive_data();
+  bool directive_debug();
   bool directive_code();
   bool directive_string();
   bool directive_float();
@@ -113,11 +159,14 @@ inline std::vector<std::string> chunk_line(std::string line)
 
 assembler_c::assembler_c(const std::string &input) : _input_file(input)
 {
+  _directive_options = {"", 0};
   _directive_match = {
       match_t{std::regex("^\\.init$"),
               std::bind(&skiff_assemble::assembler_c::directive_init, this)},
       match_t{std::regex("^\\.data$"),
               std::bind(&skiff_assemble::assembler_c::directive_data, this)},
+      match_t{std::regex("^\\.debug$"),
+              std::bind(&skiff_assemble::assembler_c::directive_debug, this)},
       match_t{std::regex("^\\.code$"),
               std::bind(&skiff_assemble::assembler_c::directive_code, this)},
       match_t{std::regex("^\\.string$"),
@@ -193,21 +242,22 @@ void assembler_c::add_warning(const std::string &str)
 
 void assembler_c::add_debug(const std::string &str)
 {
-  std::cout << "DEBUG (line: " << _current_line_number << ") : " << str << std::endl;
+  std::cout << "DEBUG (line: " << _current_line_number << ") : " << str
+            << std::endl;
 }
 
 void assembler_c::pre_scan()
 {
   _expected_bin_size = 0;
   bool count_items = false;
-  for(auto &line: _file_data) {
+  for (auto &line : _file_data) {
     _current_line_number++;
     auto chunks = chunk_line(line);
-    if(chunks.empty()) {
+    if (chunks.empty()) {
       continue;
     }
-    if(!count_items) {
-      if(chunks[0] == ".code"){
+    if (!count_items) {
+      if (chunks[0] == ".code") {
         count_items = true;
         continue;
       }
@@ -216,15 +266,15 @@ void assembler_c::pre_scan()
 
     // Match a label
     //
-    if(std::regex_match(chunks[0], std::regex("^[a-zA-Z0-9_]+:$"))) {
-      if(chunks.size() != 1) {
+    if (std::regex_match(chunks[0], std::regex("^[a-zA-Z0-9_]+:$"))) {
+      if (chunks.size() != 1) {
         add_error("Malformed Label");
         continue;
       }
 
-      std::string label_name = chunks[0].substr(0, chunks[0].find_first_of(':'));
+      std::string label_name =
+          chunks[0].substr(0, chunks[0].find_first_of(':'));
       _label_to_location[label_name] = _expected_bin_size;
-
 
       add_debug(label_name);
 
@@ -255,7 +305,8 @@ void assembler_c::parse(const std::vector<match_t> &function_match)
   }
 }
 
-std::string assembler_c::remove_comments(const std::string& line) {
+std::string assembler_c::remove_comments(const std::string &line)
+{
   return line.substr(0, line.find_first_of(';'));
 }
 
@@ -278,7 +329,7 @@ void assembler_c::assemble()
   for (auto &line : _file_data) {
     _current_line_number++;
 
-    if(line.empty() || current.find_first_not_of(' ') != std::string::npos) {
+    if (line.empty() || current.find_first_not_of(' ') != std::string::npos) {
       continue;
     }
     _current_chunks.clear();
@@ -293,18 +344,31 @@ void assembler_c::assemble()
     }
   }
 
-  if(!_directive_checks.init) {
+  if (!_directive_checks.init) {
     add_error("Missing .init directive");
   }
-  if(!_directive_checks.code) {
+  if (!_directive_checks.code) {
     add_error("Missing .code directive");
   }
-  if(!_directive_checks.data) {
+  if (!_directive_checks.data) {
     add_error("Missing .data directive");
   }
-  if(!_directive_checks.init) {
+  if (!_directive_checks.init) {
     add_error("Misplaced .data directive - it must exist before all else");
   }
+
+  // ----------------------------------------------------
+  //    Remove all this
+  // ----------------------------------------------------
+
+  for (auto item : _constant_name_to_value) {
+
+    std::cout << "Constant : " << item.first
+              << ", type = " << (int)item.second.type
+              << ", address = " << item.second.address << std::endl;
+  }
+
+  // ----------------------------------------------------
 }
 
 assembled_t assemble(const std::string &input)
@@ -322,17 +386,17 @@ bool assembler_c::directive_init()
     return false;
   }
 
-  if(_current_chunks.size() != 2) {
+  if (_current_chunks.size() != 2) {
     add_error("Malformed .init");
     return false;
   }
 
-  if(_label_to_location.find(_current_chunks[1]) == _label_to_location.end()) {
+  if (_label_to_location.find(_current_chunks[1]) == _label_to_location.end()) {
     add_error("Label given to .init does not exist");
     return false;
   }
 
-  _init_label = _current_chunks[1];
+  _directive_options.init_label = _current_chunks[1];
   _directive_checks.init = true;
   return true;
 }
@@ -365,70 +429,302 @@ bool assembler_c::directive_data()
   if (_current_line_number != 1) {
     add_error(".data directive must be the first item in the asm file");
     return false;
-  } else {
+  }
+  else {
     _directive_checks.data_first = true;
   }
   _directive_checks.data = true;
   return true;
 }
 
+bool assembler_c::directive_debug()
+{
+  add_debug(__func__);
+  if (_directive_checks.debug) {
+    add_error("Duplicate .debug directive");
+    return false;
+  }
+
+  if (_current_chunks.size() != 2) {
+    add_error("Malformed .debug directive");
+    return false;
+  }
+
+  auto value = get_number<int>(_current_chunks[1]);
+  if (value == std::nullopt) {
+    add_error("Malformed value for .debug directive");
+    return false;
+  }
+
+  switch (*value) {
+  case 0:
+  case 1:
+  case 2:
+  case 3:
+    break;
+  default:
+    add_error("Invalid debug level given to .debug directive : " +
+              std::to_string(*value));
+    return false;
+  }
+
+  _directive_checks.debug = true;
+  _directive_options.debug_level = *value;
+  add_debug("Set .debug level to " +
+            std::to_string(_directive_options.debug_level));
+  return true;
+}
+
+bool assembler_c::add_constant(std::string name, constant_type_e type,
+                               std::vector<uint8_t> data)
+{
+  if (_constant_name_to_value.find(name) != _constant_name_to_value.end()) {
+    add_error("Duplicate constant name '" + _current_chunks[1] + "'");
+    return false;
+  }
+
+  _constant_name_to_value[name] = constant_value_t{
+      .type = type, .address = _constant_address_counter, .data = data};
+
+  _constant_address_counter += data.size();
+  return true;
+}
+
 bool assembler_c::directive_string()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed .string directive");
+    return false;
+  }
+
+  auto value = _ins_gen.gen_string_constant(_current_chunks[2]);
+  if (value == std::nullopt) {
+    add_error("Unable to encode .string directive with value : " +
+              _current_chunks[2]);
+    return false;
+  }
+
+  return add_constant(_current_chunks[1], constant_type_e::STRING, *value);
 }
 
 bool assembler_c::directive_float()
 {
   add_debug(__func__);
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed .float directive");
+    return false;
+  }
+
+  auto fp_value = get_number<double>(_current_chunks[2]);
+
+  if (fp_value == std::nullopt) {
+    add_error("Unable to convert constant to double : " + _current_chunks[2]);
+    return false;
+  }
+
+  return add_constant(_current_chunks[1], constant_type_e::FLOAT,
+                      _ins_gen.generate_fp_constant(*fp_value));
   return false;
 }
 
 bool assembler_c::directive_int_8()
 {
   add_debug(__func__);
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed .i8 directive");
+    return false;
+  }
+
+  auto value = get_number<int64_t>(_current_chunks[2]);
+  if(value > std::numeric_limits<int8_t>::max() || 
+     value < std::numeric_limits<int8_t>::min()) {
+       add_error("Out of range value given for i8 : " + _current_chunks[2] );
+       return false;
+  }
+
+  if (value == std::nullopt) {
+    add_error("Unable to convert constant to integer : " + _current_chunks[2]);
+    return false;
+  }
+
+  return add_constant(_current_chunks[1], constant_type_e::I8,
+                      _ins_gen.generate_i8_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_int_16()
 {
   add_debug(__func__);
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed .i16 directive");
+    return false;
+  }
+
+  auto value = get_number<int64_t>(_current_chunks[2]);
+  if(value > std::numeric_limits<int16_t>::max() || 
+     value < std::numeric_limits<int16_t>::min()) {
+       add_error("Out of range value given for i16 : " + _current_chunks[2] );
+       return false;
+  }
+
+  if (value == std::nullopt) {
+    add_error("Unable to convert constant to integer : " + _current_chunks[2]);
+    return false;
+  }
+
+  return add_constant(_current_chunks[1], constant_type_e::I16,
+                      _ins_gen.generate_i16_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_int_32()
 {
   add_debug(__func__);
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed .i32 directive");
+    return false;
+  }
+
+  auto value = get_number<int64_t>(_current_chunks[2]);
+  if(value > std::numeric_limits<int32_t>::max() || 
+     value < std::numeric_limits<int32_t>::min()) {
+       add_error("Out of range value given for i32 : " + _current_chunks[2] );
+       return false;
+  }
+
+  if (value == std::nullopt) {
+    add_error("Unable to convert constant to integer : " + _current_chunks[2]);
+    return false;
+  }
+
+  return add_constant(_current_chunks[1], constant_type_e::I32,
+                      _ins_gen.generate_i32_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_int_64()
 {
   add_debug(__func__);
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed .i64 directive");
+    return false;
+  }
+
+  auto value = get_number<int64_t>(_current_chunks[2]);
+  if(value > std::numeric_limits<int64_t>::max() || 
+     value < std::numeric_limits<int64_t>::min()) {
+       add_error("Out of range value given for i64 : " + _current_chunks[2] );
+       return false;
+  }
+
+  if (value == std::nullopt) {
+    add_error("Unable to convert constant to integer : " + _current_chunks[2]);
+    return false;
+  }
+
+  return add_constant(_current_chunks[1], constant_type_e::I64,
+                      _ins_gen.generate_i64_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_uint_8()
 {
   add_debug(__func__);
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed .u8 directive");
+    return false;
+  }
+
+  auto value = get_number<uint64_t>(_current_chunks[2]);
+  if(value > std::numeric_limits<uint8_t>::max() || 
+     value < std::numeric_limits<uint8_t>::min()) {
+       add_error("Out of range value given for u8 : " + _current_chunks[2] );
+       return false;
+  }
+
+  if (value == std::nullopt) {
+    add_error("Unable to convert constant to unsigned integer : " + _current_chunks[2]);
+    return false;
+  }
+
+  return add_constant(_current_chunks[1], constant_type_e::U8,
+                      _ins_gen.generate_u8_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_uint_16()
 {
   add_debug(__func__);
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed .u16 directive");
+    return false;
+  }
+
+  auto value = get_number<uint64_t>(_current_chunks[2]);
+  if(value > std::numeric_limits<uint16_t>::max() || 
+     value < std::numeric_limits<uint16_t>::min()) {
+       add_error("Out of range value given for u16 : " + _current_chunks[2] );
+       return false;
+  }
+
+  if (value == std::nullopt) {
+    add_error("Unable to convert constant to unsigned integer : " + _current_chunks[2]);
+    return false;
+  }
+
+  return add_constant(_current_chunks[1], constant_type_e::U16,
+                      _ins_gen.generate_u16_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_uint_32()
 {
   add_debug(__func__);
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed .u8 directive");
+    return false;
+  }
+
+  auto value = get_number<uint64_t>(_current_chunks[2]);
+  if(value > std::numeric_limits<uint32_t>::max() || 
+     value < std::numeric_limits<uint32_t>::min()) {
+       add_error("Out of range value given for u32 : " + _current_chunks[2] );
+       return false;
+  }
+
+  if (value == std::nullopt) {
+    add_error("Unable to convert constant to unsigned integer : " + _current_chunks[2]);
+    return false;
+  }
+
+  return add_constant(_current_chunks[1], constant_type_e::U32,
+                      _ins_gen.generate_u32_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_uint_64()
 {
   add_debug(__func__);
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed .u8 directive");
+    return false;
+  }
+
+  auto value = get_number<uint64_t>(_current_chunks[2]);
+  if(value > std::numeric_limits<uint64_t>::max() || 
+     value < std::numeric_limits<uint64_t>::min()) {
+       add_error("Out of range value given for u64 : " + _current_chunks[2] );
+       return false;
+  }
+
+  if (value == std::nullopt) {
+    add_error("Unable to convert constant to unsigned integer : " + _current_chunks[2]);
+    return false;
+  }
+
+  return add_constant(_current_chunks[1], constant_type_e::U64,
+                      _ins_gen.generate_u64_constant(*value));
   return false;
 }
 
@@ -473,6 +769,5 @@ bool assembler_c::build_ret()
   add_debug(__func__);
   return false;
 }
-
 
 } // namespace skiff_assemble
