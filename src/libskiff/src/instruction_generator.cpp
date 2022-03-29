@@ -3,10 +3,37 @@
 #include <libskiff/floating_point.hpp>
 #include <limits>
 
+
 namespace libskiff {
 namespace instructions {
 
-instruction_generator_c::instruction_generator_c() {}
+instruction_generator_c::instruction_generator_c() {
+
+  _string_to_register["x0"] = 0x00;
+  _string_to_register["x1"] = 0x01;
+  _string_to_register["ip"] = 0x02;
+  _string_to_register["fp"] = 0x03;
+  _string_to_register["i0"] = 0x10;
+  _string_to_register["i1"] = 0x11;
+  _string_to_register["i2"] = 0x12;
+  _string_to_register["i3"] = 0x13;
+  _string_to_register["i4"] = 0x14;
+  _string_to_register["i5"] = 0x15;
+  _string_to_register["i6"] = 0x16;
+  _string_to_register["i7"] = 0x17;
+  _string_to_register["i8"] = 0x18;
+  _string_to_register["i9"] = 0x19;
+  _string_to_register["f0"] = 0x20;
+  _string_to_register["f1"] = 0x21;
+  _string_to_register["f2"] = 0x22;
+  _string_to_register["f3"] = 0x23;
+  _string_to_register["f4"] = 0x24;
+  _string_to_register["f5"] = 0x25;
+  _string_to_register["f6"] = 0x26;
+  _string_to_register["f7"] = 0x27;
+  _string_to_register["f8"] = 0x28;
+  _string_to_register["f9"] = 0x29;
+}
 
 void instruction_generator_c::update_meta(const uint64_t bytes)
 {
@@ -144,7 +171,15 @@ instruction_generator_c::generate_fp_constant(const double value)
   return encoded_bytes;
 }
 
-uint32_t instruction_generator_c::gen_nop() { return 0; }
+std::optional<uint8_t> instruction_generator_c::get_register_value(const std::string& value)
+{
+  if(_string_to_register.find(value) == _string_to_register.end()) {
+    return std::nullopt;
+  }
+  return _string_to_register[value];
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_nop() { return {0}; }
 
 } // namespace instructions
 } // namespace libskiff

@@ -6,7 +6,7 @@
 |    Register  |  Byte code  |  Description  |
 |----|----|----|
 | x0 | 0x00 | `Read-only` '0' constant |
-| x1 | 0x00 | `Read-only` '1' constant |
+| x1 | 0x01 | `Read-only` '1' constant |
 | ip | 0x02 | `Read-only` Instruction pointer |
 | fp | 0x03 | `Read-only` Stack pointer |
 | i0 | 0x10 | Integer Register |

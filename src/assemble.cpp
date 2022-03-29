@@ -119,6 +119,8 @@ private:
   bool directive_uint_32();
   bool directive_uint_64();
 
+  void add_instruction_bytes(std::vector<uint8_t> bytes);
+
   bool build_nop();
   bool build_blt();
   bool build_bgt();
@@ -369,6 +371,7 @@ void assembler_c::assemble()
   }
 
   // ----------------------------------------------------
+  _result.stats.num_instructions = _ins_gen.get_number_instructions_generated();
 }
 
 assembled_t assemble(const std::string &input)
@@ -528,6 +531,9 @@ bool assembler_c::directive_float()
   return false;
 }
 
+// These integer constants below could be made into a templated function thats fancy
+// but this will work for now
+
 bool assembler_c::directive_int_8()
 {
   add_debug(__func__);
@@ -682,7 +688,7 @@ bool assembler_c::directive_uint_32()
 {
   add_debug(__func__);
   if (_current_chunks.size() != 3) {
-    add_error("Malformed .u8 directive");
+    add_error("Malformed .u32 directive");
     return false;
   }
 
@@ -707,7 +713,7 @@ bool assembler_c::directive_uint_64()
 {
   add_debug(__func__);
   if (_current_chunks.size() != 3) {
-    add_error("Malformed .u8 directive");
+    add_error("Malformed .u64 directive");
     return false;
   }
 
@@ -728,10 +734,19 @@ bool assembler_c::directive_uint_64()
   return false;
 }
 
+void assembler_c::add_instruction_bytes(std::vector<uint8_t> bytes)
+{
+  if(_result.bin == std::nullopt) {
+    _result.bin = std::vector<uint8_t>();
+  }
+  _result.bin->insert(_result.bin->end(), bytes.begin(), bytes.end());
+}
+
 bool assembler_c::build_nop()
 {
   add_debug(__func__);
-  return false;
+  add_instruction_bytes(_ins_gen.gen_nop());
+  return true;
 }
 
 bool assembler_c::build_blt()

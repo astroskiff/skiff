@@ -4,7 +4,9 @@
 #include "instructions.hpp"
 
 #include <cstdint>
+#include <string>
 #include <string_view>
+#include <unordered_map>
 #include <optional>
 #include <vector>
 
@@ -55,6 +57,11 @@ public:
   //! \brief Generate the encoded floating point constant
   std::vector<uint8_t> generate_fp_constant(const double value);
 
+  //! \brief Attempt to convert a string to a register value
+  //! \returns std::nullopt if the string doesn't contain a valid
+  //!          register
+  std::optional<uint8_t> get_register_value(const std::string& value);
+
   //! \brief Generate an encoded string constant 
   //! \returns Vector of bytes containing length as first 2 bytes with encoded string
   //!          data following. Returns std::nullopt iff length of string can be hel
@@ -62,12 +69,13 @@ public:
   std::optional<std::vector<uint8_t>> gen_string_constant(const std::string_view str);
 
   //! \brief Generate nop instruction
-  uint32_t gen_nop();
+  std::vector<uint8_t> gen_nop();
 
 private:
   void update_meta(const uint64_t bytes_generated);
   uint64_t _instructions_generated{0};
   uint64_t _bytes_generated{0};
+  std::unordered_map<std::string, uint8_t> _string_to_register;
 };
 
 } // namespace instructions
