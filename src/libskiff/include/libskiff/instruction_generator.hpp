@@ -4,10 +4,10 @@
 #include "instructions.hpp"
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
-#include <optional>
 #include <vector>
 
 namespace libskiff {
@@ -25,10 +25,7 @@ public:
   }
 
   //! \brief Retrieve the number of bytes generated
-  uint64_t get_number_bytes_generated() const
-  {
-    return _bytes_generated;
-  }
+  uint64_t get_number_bytes_generated() const { return _bytes_generated; }
 
   //! \brief Generate the encoded integer constant
   std::vector<uint8_t> generate_u8_constant(const uint8_t value);
@@ -60,16 +57,33 @@ public:
   //! \brief Attempt to convert a string to a register value
   //! \returns std::nullopt if the string doesn't contain a valid
   //!          register
-  std::optional<uint8_t> get_register_value(const std::string& value);
+  std::optional<uint8_t> get_register_value(const std::string &value);
 
-  //! \brief Generate an encoded string constant 
-  //! \returns Vector of bytes containing length as first 2 bytes with encoded string
-  //!          data following. Returns std::nullopt iff length of string can be hel
-  //!          within a 16-bit integer
-  std::optional<std::vector<uint8_t>> gen_string_constant(const std::string_view str);
+  //! \brief Generate an encoded string constant
+  //! \returns Vector of bytes containing length as first 2 bytes with encoded
+  //! string
+  //!          data following. Returns std::nullopt iff length of string can be
+  //!          hel within a 16-bit integer
+  std::optional<std::vector<uint8_t>>
+  gen_string_constant(const std::string_view str);
 
   //! \brief Generate nop instruction
   std::vector<uint8_t> gen_nop();
+
+  //! \brief Generate exit instruction
+  std::vector<uint8_t> gen_exit();
+
+  //! \brief Generate blt instruction
+  std::vector<uint8_t> gen_blt(const uint8_t lhs, const uint8_t rhs,
+                               const uint32_t address);
+
+  //! \brief Generate bgt instruction
+  std::vector<uint8_t> gen_bgt(const uint8_t lhs, const uint8_t rhs,
+                               const uint32_t address);
+
+  //! \brief Generate beq instruction
+  std::vector<uint8_t> gen_beq(const uint8_t lhs, const uint8_t rhs,
+                               const uint32_t address);
 
 private:
   void update_meta(const uint64_t bytes_generated);

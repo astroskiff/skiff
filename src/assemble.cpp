@@ -122,12 +122,29 @@ private:
   void add_instruction_bytes(std::vector<uint8_t> bytes);
 
   bool build_nop();
+  bool build_exit();
   bool build_blt();
   bool build_bgt();
   bool build_beq();
   bool build_jmp();
   bool build_call();
   bool build_ret();
+
+  bool build_mov();
+  bool build_add();
+  bool build_sub();
+  bool build_div();
+  bool build_mul();
+  bool build_addf();
+  bool build_subf();
+  bool build_divf();
+  bool build_mulf();
+  bool build_lsh();
+  bool build_rsh();
+  bool build_and();
+  bool build_or();
+  bool build_xor();
+  bool build_not();
 };
 
 inline std::vector<std::string> chunk_line(std::string line)
@@ -207,6 +224,38 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
               std::bind(&skiff_assemble::assembler_c::build_call, this)},
       match_t{std::regex("^ret"),
               std::bind(&skiff_assemble::assembler_c::build_ret, this)},
+      match_t{std::regex("^exit"),
+              std::bind(&skiff_assemble::assembler_c::build_exit, this)},
+      match_t{std::regex("^mov"),
+              std::bind(&skiff_assemble::assembler_c::build_mov, this)},
+      match_t{std::regex("^add"),
+              std::bind(&skiff_assemble::assembler_c::build_add, this)},
+      match_t{std::regex("^sub"),
+              std::bind(&skiff_assemble::assembler_c::build_sub, this)},
+      match_t{std::regex("^div"),
+              std::bind(&skiff_assemble::assembler_c::build_div, this)},
+      match_t{std::regex("^mul"),
+              std::bind(&skiff_assemble::assembler_c::build_mul, this)},
+      match_t{std::regex("^addf"),
+              std::bind(&skiff_assemble::assembler_c::build_addf, this)},
+      match_t{std::regex("^subf"),
+              std::bind(&skiff_assemble::assembler_c::build_subf, this)},
+      match_t{std::regex("^divf"),
+              std::bind(&skiff_assemble::assembler_c::build_divf, this)},
+      match_t{std::regex("^mulf"),
+              std::bind(&skiff_assemble::assembler_c::build_mulf, this)},
+      match_t{std::regex("^lsh"),
+              std::bind(&skiff_assemble::assembler_c::build_lsh, this)},
+      match_t{std::regex("^rsh"),
+              std::bind(&skiff_assemble::assembler_c::build_rsh, this)},
+      match_t{std::regex("^and"),
+              std::bind(&skiff_assemble::assembler_c::build_and, this)},
+      match_t{std::regex("^or"),
+              std::bind(&skiff_assemble::assembler_c::build_or, this)},
+      match_t{std::regex("^xor"),
+              std::bind(&skiff_assemble::assembler_c::build_xor, this)},
+      match_t{std::regex("^not"),
+              std::bind(&skiff_assemble::assembler_c::build_not, this)},
   };
 }
 
@@ -531,8 +580,8 @@ bool assembler_c::directive_float()
   return false;
 }
 
-// These integer constants below could be made into a templated function thats fancy
-// but this will work for now
+// These integer constants below could be made into a templated function thats
+// fancy but this will work for now
 
 bool assembler_c::directive_int_8()
 {
@@ -543,10 +592,10 @@ bool assembler_c::directive_int_8()
   }
 
   auto value = get_number<int64_t>(_current_chunks[2]);
-  if(value > std::numeric_limits<int8_t>::max() || 
-     value < std::numeric_limits<int8_t>::min()) {
-       add_error("Out of range value given for i8 : " + _current_chunks[2] );
-       return false;
+  if (value > std::numeric_limits<int8_t>::max() ||
+      value < std::numeric_limits<int8_t>::min()) {
+    add_error("Out of range value given for i8 : " + _current_chunks[2]);
+    return false;
   }
 
   if (value == std::nullopt) {
@@ -568,10 +617,10 @@ bool assembler_c::directive_int_16()
   }
 
   auto value = get_number<int64_t>(_current_chunks[2]);
-  if(value > std::numeric_limits<int16_t>::max() || 
-     value < std::numeric_limits<int16_t>::min()) {
-       add_error("Out of range value given for i16 : " + _current_chunks[2] );
-       return false;
+  if (value > std::numeric_limits<int16_t>::max() ||
+      value < std::numeric_limits<int16_t>::min()) {
+    add_error("Out of range value given for i16 : " + _current_chunks[2]);
+    return false;
   }
 
   if (value == std::nullopt) {
@@ -593,10 +642,10 @@ bool assembler_c::directive_int_32()
   }
 
   auto value = get_number<int64_t>(_current_chunks[2]);
-  if(value > std::numeric_limits<int32_t>::max() || 
-     value < std::numeric_limits<int32_t>::min()) {
-       add_error("Out of range value given for i32 : " + _current_chunks[2] );
-       return false;
+  if (value > std::numeric_limits<int32_t>::max() ||
+      value < std::numeric_limits<int32_t>::min()) {
+    add_error("Out of range value given for i32 : " + _current_chunks[2]);
+    return false;
   }
 
   if (value == std::nullopt) {
@@ -618,10 +667,10 @@ bool assembler_c::directive_int_64()
   }
 
   auto value = get_number<int64_t>(_current_chunks[2]);
-  if(value > std::numeric_limits<int64_t>::max() || 
-     value < std::numeric_limits<int64_t>::min()) {
-       add_error("Out of range value given for i64 : " + _current_chunks[2] );
-       return false;
+  if (value > std::numeric_limits<int64_t>::max() ||
+      value < std::numeric_limits<int64_t>::min()) {
+    add_error("Out of range value given for i64 : " + _current_chunks[2]);
+    return false;
   }
 
   if (value == std::nullopt) {
@@ -643,14 +692,15 @@ bool assembler_c::directive_uint_8()
   }
 
   auto value = get_number<uint64_t>(_current_chunks[2]);
-  if(value > std::numeric_limits<uint8_t>::max() || 
-     value < std::numeric_limits<uint8_t>::min()) {
-       add_error("Out of range value given for u8 : " + _current_chunks[2] );
-       return false;
+  if (value > std::numeric_limits<uint8_t>::max() ||
+      value < std::numeric_limits<uint8_t>::min()) {
+    add_error("Out of range value given for u8 : " + _current_chunks[2]);
+    return false;
   }
 
   if (value == std::nullopt) {
-    add_error("Unable to convert constant to unsigned integer : " + _current_chunks[2]);
+    add_error("Unable to convert constant to unsigned integer : " +
+              _current_chunks[2]);
     return false;
   }
 
@@ -668,14 +718,15 @@ bool assembler_c::directive_uint_16()
   }
 
   auto value = get_number<uint64_t>(_current_chunks[2]);
-  if(value > std::numeric_limits<uint16_t>::max() || 
-     value < std::numeric_limits<uint16_t>::min()) {
-       add_error("Out of range value given for u16 : " + _current_chunks[2] );
-       return false;
+  if (value > std::numeric_limits<uint16_t>::max() ||
+      value < std::numeric_limits<uint16_t>::min()) {
+    add_error("Out of range value given for u16 : " + _current_chunks[2]);
+    return false;
   }
 
   if (value == std::nullopt) {
-    add_error("Unable to convert constant to unsigned integer : " + _current_chunks[2]);
+    add_error("Unable to convert constant to unsigned integer : " +
+              _current_chunks[2]);
     return false;
   }
 
@@ -693,14 +744,15 @@ bool assembler_c::directive_uint_32()
   }
 
   auto value = get_number<uint64_t>(_current_chunks[2]);
-  if(value > std::numeric_limits<uint32_t>::max() || 
-     value < std::numeric_limits<uint32_t>::min()) {
-       add_error("Out of range value given for u32 : " + _current_chunks[2] );
-       return false;
+  if (value > std::numeric_limits<uint32_t>::max() ||
+      value < std::numeric_limits<uint32_t>::min()) {
+    add_error("Out of range value given for u32 : " + _current_chunks[2]);
+    return false;
   }
 
   if (value == std::nullopt) {
-    add_error("Unable to convert constant to unsigned integer : " + _current_chunks[2]);
+    add_error("Unable to convert constant to unsigned integer : " +
+              _current_chunks[2]);
     return false;
   }
 
@@ -718,14 +770,15 @@ bool assembler_c::directive_uint_64()
   }
 
   auto value = get_number<uint64_t>(_current_chunks[2]);
-  if(value > std::numeric_limits<uint64_t>::max() || 
-     value < std::numeric_limits<uint64_t>::min()) {
-       add_error("Out of range value given for u64 : " + _current_chunks[2] );
-       return false;
+  if (value > std::numeric_limits<uint64_t>::max() ||
+      value < std::numeric_limits<uint64_t>::min()) {
+    add_error("Out of range value given for u64 : " + _current_chunks[2]);
+    return false;
   }
 
   if (value == std::nullopt) {
-    add_error("Unable to convert constant to unsigned integer : " + _current_chunks[2]);
+    add_error("Unable to convert constant to unsigned integer : " +
+              _current_chunks[2]);
     return false;
   }
 
@@ -736,7 +789,7 @@ bool assembler_c::directive_uint_64()
 
 void assembler_c::add_instruction_bytes(std::vector<uint8_t> bytes)
 {
-  if(_result.bin == std::nullopt) {
+  if (_result.bin == std::nullopt) {
     _result.bin = std::vector<uint8_t>();
   }
   _result.bin->insert(_result.bin->end(), bytes.begin(), bytes.end());
@@ -749,9 +802,27 @@ bool assembler_c::build_nop()
   return true;
 }
 
+bool assembler_c::build_exit()
+{
+  add_debug(__func__);
+  add_instruction_bytes(_ins_gen.gen_exit());
+  return true;
+}
+
 bool assembler_c::build_blt()
 {
   add_debug(__func__);
+
+  // Ensure chunks is of size 4 :   blt i0 i1 label
+
+  // Ensure label exists, get its address
+
+  // Ensure these aren't std::nullopts
+  // std::optional<uint8_t> lhs = _ins_gen.get_register_value(_current_chunks[1]);
+  // std::optional<uint8_t> rhs = _ins_gen.get_register_value(_current_chunks[2]);
+
+  // add_instruction_bytes(_ins_gen.gen_blt(lhs, rhs, address));
+
   return false;
 }
 
@@ -780,6 +851,96 @@ bool assembler_c::build_call()
 }
 
 bool assembler_c::build_ret()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_mov()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_add()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_sub()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_div()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_mul()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_addf()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_subf()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_divf()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_mulf()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_lsh()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_rsh()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_and()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_or()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_xor()
+{
+  add_debug(__func__);
+  return false;
+}
+
+bool assembler_c::build_not()
 {
   add_debug(__func__);
   return false;

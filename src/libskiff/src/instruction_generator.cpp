@@ -1,13 +1,17 @@
 #include "libskiff/instruction_generator.hpp"
+#include "libskiff/floating_point.hpp"
+#include "libskiff/instructions.hpp"
 
-#include <libskiff/floating_point.hpp>
 #include <limits>
 
+#include <bitset>
+#include <iostream>
 
 namespace libskiff {
 namespace instructions {
 
-instruction_generator_c::instruction_generator_c() {
+instruction_generator_c::instruction_generator_c()
+{
 
   _string_to_register["x0"] = 0x00;
   _string_to_register["x1"] = 0x01;
@@ -171,15 +175,76 @@ instruction_generator_c::generate_fp_constant(const double value)
   return encoded_bytes;
 }
 
-std::optional<uint8_t> instruction_generator_c::get_register_value(const std::string& value)
+std::optional<uint8_t>
+instruction_generator_c::get_register_value(const std::string &value)
 {
-  if(_string_to_register.find(value) == _string_to_register.end()) {
+  if (_string_to_register.find(value) == _string_to_register.end()) {
     return std::nullopt;
   }
   return _string_to_register[value];
 }
 
-std::vector<uint8_t> instruction_generator_c::gen_nop() { return {0}; }
+std::vector<uint8_t> instruction_generator_c::gen_nop()
+{
+  auto encoded_bytes = pack_8(static_cast<uint64_t>(instructions::NOP));
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_exit()
+{
+  auto encoded_bytes = pack_8(static_cast<uint64_t>(instructions::EXIT) << 32);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_blt(const uint8_t lhs,
+                                                      const uint8_t rhs,
+                                                      const uint32_t address)
+{
+  uint32_t top = static_cast<uint32_t>(lhs) << 16;
+  top |= static_cast<uint32_t>(rhs) << 8;
+  top |= static_cast<uint32_t>(instructions::BLT);
+
+  uint64_t ins = static_cast<uint64_t>(top) << 32;
+  ins |= static_cast<uint64_t>(address);
+
+  auto encoded_bytes = pack_8(ins);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_bgt(const uint8_t lhs,
+                                                      const uint8_t rhs,
+                                                      const uint32_t address)
+{
+  uint32_t top = static_cast<uint32_t>(lhs) << 16;
+  top |= static_cast<uint32_t>(rhs) << 8;
+  top |= static_cast<uint32_t>(instructions::BGT);
+
+  uint64_t ins = static_cast<uint64_t>(top) << 32;
+  ins |= static_cast<uint64_t>(address);
+
+  auto encoded_bytes = pack_8(ins);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_beq(const uint8_t lhs,
+                                                      const uint8_t rhs,
+                                                      const uint32_t address)
+{
+  uint32_t top = static_cast<uint32_t>(lhs) << 16;
+  top |= static_cast<uint32_t>(rhs) << 8;
+  top |= static_cast<uint32_t>(instructions::BEQ);
+
+  uint64_t ins = static_cast<uint64_t>(top) << 32;
+  ins |= static_cast<uint64_t>(address);
+
+  auto encoded_bytes = pack_8(ins);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
 
 } // namespace instructions
 } // namespace libskiff
