@@ -85,6 +85,15 @@ public:
   std::vector<uint8_t> gen_beq(const uint8_t lhs, const uint8_t rhs,
                                const uint32_t address);
 
+  //! \brief Generate jmp instruction
+  std::vector<uint8_t> gen_jmp(const uint32_t address);
+
+  //! \brief Generate call instruction
+  std::vector<uint8_t> gen_call(const uint32_t address);
+
+  //! \brief Generate ret instruction
+  std::vector<uint8_t> gen_ret();
+
 private:
   void update_meta(const uint64_t bytes_generated);
   uint64_t _instructions_generated{0};

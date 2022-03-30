@@ -1,8 +1,22 @@
+/*
+  As of now (3-30-22) assembler is meant to be the minimum viable assembler.
+  The intent is to get something that can implement the instruction
+  set for the sake of creating the libskiff instruction_generator
+  and generating first stage binaries for VM development.
+
+  Once the instruction set is solidified into 1.0, this assembler could
+  be revisited to be optimized, or it could be left as is...
+
+  Once the instruction set hits 1.0 a higher level language is planned
+  to be developed, so this assembler might then be removed entirely.
+*/
+
 #include "assemble.hpp"
 
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <optional>
 #include <regex>
 #include <sstream>
 #include <unordered_map>
@@ -71,7 +85,7 @@ private:
   };
 
   struct directive_options_t {
-    std::string init_label;
+    uint64_t init_location;
     uint8_t debug_level;
   };
 
@@ -92,7 +106,7 @@ private:
   std::unordered_map<std::string, constant_value_t> _constant_name_to_value;
   uint64_t _expected_bin_size{0};
   std::vector<std::string> _current_chunks;
-  directive_options_t _directive_options;
+  directive_options_t _directive_options{0, 0};
   libskiff::instructions::instruction_generator_c _ins_gen;
 
   std::string remove_comments(const std::string &str);
@@ -120,6 +134,7 @@ private:
   bool directive_uint_64();
 
   void add_instruction_bytes(std::vector<uint8_t> bytes);
+  std::optional<uint64_t> get_label_address(const std::string label);
 
   bool build_nop();
   bool build_exit();
@@ -178,7 +193,6 @@ inline std::vector<std::string> chunk_line(std::string line)
 
 assembler_c::assembler_c(const std::string &input) : _input_file(input)
 {
-  _directive_options = {"", 0};
   _directive_match = {
       match_t{std::regex("^\\.init$"),
               std::bind(&skiff_assemble::assembler_c::directive_init, this)},
@@ -430,6 +444,14 @@ assembled_t assemble(const std::string &input)
   return assembler.get_result();
 }
 
+std::optional<uint64_t> assembler_c::get_label_address(const std::string label)
+{
+  if (_label_to_location.find(label) == _label_to_location.end()) {
+    return std::nullopt;
+  }
+  return _label_to_location[label];
+}
+
 bool assembler_c::directive_init()
 {
   add_debug(__func__);
@@ -443,12 +465,13 @@ bool assembler_c::directive_init()
     return false;
   }
 
-  if (_label_to_location.find(_current_chunks[1]) == _label_to_location.end()) {
+  auto init_address = get_label_address(_current_chunks[1]);
+  if (init_address == std::nullopt) {
     add_error("Label given to .init does not exist");
     return false;
   }
 
-  _directive_options.init_label = _current_chunks[1];
+  _directive_options.init_location = *init_address;
   _directive_checks.init = true;
   return true;
 }
@@ -813,47 +836,135 @@ bool assembler_c::build_blt()
 {
   add_debug(__func__);
 
-  // Ensure chunks is of size 4 :   blt i0 i1 label
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed blt instruction");
+    return false;
+  }
 
-  // Ensure label exists, get its address
+  auto address = get_label_address(_current_chunks[3]);
+  if (address == std::nullopt) {
+    add_error("Unknown label given to blt instruction");
+    return false;
+  }
 
-  // Ensure these aren't std::nullopts
-  // std::optional<uint8_t> lhs = _ins_gen.get_register_value(_current_chunks[1]);
-  // std::optional<uint8_t> rhs = _ins_gen.get_register_value(_current_chunks[2]);
+  auto lhs = _ins_gen.get_register_value(_current_chunks[1]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
 
-  // add_instruction_bytes(_ins_gen.gen_blt(lhs, rhs, address));
+  auto rhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
 
-  return false;
+  add_instruction_bytes(_ins_gen.gen_blt(*lhs, *rhs, *address));
+  return true;
 }
 
 bool assembler_c::build_bgt()
 {
   add_debug(__func__);
-  return false;
+
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed bgt instruction");
+    return false;
+  }
+
+  auto address = get_label_address(_current_chunks[3]);
+  if (address == std::nullopt) {
+    add_error("Unknown label given to bgt instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[1]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_bgt(*lhs, *rhs, *address));
+  return true;
 }
 
 bool assembler_c::build_beq()
 {
   add_debug(__func__);
-  return false;
+
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed beq instruction");
+    return false;
+  }
+
+  auto address = get_label_address(_current_chunks[3]);
+  if (address == std::nullopt) {
+    add_error("Unknown label given to beq instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[1]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_beq(*lhs, *rhs, *address));
+  return true;
 }
 
 bool assembler_c::build_jmp()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 2) {
+    add_error("Malformed jmp instruction");
+    return false;
+  }
+
+  auto address = get_label_address(_current_chunks[1]);
+  if (address == std::nullopt) {
+    add_error("Unknown label given to jmp instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_jmp(*address));
+  return true;
 }
 
 bool assembler_c::build_call()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 2) {
+    add_error("Malformed call instruction");
+    return false;
+  }
+
+  auto address = get_label_address(_current_chunks[1]);
+  if (address == std::nullopt) {
+    add_error("Unknown label given to call instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_call(*address));
+  return true;
 }
 
 bool assembler_c::build_ret()
 {
-  add_debug(__func__);
-  return false;
+  add_instruction_bytes(_ins_gen.gen_ret());
+  return true;
 }
 
 bool assembler_c::build_mov()

@@ -246,5 +246,34 @@ std::vector<uint8_t> instruction_generator_c::gen_beq(const uint8_t lhs,
   return encoded_bytes;
 }
 
+std::vector<uint8_t> instruction_generator_c::gen_jmp(const uint32_t address)
+{
+  uint32_t top = static_cast<uint32_t>(instructions::JMP);
+  uint64_t ins = static_cast<uint64_t>(top) << 32;
+  ins |= static_cast<uint64_t>(address);
+
+  auto encoded_bytes = pack_8(ins);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_call(const uint32_t address)
+{
+  uint32_t top = static_cast<uint32_t>(instructions::CALL);
+  uint64_t ins = static_cast<uint64_t>(top) << 32;
+  ins |= static_cast<uint64_t>(address);
+
+  auto encoded_bytes = pack_8(ins);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_ret()
+{
+  auto encoded_bytes = pack_8(static_cast<uint64_t>(instructions::RET));
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
 } // namespace instructions
 } // namespace libskiff
