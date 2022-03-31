@@ -182,6 +182,9 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Format:** `blt <register lhs> <register rhs> <label>`
 **Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs < rhs`
 **Example:**	`blt i0 i1 label_name	; Branch to a label`
+**Note:** In the future this instruction should be updated to allow the
+currently empty byte to be a `variant` byte, and allow registers to be
+used in the stead of labels. That way we can branch further than u32
 
 ## bgt
 **Opcode** 0x03
@@ -197,6 +200,9 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Format:** `bgt <register lhs> <register rhs> <label>`
 **Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs > rhs`
 **Example:**	`blt i0 i1 label_name	; Branch to a label`
+**Note:** In the future this instruction should be updated to allow the
+currently empty byte to be a `variant` byte, and allow registers to be
+used in the stead of labels. That way we can branch further than u32
 
 ## beq
 **Opcode** 0x04
@@ -212,6 +218,9 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Format:** `beq <register lhs> <register rhs> <label>`
 **Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs = rhs`
 **Example:**	`beq i0 i1 label_name	; Branch to a label`
+**Note:** In the future this instruction should be updated to allow the
+currently empty byte to be a `variant` byte, and allow registers to be
+used in the stead of labels. That way we can branch further than u32
 
 ## jmp
 **Opcode** 0x05
@@ -227,6 +236,9 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Format:** `jmp <label>`
 **Description:** Unconditionally jump to a label.
 **Example:**	`jmp label_name`
+**Note:** In the future this instruction should be updated to allow one
+of the currently empty byte to be a `variant` byte, and allow registers 
+to be used in the stead of labels. That way we can branch further than u32
 
 ## call
 **Opcode** 0x06
