@@ -262,7 +262,7 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Opcode** 0x08
 **Instruction Layout:**
 ```
-	[ ------ Length ----- ] [ Variant ] [ Opcode ]
+	[ ----- Empty ------ ]  [ Dest ]   [ Opcode ]
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 1000 
 	
 	[ ------------------ Value ---------------- ]
@@ -270,13 +270,13 @@ Indicates the start of 'code' space. No more directives shall follow this
 ```
 
 **Format:** `mov <register> <source>`
-**Description:** Move some data into a given register. If the second 32-bit section contains the data to be moved into the register, the variant byte will be set to `1`, otherwise, the data in the second section will be used as an address, and `length` number of bytes will be copied into the register from the address. Since a register is 8 bytes, the most amount of data that will be copied is 8 bytes.
+**Description:** Move some data into a given register.
 
 **Example:**	
 ```
-	mov i0 &my_int	; Address of my_int
+	mov i0 &my_int	; Address of constant
 	mov i0 &label	; Label address
-	mov i0 #my_int	; Value of my_int
+	mov i0 #my_int	; Length of constant
 	mov i0 @33		; Move raw value into i0
 ```
 
@@ -446,11 +446,11 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
 
 ## or
-**Opcode** 0x13
+**Opcode** 0x14
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0001 0011 
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 0100 
 	
 	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
@@ -461,11 +461,11 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
 
 ## xor
-**Opcode** 0x14
+**Opcode** 0x15
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0001 0100 
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 0101 
 	
 	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
@@ -476,11 +476,11 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
 
 ## not
-**Opcode** 0x15
+**Opcode** 0x16
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0001 0101 
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 0110
 	
 	[ Dest Reg ] [  Reg   ] [ ------ Empty ----- ]
 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 

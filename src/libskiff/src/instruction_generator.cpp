@@ -59,8 +59,8 @@ instruction_generator_c::gen_string_constant(const std::string_view str)
                         str.size()); // two byte length encoding + string length
 
   uint16_t value = static_cast<uint16_t>(str.size());
-  encoded_bytes.push_back(value & 0xFF00);
-  encoded_bytes.push_back(value & 0x00FF);
+  encoded_bytes.push_back(value << 8);
+  encoded_bytes.push_back(value);
 
   for (auto &c : str) {
     encoded_bytes.push_back(static_cast<uint8_t>(c));
@@ -74,39 +74,40 @@ instruction_generator_c::gen_string_constant(const std::string_view str)
 static inline std::vector<uint8_t> pack_2(const uint16_t value)
 {
   std::vector<uint8_t> encoded_bytes;
-  encoded_bytes.push_back(value & 0xFF00);
-  encoded_bytes.push_back(value & 0x00FF);
+  encoded_bytes.push_back(value >> 8);
+  encoded_bytes.push_back(value);
   return encoded_bytes;
 }
 
 static inline std::vector<uint8_t> pack_4(const uint32_t value)
 {
   std::vector<uint8_t> encoded_bytes;
-  encoded_bytes.push_back(value & 0xFF000000);
-  encoded_bytes.push_back(value & 0x00FF0000);
-  encoded_bytes.push_back(value & 0x0000FF00);
-  encoded_bytes.push_back(value & 0x000000FF);
+  encoded_bytes.push_back(value >> 24);
+  encoded_bytes.push_back(value >> 16);
+  encoded_bytes.push_back(value >> 8);
+  encoded_bytes.push_back(value);
   return encoded_bytes;
 }
 
 static inline std::vector<uint8_t> pack_8(const uint64_t value)
 {
   std::vector<uint8_t> encoded_bytes;
-  encoded_bytes.push_back(value & 0xFF00000000000000);
-  encoded_bytes.push_back(value & 0x00FF000000000000);
-  encoded_bytes.push_back(value & 0x0000FF0000000000);
-  encoded_bytes.push_back(value & 0x000000FF00000000);
-  encoded_bytes.push_back(value & 0x00000000FF000000);
-  encoded_bytes.push_back(value & 0x0000000000FF0000);
-  encoded_bytes.push_back(value & 0x000000000000FF00);
-  encoded_bytes.push_back(value & 0x00000000000000FF);
+  encoded_bytes.push_back(value >> 56);
+  encoded_bytes.push_back(value >> 48);
+  encoded_bytes.push_back(value >> 40);
+  encoded_bytes.push_back(value >> 32);
+  encoded_bytes.push_back(value >> 24);
+  encoded_bytes.push_back(value >> 16);
+  encoded_bytes.push_back(value >> 8);
+  encoded_bytes.push_back(value);
   return encoded_bytes;
 }
 
 std::vector<uint8_t>
 instruction_generator_c::generate_u8_constant(const uint8_t value)
 {
-  std::vector<uint8_t> encoded_bytes(value);
+  std::vector<uint8_t> encoded_bytes;
+  encoded_bytes.push_back(value);
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -138,7 +139,8 @@ instruction_generator_c::generate_u64_constant(const uint64_t value)
 std::vector<uint8_t>
 instruction_generator_c::generate_i8_constant(const int8_t value)
 {
-  std::vector<uint8_t> encoded_bytes(static_cast<uint8_t>(value));
+  std::vector<uint8_t> encoded_bytes;
+  encoded_bytes.push_back(static_cast<uint8_t>(value));
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -271,6 +273,21 @@ std::vector<uint8_t> instruction_generator_c::gen_call(const uint32_t address)
 std::vector<uint8_t> instruction_generator_c::gen_ret()
 {
   auto encoded_bytes = pack_8(static_cast<uint64_t>(instructions::RET));
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+
+std::vector<uint8_t> instruction_generator_c::gen_mov(const uint8_t reg, 
+                              const uint32_t value)
+{
+  uint32_t top = static_cast<uint32_t>(reg);
+  top <<= 8;
+  top |= static_cast<uint32_t>(instructions::MOV);
+  uint64_t ins = static_cast<uint64_t>(top) << 32;
+  ins |= static_cast<uint64_t>(value);
+
+  auto encoded_bytes = pack_8(ins);
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }

@@ -135,6 +135,7 @@ private:
 
   void add_instruction_bytes(std::vector<uint8_t> bytes);
   std::optional<uint64_t> get_label_address(const std::string label);
+  std::optional<uint32_t> get_value(const std::string item);
 
   bool build_nop();
   bool build_exit();
@@ -818,6 +819,81 @@ void assembler_c::add_instruction_bytes(std::vector<uint8_t> bytes)
   _result.bin->insert(_result.bin->end(), bytes.begin(), bytes.end());
 }
 
+std::optional<uint32_t> assembler_c::get_value(const std::string item)
+{
+  if (item.size() < 2) {
+    return std::nullopt;
+  }
+
+  // Check if its a raw value
+  if (item.starts_with('@')) {
+    std::string s = item.substr(1, item.length());
+    if (s.starts_with('-')) {
+      auto v = get_number<int32_t>(s);
+      if (v != std::nullopt) {
+        return static_cast<uint32_t>(*v);
+      }
+      return std::nullopt;
+    }
+    else {
+      return get_number<uint32_t>(s);
+    }
+  }
+
+  // Check if its an address
+  if (item.starts_with('&')) {
+    std::string s = item.substr(1, item.length());
+
+    // Check labels
+    auto label_address = get_label_address(s);
+    if (label_address != std::nullopt) {
+      if (label_address > std::numeric_limits<uint32_t>::max()) {
+        add_error("Requested mov of label address whose value exceeds that "
+                  "able to be stored in a uint32_t");
+        return std::nullopt;
+      }
+      return static_cast<uint32_t>(*label_address);
+    }
+
+    // Check constants
+    if (_constant_name_to_value.find(s) != _constant_name_to_value.end()) {
+      auto constant = _constant_name_to_value[s];
+      if (constant.address > std::numeric_limits<uint32_t>::max()) {
+        add_error("Requested mov of constant address whose value exceeds that "
+                  "able to be stored in a uint32_t");
+        return std::nullopt;
+      }
+      return static_cast<uint32_t>(constant.address);
+    }
+    return std::nullopt;
+  }
+
+  // Check if its a length
+  if (item.starts_with('#')) {
+    std::string s = item.substr(1, item.length());
+
+    // Check labels
+    auto label_address = get_label_address(s);
+    if (label_address != std::nullopt) {
+      return 8; // An address is 8 bytes, and all labels are an address
+    }
+
+    // Check constants
+    if (_constant_name_to_value.find(s) != _constant_name_to_value.end()) {
+      auto constant = _constant_name_to_value[s];
+      auto length = static_cast<uint32_t>(constant.data.size());
+      if (length > std::numeric_limits<uint32_t>::max()) {
+        add_error("Requested mov of constant whose length exceeds that "
+                  "able to be stored in a uint32_t");
+        return std::nullopt;
+      }
+      return length;
+    }
+  }
+
+  return std::nullopt;
+}
+
 bool assembler_c::build_nop()
 {
   add_debug(__func__);
@@ -970,7 +1046,25 @@ bool assembler_c::build_ret()
 bool assembler_c::build_mov()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed mov instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[1]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto value = get_value(_current_chunks[2]);
+  if(value == std::nullopt) {
+    add_error("Unable to retrieve value from source in mov instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_mov(*lhs, *value));
+  return true;
 }
 
 bool assembler_c::build_add()

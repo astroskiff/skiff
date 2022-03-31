@@ -94,6 +94,10 @@ public:
   //! \brief Generate ret instruction
   std::vector<uint8_t> gen_ret();
 
+  //! \brief Generate mov instruction
+  std::vector<uint8_t> gen_mov(const uint8_t reg, 
+                               const uint32_t value);
+
 private:
   void update_meta(const uint64_t bytes_generated);
   uint64_t _instructions_generated{0};
