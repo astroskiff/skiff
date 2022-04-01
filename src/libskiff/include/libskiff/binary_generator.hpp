@@ -8,33 +8,89 @@
 
 namespace libskiff {
 namespace binary {
-//! \brief The binary generator
-class generator_c {
+namespace generator {
+
+//! \brief Generator interface
+class generator_if {
 public:
-  generator_c();
+  virtual ~generator_if() = default;
 
   //! \brief Add a constant encoded from the instruction_generator
   //! \param data Encoded constant
   //! \returns Address assigned to constant
-  uint64_t add_constant(const constant_type_e type,
-                        const std::vector<uint8_t> data);
+  virtual uint64_t add_constant(const constant_type_e type,
+                        const std::vector<uint8_t> data) = 0;
 
   //! \brief Add an instruction made by the instruction_generator
   //!        to the binary
   //! \param instruction The instruction to add to the binary
-  void add_instruction(const std::vector<uint8_t> instruction);
+  virtual void add_instruction(const std::vector<uint8_t> instruction) = 0;
+
+  //! \brief Set debug level
+  virtual void set_debug(uint8_t level) = 0;
 
   //! \brief Generate the binary with the data given thus far
   //! \returns A skiff binary that will be compliant with the
   //!          compatibility constant
-  std::vector<uint8_t> generate_binary() const;
+  virtual std::vector<uint8_t> generate_binary() const = 0;
+};
+
+//! \brief The executable generator
+class executable_c : public generator_if {
+public:
+  executable_c();
+
+  uint64_t add_constant(const constant_type_e type,
+                        const std::vector<uint8_t> data) override;
+
+  void add_instruction(const std::vector<uint8_t> instruction) override;
+
+  void set_debug(uint8_t level) override { _debug = level; };
+
+  std::vector<uint8_t> generate_binary() const override;
+
+  //! \brief Set the entry address to the binary
+  void set_entry(const uint64_t address);
+
 
 private:
   std::vector<uint8_t> _constant_data;
   std::vector<uint8_t> _instruction_data;
   uint64_t _number_of_constants{0};
   uint64_t _constant_address{0};
+  uint64_t _entry{0};
+  uint8_t _debug{0};
 };
+
+//! \brief The library generator
+class library_c : public generator_if {
+public:
+  library_c();
+
+  uint64_t add_constant(const constant_type_e type,
+                        const std::vector<uint8_t> data) override;
+
+  void add_instruction(const std::vector<uint8_t> instruction) override;
+
+  void set_debug(uint8_t level) override { _debug = level; };
+
+  std::vector<uint8_t> generate_binary() const override;
+
+  //! \brief Add a callable section
+  void add_section(std::vector<uint8_t> encoded_section);
+
+private:
+  std::vector<uint8_t> _constant_data;
+  std::vector<uint8_t> _instruction_data;
+  uint64_t _number_of_constants{0};
+  uint64_t _constant_address{0};
+  std::vector<uint8_t> _section_table;
+  uint8_t _debug{0};
+};
+
+
+
+} // namespace generator
 } // namespace binary
 } // namespace libskiff
 

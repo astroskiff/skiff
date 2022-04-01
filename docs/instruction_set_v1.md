@@ -33,20 +33,18 @@
 
 # ASM Directives
 
-## .data
-
-**Description:**
-Should be the first thing listed in a file. Starts the data segment where all of the other directives should exist.
-
-**Example:**
-```
-  .data
-```
-
 ##  .init
 
 **Description:**
-Used to define the name of the first label to start execution from
+Used to define the name of the first label to start execution from. Required unless `.lib` is defined.
+Must be first item in file.
+
+## .lib
+
+**Description:**
+Indicates that there is no `.init` and to the assembler that a library binary must be generated.
+Must be first item in file.
+
 
 **Example:**
 ```

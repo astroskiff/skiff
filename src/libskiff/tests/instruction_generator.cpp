@@ -199,13 +199,70 @@ TEST(instruction_generator_tests, constants)
 
     std::vector<uint8_t> value = data.value();
 
-    uint16_t len = static_cast<uint16_t>(value[0]) >> 8;
-    len |= static_cast<uint16_t>(value[1]);
+    CHECK_EQUAL(s.size() + 8, value.size());
+
+    uint64_t len = static_cast<uint64_t>(value[0]) << 56;
+    len |= static_cast<uint64_t>(value[1]) << 48;
+    len |= static_cast<uint64_t>(value[2]) << 40;
+    len |= static_cast<uint64_t>(value[3]) << 32;
+    len |= static_cast<uint64_t>(value[4]) << 24;
+    len |= static_cast<uint64_t>(value[5]) << 16;
+    len |= static_cast<uint64_t>(value[6]) << 8;
+    len |= static_cast<uint64_t>(value[7]);
 
     CHECK_EQUAL(s.size(), len);
 
     std::string result;
-    for (std::size_t i = 2; i < value.size(); i++) {
+    for (std::size_t i = 8; i < value.size(); i++) {
+      result += static_cast<char>(value[i]);
+    }
+    CHECK_EQUAL(s, result);
+  }
+}
+
+TEST(instruction_generator_tests, lib_sections)
+{
+  libskiff::instructions::instruction_generator_c gen;
+  for(uint8_t i = 0; i < 10; i++) {
+    std::string s = libutil::generate::random_string_c().generate_string(
+        libutil::generate::generate_random_c<uint8_t>().get_range(10, 20));
+
+    uint64_t address = libutil::generate::generate_random_c<uint64_t>()
+                               .get_range(std::numeric_limits<uint64_t>::min(), 
+                               std::numeric_limits<uint64_t>::max());
+
+    auto encoded = gen.gen_lib_section(address, s);
+
+    CHECK_TRUE_TEXT(encoded != std::nullopt, "Unable to encode string into library section");
+
+    auto value = encoded.value();
+
+    CHECK_EQUAL(s.size() + 16, value.size());
+
+    uint64_t decoded_addr = static_cast<uint64_t>(value[0]) << 56;
+    decoded_addr |= static_cast<uint64_t>(value[1]) << 48;
+    decoded_addr |= static_cast<uint64_t>(value[2]) << 40;
+    decoded_addr |= static_cast<uint64_t>(value[3]) << 32;
+    decoded_addr |= static_cast<uint64_t>(value[4]) << 24;
+    decoded_addr |= static_cast<uint64_t>(value[5]) << 16;
+    decoded_addr |= static_cast<uint64_t>(value[6]) << 8;
+    decoded_addr |= static_cast<uint64_t>(value[7]);
+
+    CHECK_EQUAL(address, decoded_addr);
+
+    uint64_t len = static_cast<uint64_t>(value[8]) << 56;
+    len |= static_cast<uint64_t>(value[9]) << 48;
+    len |= static_cast<uint64_t>(value[10]) << 40;
+    len |= static_cast<uint64_t>(value[11]) << 32;
+    len |= static_cast<uint64_t>(value[12]) << 24;
+    len |= static_cast<uint64_t>(value[13]) << 16;
+    len |= static_cast<uint64_t>(value[14]) << 8;
+    len |= static_cast<uint64_t>(value[15]);
+
+    CHECK_EQUAL(s.size(), len);
+
+    std::string result;
+    for (std::size_t i = 16; i < value.size(); i++) {
       result += static_cast<char>(value[i]);
     }
     CHECK_EQUAL(s, result);

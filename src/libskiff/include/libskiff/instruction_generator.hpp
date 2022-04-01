@@ -60,12 +60,18 @@ public:
   std::optional<uint8_t> get_register_value(const std::string &value);
 
   //! \brief Generate an encoded string constant
-  //! \returns Vector of bytes containing length as first 2 bytes with encoded
+  //! \returns Vector of bytes containing length as first 8 bytes with encoded
   //! string
   //!          data following. Returns std::nullopt iff length of string can be
-  //!          hel within a 16-bit integer
+  //!          held within a 64-bit integer
   std::optional<std::vector<uint8_t>>
   gen_string_constant(const std::string_view str);
+
+  //! \brief Generate encoded library section 
+  //! \note  Returns std::nullopt iff length of string can be
+  //!          held within a 64-bit integer
+  std::optional<std::vector<uint8_t>> 
+  gen_lib_section(const uint64_t address, const std::string section_name);
 
   //! \brief Generate nop instruction
   std::vector<uint8_t> gen_nop();

@@ -20,6 +20,7 @@
 #include <regex>
 #include <sstream>
 #include <unordered_map>
+#include <memory>
 
 #include <libskiff/binary_generator.hpp>
 #include <libskiff/instruction_generator.hpp>
@@ -42,11 +43,7 @@ template <class T> std::optional<T> get_number(const std::string value)
 class assembler_c {
 public:
   assembler_c(const std::string &input);
-  assembled_t get_result() 
-  {
-    _result.bin = _bin_gen.generate_binary(); 
-    return _result; 
-  }
+  assembled_t get_result();
   void assemble();
 
 private:
@@ -55,6 +52,11 @@ private:
   enum class state_e {
     DIRECTIVE_DIGESTION,
     INSTRUCTION_DIGESTION,
+  };
+
+  enum class build_type_e {
+    EXECUTABLE,
+    LIBRARY
   };
 
   struct constant_value_t {
@@ -70,20 +72,16 @@ private:
 
   struct directive_checks_t {
     bool init;
+    bool lib;
     bool code;
-    bool data;
     bool debug;
     bool data_first;
-  };
-
-  struct directive_options_t {
-    uint64_t init_location;
-    uint8_t debug_level;
   };
 
   const std::string &_input_file;
   uint64_t _current_line_number{0};
   state_e _state{state_e::DIRECTIVE_DIGESTION};
+  build_type_e _build_type{build_type_e::EXECUTABLE};
   assembled_t _result{.stats = {.num_instructions = 0},
                       .errors = std::nullopt,
                       .warnings = std::nullopt,
@@ -97,9 +95,8 @@ private:
   std::unordered_map<std::string, constant_value_t> _constant_name_to_value;
   uint64_t _expected_bin_size{0};
   std::vector<std::string> _current_chunks;
-  directive_options_t _directive_options{0, 0};
   libskiff::instructions::instruction_generator_c _ins_gen;
-  libskiff::binary::generator_c _bin_gen;
+  std::unique_ptr<libskiff::binary::generator::generator_if> _generator;
 
   std::string remove_comments(const std::string &str);
   void add_error(const std::string &str);
@@ -111,7 +108,7 @@ private:
   bool add_constant(std::string name, libskiff::binary::constant_type_e type,
                     std::vector<uint8_t> value);
   bool directive_init();
-  bool directive_data();
+  bool directive_lib();
   bool directive_debug();
   bool directive_code();
   bool directive_string();
@@ -189,8 +186,8 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
   _directive_match = {
       match_t{std::regex("^\\.init$"),
               std::bind(&skiff_assemble::assembler_c::directive_init, this)},
-      match_t{std::regex("^\\.data$"),
-              std::bind(&skiff_assemble::assembler_c::directive_data, this)},
+      match_t{std::regex("^\\.lib$"),
+              std::bind(&skiff_assemble::assembler_c::directive_lib, this)},
       match_t{std::regex("^\\.debug$"),
               std::bind(&skiff_assemble::assembler_c::directive_debug, this)},
       match_t{std::regex("^\\.code$"),
@@ -264,6 +261,25 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
       match_t{std::regex("^not"),
               std::bind(&skiff_assemble::assembler_c::build_not, this)},
   };
+}
+
+assembled_t assembler_c::get_result()
+{
+  // If we are building a library we need to build a section table
+  if(_build_type == build_type_e::LIBRARY) {
+    for(auto &item : _label_to_location) {
+      auto section = _ins_gen.gen_lib_section(item.second, item.first);
+      if(section == std::nullopt) {
+        add_error("Unable to encode section");
+      }
+      reinterpret_cast<libskiff::binary::generator::library_c*>(_generator.get())->add_section(
+        *section
+      );
+    }
+  }
+  
+  _result.bin = _generator->generate_binary(); 
+  return _result; 
 }
 
 void assembler_c::add_error(const std::string &str)
@@ -402,17 +418,11 @@ void assembler_c::assemble()
     }
   }
 
-  if (!_directive_checks.init) {
-    add_error("Missing .init directive");
+  if (!_directive_checks.init && !_directive_checks.lib) {
+    add_error("Missing .init / .lib directive");
   }
   if (!_directive_checks.code) {
     add_error("Missing .code directive");
-  }
-  if (!_directive_checks.data) {
-    add_error("Missing .data directive");
-  }
-  if (!_directive_checks.init) {
-    add_error("Misplaced .data directive - it must exist before all else");
   }
 
   // ----------------------------------------------------
@@ -448,6 +458,16 @@ std::optional<uint64_t> assembler_c::get_label_address(const std::string label)
 bool assembler_c::directive_init()
 {
   add_debug(__func__);
+  if (_current_line_number != 1) {
+    add_error(".init directive must be the first item in the asm file");
+    return false;
+  }
+  
+  if (_directive_checks.lib) {
+    add_error(".init can not be declared along-side .lib directive");
+    return false;
+  }
+
   if (_directive_checks.init) {
     add_error("Duplicate .init directive");
     return false;
@@ -464,8 +484,40 @@ bool assembler_c::directive_init()
     return false;
   }
 
-  _directive_options.init_location = *init_address;
   _directive_checks.init = true;
+  _build_type = build_type_e::EXECUTABLE;
+  _generator = std::make_unique<libskiff::binary::generator::executable_c>();
+  reinterpret_cast<libskiff::binary::generator::executable_c*>(_generator.get())->set_entry(*init_address);
+  return true;
+}
+
+bool assembler_c::directive_lib()
+{
+  add_debug(__func__);
+
+  if (_current_line_number != 1) {
+    add_error(".lib directive must be the first item in the asm file");
+    return false;
+  }
+
+  if (_directive_checks.init) {
+    add_error(".lib can not be declared along-side .init directive");
+    return false;
+  }
+
+  if (_directive_checks.lib) {
+    add_error("Duplicate .lib directive");
+    return false;
+  }
+
+  if (_current_chunks.size() != 1) {
+    add_error("Malformed .lib");
+    return false;
+  }
+
+  _directive_checks.lib = true;
+  _build_type = build_type_e::LIBRARY;
+  _generator = std::make_unique<libskiff::binary::generator::library_c>();
   return true;
 }
 
@@ -484,24 +536,6 @@ bool assembler_c::directive_code()
 
   _directive_checks.code = true;
   _state = state_e::INSTRUCTION_DIGESTION;
-  return true;
-}
-
-bool assembler_c::directive_data()
-{
-  add_debug(__func__);
-  if (_directive_checks.data) {
-    add_error("Duplicate .data directive");
-    return false;
-  }
-  if (_current_line_number != 1) {
-    add_error(".data directive must be the first item in the asm file");
-    return false;
-  }
-  else {
-    _directive_checks.data_first = true;
-  }
-  _directive_checks.data = true;
   return true;
 }
 
@@ -536,10 +570,10 @@ bool assembler_c::directive_debug()
     return false;
   }
 
-  _directive_checks.debug = true;
-  _directive_options.debug_level = *value;
   add_debug("Set .debug level to " +
-            std::to_string(_directive_options.debug_level));
+            std::to_string(*value));
+
+  _generator->set_debug(*value);
   return true;
 }
 
@@ -551,7 +585,7 @@ bool assembler_c::add_constant(std::string name, libskiff::binary::constant_type
     return false;
   }
 
-  uint64_t address = _bin_gen.add_constant(type, data);
+  uint64_t address = _generator->add_constant(type, data);
   _constant_name_to_value[name] = constant_value_t{
       .type = type, .address = address, .data = data};
   return true;
@@ -804,7 +838,7 @@ bool assembler_c::directive_uint_64()
 
 void assembler_c::add_instruction_bytes(std::vector<uint8_t> bytes)
 {
-  _bin_gen.add_instruction(bytes);
+  _generator->add_instruction(bytes);
 }
 
 std::optional<uint32_t> assembler_c::get_value(const std::string item)

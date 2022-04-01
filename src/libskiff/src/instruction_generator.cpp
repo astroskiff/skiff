@@ -45,32 +45,6 @@ void instruction_generator_c::update_meta(const uint64_t bytes)
   _bytes_generated += bytes;
 }
 
-std::optional<std::vector<uint8_t>>
-instruction_generator_c::gen_string_constant(const std::string_view str)
-{
-  if (str.size() > std::numeric_limits<uint16_t>::max()) {
-    return std::nullopt;
-  }
-
-  // This encode function assumes the strings chars can be encoded within 1 byte
-  // each
-  std::vector<uint8_t> encoded_bytes;
-  encoded_bytes.reserve(2 +
-                        str.size()); // two byte length encoding + string length
-
-  uint16_t value = static_cast<uint16_t>(str.size());
-  encoded_bytes.push_back(value << 8);
-  encoded_bytes.push_back(value);
-
-  for (auto &c : str) {
-    encoded_bytes.push_back(static_cast<uint8_t>(c));
-  }
-  update_meta(encoded_bytes.size());
-  return encoded_bytes;
-}
-
-// These functions made purposely verbose
-
 static inline std::vector<uint8_t> pack_2(const uint16_t value)
 {
   std::vector<uint8_t> encoded_bytes;
@@ -100,6 +74,46 @@ static inline std::vector<uint8_t> pack_8(const uint64_t value)
   encoded_bytes.push_back(value >> 16);
   encoded_bytes.push_back(value >> 8);
   encoded_bytes.push_back(value);
+  return encoded_bytes;
+}
+
+std::optional<std::vector<uint8_t>>
+instruction_generator_c::gen_string_constant(const std::string_view str)
+{
+  if (str.size() > std::numeric_limits<uint16_t>::max()) {
+    return std::nullopt;
+  }
+
+  // This encode function assumes the strings chars can be encoded within 1 byte
+  // each
+  std::vector<uint8_t> encoded_bytes;
+  encoded_bytes.reserve(8 +
+                        str.size()); // eight byte length encoding + string length
+
+  auto encoded_size = pack_8(static_cast<uint64_t>(str.size()));
+  encoded_bytes.insert(encoded_bytes.end(), encoded_size.begin(), encoded_size.end());
+
+  for (auto &c : str) {
+    encoded_bytes.push_back(static_cast<uint8_t>(c));
+  }
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::optional<std::vector<uint8_t>> 
+instruction_generator_c::gen_lib_section(const uint64_t address, const std::string section_name)
+{
+  std::vector<uint8_t> encoded_bytes;
+  auto encoded_address = pack_8(address);
+  auto encoded_section = gen_string_constant(section_name); // Same encoding
+
+  if(encoded_section == std::nullopt) {
+    return std::nullopt;
+  }
+
+  encoded_bytes.insert(encoded_bytes.end(), encoded_address.begin(), encoded_address.end());
+  encoded_bytes.insert(encoded_bytes.end(), encoded_section.value().begin(), encoded_section.value().end());
+  update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
 
