@@ -21,6 +21,7 @@
 #include <sstream>
 #include <unordered_map>
 
+#include <libskiff/binary_generator.hpp>
 #include <libskiff/instruction_generator.hpp>
 
 namespace skiff_assemble {
@@ -41,7 +42,11 @@ template <class T> std::optional<T> get_number(const std::string value)
 class assembler_c {
 public:
   assembler_c(const std::string &input);
-  assembled_t get_result() const { return _result; }
+  assembled_t get_result() 
+  {
+    _result.bin = _bin_gen.generate_binary(); 
+    return _result; 
+  }
   void assemble();
 
 private:
@@ -52,21 +57,8 @@ private:
     INSTRUCTION_DIGESTION,
   };
 
-  enum class constant_type_e {
-    STRING,
-    FLOAT,
-    U8,
-    U16,
-    U32,
-    U64,
-    I8,
-    I16,
-    I32,
-    I64,
-  };
-
   struct constant_value_t {
-    constant_type_e type;
+    libskiff::binary::constant_type_e type;
     uint64_t address;
     std::vector<uint8_t> data;
   };
@@ -91,7 +83,6 @@ private:
 
   const std::string &_input_file;
   uint64_t _current_line_number{0};
-  uint64_t _constant_address_counter{0};
   state_e _state{state_e::DIRECTIVE_DIGESTION};
   assembled_t _result{.stats = {.num_instructions = 0},
                       .errors = std::nullopt,
@@ -108,6 +99,7 @@ private:
   std::vector<std::string> _current_chunks;
   directive_options_t _directive_options{0, 0};
   libskiff::instructions::instruction_generator_c _ins_gen;
+  libskiff::binary::generator_c _bin_gen;
 
   std::string remove_comments(const std::string &str);
   void add_error(const std::string &str);
@@ -116,7 +108,7 @@ private:
   void pre_scan();
   void parse(const std::vector<match_t> &function_match);
 
-  bool add_constant(std::string name, constant_type_e type,
+  bool add_constant(std::string name, libskiff::binary::constant_type_e type,
                     std::vector<uint8_t> value);
   bool directive_init();
   bool directive_data();
@@ -551,7 +543,7 @@ bool assembler_c::directive_debug()
   return true;
 }
 
-bool assembler_c::add_constant(std::string name, constant_type_e type,
+bool assembler_c::add_constant(std::string name, libskiff::binary::constant_type_e type,
                                std::vector<uint8_t> data)
 {
   if (_constant_name_to_value.find(name) != _constant_name_to_value.end()) {
@@ -559,10 +551,9 @@ bool assembler_c::add_constant(std::string name, constant_type_e type,
     return false;
   }
 
+  uint64_t address = _bin_gen.add_constant(type, data);
   _constant_name_to_value[name] = constant_value_t{
-      .type = type, .address = _constant_address_counter, .data = data};
-
-  _constant_address_counter += data.size();
+      .type = type, .address = address, .data = data};
   return true;
 }
 
@@ -581,7 +572,7 @@ bool assembler_c::directive_string()
     return false;
   }
 
-  return add_constant(_current_chunks[1], constant_type_e::STRING, *value);
+  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::STRING, *value);
 }
 
 bool assembler_c::directive_float()
@@ -599,7 +590,7 @@ bool assembler_c::directive_float()
     return false;
   }
 
-  return add_constant(_current_chunks[1], constant_type_e::FLOAT,
+  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::FLOAT,
                       _ins_gen.generate_fp_constant(*fp_value));
   return false;
 }
@@ -627,7 +618,7 @@ bool assembler_c::directive_int_8()
     return false;
   }
 
-  return add_constant(_current_chunks[1], constant_type_e::I8,
+  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::I8,
                       _ins_gen.generate_i8_constant(*value));
   return false;
 }
@@ -652,7 +643,7 @@ bool assembler_c::directive_int_16()
     return false;
   }
 
-  return add_constant(_current_chunks[1], constant_type_e::I16,
+  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::I16,
                       _ins_gen.generate_i16_constant(*value));
   return false;
 }
@@ -677,7 +668,7 @@ bool assembler_c::directive_int_32()
     return false;
   }
 
-  return add_constant(_current_chunks[1], constant_type_e::I32,
+  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::I32,
                       _ins_gen.generate_i32_constant(*value));
   return false;
 }
@@ -702,7 +693,7 @@ bool assembler_c::directive_int_64()
     return false;
   }
 
-  return add_constant(_current_chunks[1], constant_type_e::I64,
+  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::I64,
                       _ins_gen.generate_i64_constant(*value));
   return false;
 }
@@ -728,7 +719,7 @@ bool assembler_c::directive_uint_8()
     return false;
   }
 
-  return add_constant(_current_chunks[1], constant_type_e::U8,
+  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::U8,
                       _ins_gen.generate_u8_constant(*value));
   return false;
 }
@@ -754,7 +745,7 @@ bool assembler_c::directive_uint_16()
     return false;
   }
 
-  return add_constant(_current_chunks[1], constant_type_e::U16,
+  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::U16,
                       _ins_gen.generate_u16_constant(*value));
   return false;
 }
@@ -780,7 +771,7 @@ bool assembler_c::directive_uint_32()
     return false;
   }
 
-  return add_constant(_current_chunks[1], constant_type_e::U32,
+  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::U32,
                       _ins_gen.generate_u32_constant(*value));
   return false;
 }
@@ -806,17 +797,14 @@ bool assembler_c::directive_uint_64()
     return false;
   }
 
-  return add_constant(_current_chunks[1], constant_type_e::U64,
+  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::U64,
                       _ins_gen.generate_u64_constant(*value));
   return false;
 }
 
 void assembler_c::add_instruction_bytes(std::vector<uint8_t> bytes)
 {
-  if (_result.bin == std::nullopt) {
-    _result.bin = std::vector<uint8_t>();
-  }
-  _result.bin->insert(_result.bin->end(), bytes.begin(), bytes.end());
+  _bin_gen.add_instruction(bytes);
 }
 
 std::optional<uint32_t> assembler_c::get_value(const std::string item)
