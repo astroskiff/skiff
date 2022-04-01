@@ -95,8 +95,62 @@ public:
   std::vector<uint8_t> gen_ret();
 
   //! \brief Generate mov instruction
-  std::vector<uint8_t> gen_mov(const uint8_t reg, 
-                               const uint32_t value);
+  std::vector<uint8_t> gen_mov(const uint8_t reg, const uint32_t value);
+
+  //! \brief Generate add instruction
+  std::vector<uint8_t> gen_add(const uint8_t dest, const uint8_t lhs,
+                               const uint8_t rhs);
+
+  //! \brief Generate sub instruction
+  std::vector<uint8_t> gen_sub(const uint8_t dest, const uint8_t lhs,
+                               const uint8_t rhs);
+
+  //! \brief Generate div instruction
+  std::vector<uint8_t> gen_div(const uint8_t dest, const uint8_t lhs,
+                               const uint8_t rhs);
+
+  //! \brief Generate mul instruction
+  std::vector<uint8_t> gen_mul(const uint8_t dest, const uint8_t lhs,
+                               const uint8_t rhs);
+
+  //! \brief Generate addf instruction
+  std::vector<uint8_t> gen_addf(const uint8_t dest, const uint8_t lhs,
+                                const uint8_t rhs);
+
+  //! \brief Generate subf instruction
+  std::vector<uint8_t> gen_subf(const uint8_t dest, const uint8_t lhs,
+                                const uint8_t rhs);
+
+  //! \brief Generate divf instruction
+  std::vector<uint8_t> gen_divf(const uint8_t dest, const uint8_t lhs,
+                                const uint8_t rhs);
+
+  //! \brief Generate mulf instruction
+  std::vector<uint8_t> gen_mulf(const uint8_t dest, const uint8_t lhs,
+                                const uint8_t rhs);
+
+  //! \brief Generate lsh instruction
+  std::vector<uint8_t> gen_lsh(const uint8_t dest, const uint8_t lhs,
+                               const uint8_t rhs);
+
+  //! \brief Generate rsh instruction
+  std::vector<uint8_t> gen_rsh(const uint8_t dest, const uint8_t lhs,
+                               const uint8_t rhs);
+
+  //! \brief Generate and instruction
+  std::vector<uint8_t> gen_and(const uint8_t dest, const uint8_t lhs,
+                               const uint8_t rhs);
+
+  //! \brief Generate or instruction
+  std::vector<uint8_t> gen_or(const uint8_t dest, const uint8_t lhs,
+                              const uint8_t rhs);
+
+  //! \brief Generate xor instruction
+  std::vector<uint8_t> gen_xor(const uint8_t dest, const uint8_t lhs,
+                               const uint8_t rhs);
+
+  //! \brief Generate not instruction
+  std::vector<uint8_t> gen_not(const uint8_t dest, const uint8_t source);
 
 private:
   void update_meta(const uint64_t bytes_generated);

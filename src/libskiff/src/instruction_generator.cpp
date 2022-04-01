@@ -277,9 +277,8 @@ std::vector<uint8_t> instruction_generator_c::gen_ret()
   return encoded_bytes;
 }
 
-
-std::vector<uint8_t> instruction_generator_c::gen_mov(const uint8_t reg, 
-                              const uint32_t value)
+std::vector<uint8_t> instruction_generator_c::gen_mov(const uint8_t reg,
+                                                      const uint32_t value)
 {
   uint32_t top = static_cast<uint32_t>(reg);
   top <<= 8;
@@ -288,6 +287,153 @@ std::vector<uint8_t> instruction_generator_c::gen_mov(const uint8_t reg,
   ins |= static_cast<uint64_t>(value);
 
   auto encoded_bytes = pack_8(ins);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> generate_math_instruction(const uint8_t ins,
+                                               const uint8_t dest,
+                                               const uint8_t lhs,
+                                               const uint8_t rhs)
+{
+  return {0x00, 0x00, 0x00, ins, dest, lhs, rhs, 0x00};
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_add(const uint8_t dest,
+                                                      const uint8_t lhs,
+                                                      const uint8_t rhs)
+{
+  auto encoded_bytes =
+      generate_math_instruction(libskiff::instructions::ADD, dest, lhs, rhs);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_sub(const uint8_t dest,
+                                                      const uint8_t lhs,
+                                                      const uint8_t rhs)
+{
+  auto encoded_bytes =
+      generate_math_instruction(libskiff::instructions::SUB, dest, lhs, rhs);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_div(const uint8_t dest,
+                                                      const uint8_t lhs,
+                                                      const uint8_t rhs)
+{
+  auto encoded_bytes =
+      generate_math_instruction(libskiff::instructions::DIV, dest, lhs, rhs);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_mul(const uint8_t dest,
+                                                      const uint8_t lhs,
+                                                      const uint8_t rhs)
+{
+  auto encoded_bytes =
+      generate_math_instruction(libskiff::instructions::MUL, dest, lhs, rhs);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_addf(const uint8_t dest,
+                                                       const uint8_t lhs,
+                                                       const uint8_t rhs)
+{
+  auto encoded_bytes =
+      generate_math_instruction(libskiff::instructions::ADDF, dest, lhs, rhs);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_subf(const uint8_t dest,
+                                                       const uint8_t lhs,
+                                                       const uint8_t rhs)
+{
+  auto encoded_bytes =
+      generate_math_instruction(libskiff::instructions::SUBF, dest, lhs, rhs);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_divf(const uint8_t dest,
+                                                       const uint8_t lhs,
+                                                       const uint8_t rhs)
+{
+  auto encoded_bytes =
+      generate_math_instruction(libskiff::instructions::DIVF, dest, lhs, rhs);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_mulf(const uint8_t dest,
+                                                       const uint8_t lhs,
+                                                       const uint8_t rhs)
+{
+  auto encoded_bytes =
+      generate_math_instruction(libskiff::instructions::MULF, dest, lhs, rhs);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_lsh(const uint8_t dest,
+                                                      const uint8_t lhs,
+                                                      const uint8_t rhs)
+{
+  auto encoded_bytes =
+      generate_math_instruction(libskiff::instructions::LSH, dest, lhs, rhs);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_rsh(const uint8_t dest,
+                                                      const uint8_t lhs,
+                                                      const uint8_t rhs)
+{
+  auto encoded_bytes =
+      generate_math_instruction(libskiff::instructions::RSH, dest, lhs, rhs);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_and(const uint8_t dest,
+                                                      const uint8_t lhs,
+                                                      const uint8_t rhs)
+{
+  auto encoded_bytes =
+      generate_math_instruction(libskiff::instructions::AND, dest, lhs, rhs);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_or(const uint8_t dest,
+                                                     const uint8_t lhs,
+                                                     const uint8_t rhs)
+{
+  auto encoded_bytes =
+      generate_math_instruction(libskiff::instructions::OR, dest, lhs, rhs);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_xor(const uint8_t dest,
+                                                      const uint8_t lhs,
+                                                      const uint8_t rhs)
+{
+  auto encoded_bytes =
+      generate_math_instruction(libskiff::instructions::XOR, dest, lhs, rhs);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_not(const uint8_t dest,
+                                                      const uint8_t source)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00, 0x00, libskiff::instructions::NOT, dest, source, 0x00, 0x00};
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }

@@ -58,7 +58,7 @@ bool are_equal(const double lhs, const double rhs, double precision)
 
 uint64_t to_uint64_t(const double value)
 {
-  extract_u d; 
+  extract_u d;
   d.d = value;
   return d.bin;
 }

@@ -1,13 +1,11 @@
 #include "CppUTest/TestHarness.h"
+#include <iostream>
 #include <libskiff/floating_point.hpp>
 #include <libutil/generate_random.hpp>
 #include <limits>
 #include <stdint.h>
-#include <iostream>
 
-TEST_GROUP(floating_point){void setup(){}
-                           void teardown(){
-                           }};
+TEST_GROUP(floating_point){void setup(){} void teardown(){}};
 
 TEST(floating_point, construction_deconstruction)
 {

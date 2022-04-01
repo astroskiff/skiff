@@ -57,9 +57,7 @@ template <class T> bool value_is_valid(T value)
 }
 } // namespace
 
-TEST_GROUP(RandomEntry){void setup(){}
-                        void teardown(){
-                        }};
+TEST_GROUP(RandomEntry){void setup(){} void teardown(){}};
 
 TEST(RandomEntry, Enumerations)
 {

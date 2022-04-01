@@ -1058,7 +1058,7 @@ bool assembler_c::build_mov()
   }
 
   auto value = get_value(_current_chunks[2]);
-  if(value == std::nullopt) {
+  if (value == std::nullopt) {
     add_error("Unable to retrieve value from source in mov instruction");
     return false;
   }
