@@ -1070,85 +1070,415 @@ bool assembler_c::build_mov()
 bool assembler_c::build_add()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed add instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[3]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_add(*dest, *lhs, *rhs));
+  return true;
 }
 
 bool assembler_c::build_sub()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed sub instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[3]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_sub(*dest, *lhs, *rhs));
+  return true;
 }
 
 bool assembler_c::build_div()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed div instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[3]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_div(*dest, *lhs, *rhs));
+  return true;
 }
 
 bool assembler_c::build_mul()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed mul instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[3]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_mul(*dest, *lhs, *rhs));
+  return true;
 }
 
 bool assembler_c::build_addf()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed addf instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[3]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_addf(*dest, *lhs, *rhs));
+  return true;
 }
 
 bool assembler_c::build_subf()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed subf instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[3]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_subf(*dest, *lhs, *rhs));
+  return true;
 }
 
 bool assembler_c::build_divf()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed divf instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[3]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_divf(*dest, *lhs, *rhs));
+  return true;
 }
 
 bool assembler_c::build_mulf()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed mulf instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[3]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_mulf(*dest, *lhs, *rhs));
+  return true;
 }
 
 bool assembler_c::build_lsh()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed lsh instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[3]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_lsh(*dest, *lhs, *rhs));
+  return true;
 }
 
 bool assembler_c::build_rsh()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed rsh instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[3]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_rsh(*dest, *lhs, *rhs));
+  return true;
 }
 
 bool assembler_c::build_and()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed and instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[3]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_and(*dest, *lhs, *rhs));
+  return true;
 }
 
 bool assembler_c::build_or()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed or instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[3]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_or(*dest, *lhs, *rhs));
+  return true;
 }
 
 bool assembler_c::build_xor()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed xor instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[3]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_xor(*dest, *lhs, *rhs));
+  return true;
 }
 
 bool assembler_c::build_not()
 {
   add_debug(__func__);
-  return false;
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed not instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto source = _ins_gen.get_register_value(_current_chunks[2]);
+  if (source == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_not(*dest, *source));
+  return true;
 }
 
 } // namespace skiff_assemble
