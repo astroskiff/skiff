@@ -1,7 +1,8 @@
-#include "libskiff/floating_point.hpp"
+#include "libskiff/bytecode/floating_point.hpp"
 #include <cmath>
 
 namespace libskiff {
+namespace bytecode {
 namespace floating_point {
 
 namespace {
@@ -71,4 +72,5 @@ double from_uint64_t(const uint64_t value)
 }
 
 } // namespace floating_point
+} // namespace bytecode
 } // namespace libskiff

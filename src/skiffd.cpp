@@ -2,10 +2,10 @@
 #include <iostream>
 #include <vector>
 
-#include "assemble.hpp"
+#include <libskiff/assembler/assemble.hpp>
 #include "options.hpp"
 
-void handle_assebmled_t(skiff_assemble::assembled_t assembled,
+void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
                         std::optional<std::string> output)
 {
   if (assembled.bin != std::nullopt) {
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
       std::exit(EXIT_FAILURE);
     }
 
-    auto result = skiff_assemble::assemble(opts->assemble_file.value().file_in);
+    auto result = libskiff::assembler::assemble(opts->assemble_file.value().file_in);
 
     handle_assebmled_t(result, opts->assemble_file->file_out);
   }

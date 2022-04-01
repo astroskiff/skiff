@@ -3,9 +3,10 @@ project (libskiff)
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
 
 add_library(${PROJECT_NAME} 
-  src/floating_point.cpp
-  src/binary_generator.cpp
-  src/instruction_generator.cpp)
+  src/assembler/assemble.cpp
+  src/bytecode/floating_point.cpp
+  src/generators/binary_generator.cpp
+  src/generators/instruction_generator.cpp)
 
 add_library(skiff::libskiff ALIAS ${PROJECT_NAME})
 

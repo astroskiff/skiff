@@ -1,7 +1,7 @@
 #ifndef LIBSKIFF_INSTRUCTION_GENERATOR_HPP
 #define LIBSKIFF_INSTRUCTION_GENERATOR_HPP
 
-#include "instructions.hpp"
+#include "libskiff/bytecode/instructions.hpp"
 
 #include <cstdint>
 #include <optional>
@@ -67,10 +67,10 @@ public:
   std::optional<std::vector<uint8_t>>
   gen_string_constant(const std::string_view str);
 
-  //! \brief Generate encoded library section 
+  //! \brief Generate encoded library section
   //! \note  Returns std::nullopt iff length of string can be
   //!          held within a 64-bit integer
-  std::optional<std::vector<uint8_t>> 
+  std::optional<std::vector<uint8_t>>
   gen_lib_section(const uint64_t address, const std::string section_name);
 
   //! \brief Generate nop instruction

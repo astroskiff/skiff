@@ -5,10 +5,10 @@
 
 namespace libskiff {
 namespace binary {
-  
-constexpr uint32_t compatibility = 0xFF'00'00'00; //! Indicate compatibility
+
+constexpr uint32_t compatibility = 0xFF'00'00'00;   //! Indicate compatibility
 constexpr uint8_t type_indicator_executable = 0xAA; //! Executable
-constexpr uint8_t type_indicator_library = 0xFF;  //! Library
+constexpr uint8_t type_indicator_library = 0xFF;    //! Library
 
 //! \brief The encoded constant types
 enum class constant_type_e {

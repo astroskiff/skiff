@@ -1,7 +1,6 @@
-#include "libskiff/binary_generator.hpp"
+#include "libskiff/generators/binary_generator.hpp"
 
 namespace libskiff {
-namespace binary {
 namespace generator {
 
 namespace {
@@ -34,10 +33,10 @@ static inline std::vector<uint8_t> pack_8(const uint64_t value)
 
 executable_c::executable_c() {}
 
-uint64_t executable_c::add_constant(const constant_type_e type,
-                                   const std::vector<uint8_t> data)
+uint64_t executable_c::add_constant(const binary::constant_type_e type,
+                                    const std::vector<uint8_t> data)
 {
-    _constant_data.push_back(static_cast<uint8_t>(type));
+  _constant_data.push_back(static_cast<uint8_t>(type));
 
   // Ensure address doesn't include the byte required to load the thing for the
   // vm
@@ -55,10 +54,7 @@ void executable_c::add_instruction(const std::vector<uint8_t> instruction)
                            _instruction_data.end());
 }
 
-void executable_c::set_entry(const uint64_t address)
-{
-  _entry = address;
-}
+void executable_c::set_entry(const uint64_t address) { _entry = address; }
 
 std::vector<uint8_t> executable_c::generate_binary() const
 {
@@ -83,10 +79,10 @@ std::vector<uint8_t> executable_c::generate_binary() const
 
 library_c::library_c() {}
 
-uint64_t library_c::add_constant(const constant_type_e type,
-                                   const std::vector<uint8_t> data)
+uint64_t library_c::add_constant(const binary::constant_type_e type,
+                                 const std::vector<uint8_t> data)
 {
-    _constant_data.push_back(static_cast<uint8_t>(type));
+  _constant_data.push_back(static_cast<uint8_t>(type));
 
   // Ensure address doesn't include the byte required to load the thing for the
   // vm
@@ -106,7 +102,8 @@ void library_c::add_instruction(const std::vector<uint8_t> instruction)
 
 void library_c::add_section(std::vector<uint8_t> encoded_section)
 {
-  _section_table.insert(_section_table.end(), encoded_section.begin(), encoded_section.end());
+  _section_table.insert(_section_table.end(), encoded_section.begin(),
+                        encoded_section.end());
 }
 
 std::vector<uint8_t> library_c::generate_binary() const
@@ -116,7 +113,7 @@ std::vector<uint8_t> library_c::generate_binary() const
   std::vector<uint8_t> binary;
   binary.insert(binary.end(), encoded_compatibility.begin(),
                 encoded_compatibility.end());
-  binary.push_back(libskiff::binary::type_indicator_library);  
+  binary.push_back(libskiff::binary::type_indicator_library);
   binary.insert(binary.end(), encoded_number_of_constants.begin(),
                 encoded_number_of_constants.end());
   binary.push_back(0xFF);
@@ -130,5 +127,4 @@ std::vector<uint8_t> library_c::generate_binary() const
 }
 
 } // namespace generator
-} // namespace binary
 } // namespace libskiff

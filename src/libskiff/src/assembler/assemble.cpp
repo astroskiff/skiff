@@ -11,22 +11,22 @@
   to be developed, so this assembler might then be removed entirely.
 */
 
-#include "assemble.hpp"
+#include "libskiff/assembler/assemble.hpp"
 
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <optional>
 #include <regex>
 #include <sstream>
 #include <unordered_map>
-#include <memory>
 
-#include <libskiff/binary_generator.hpp>
-#include <libskiff/instruction_generator.hpp>
+#include "libskiff/generators/binary_generator.hpp"
+#include "libskiff/generators/instruction_generator.hpp"
 
-namespace skiff_assemble {
-
+namespace libskiff {
+namespace assembler {
 namespace {
 
 template <class T> std::optional<T> get_number(const std::string value)
@@ -54,10 +54,7 @@ private:
     INSTRUCTION_DIGESTION,
   };
 
-  enum class build_type_e {
-    EXECUTABLE,
-    LIBRARY
-  };
+  enum class build_type_e { EXECUTABLE, LIBRARY };
 
   struct constant_value_t {
     libskiff::binary::constant_type_e type;
@@ -96,7 +93,7 @@ private:
   uint64_t _expected_bin_size{0};
   std::vector<std::string> _current_chunks;
   libskiff::instructions::instruction_generator_c _ins_gen;
-  std::unique_ptr<libskiff::binary::generator::generator_if> _generator;
+  std::unique_ptr<libskiff::generator::generator_if> _generator;
 
   std::string remove_comments(const std::string &str);
   void add_error(const std::string &str);
@@ -184,102 +181,115 @@ inline std::vector<std::string> chunk_line(std::string line)
 assembler_c::assembler_c(const std::string &input) : _input_file(input)
 {
   _directive_match = {
-      match_t{std::regex("^\\.init$"),
-              std::bind(&skiff_assemble::assembler_c::directive_init, this)},
-      match_t{std::regex("^\\.lib$"),
-              std::bind(&skiff_assemble::assembler_c::directive_lib, this)},
-      match_t{std::regex("^\\.debug$"),
-              std::bind(&skiff_assemble::assembler_c::directive_debug, this)},
-      match_t{std::regex("^\\.code$"),
-              std::bind(&skiff_assemble::assembler_c::directive_code, this)},
-      match_t{std::regex("^\\.string$"),
-              std::bind(&skiff_assemble::assembler_c::directive_string, this)},
-      match_t{std::regex("^\\.float$"),
-              std::bind(&skiff_assemble::assembler_c::directive_float, this)},
-      match_t{std::regex("^\\.i8$"),
-              std::bind(&skiff_assemble::assembler_c::directive_int_8, this)},
-      match_t{std::regex("^\\.i16$"),
-              std::bind(&skiff_assemble::assembler_c::directive_int_16, this)},
-      match_t{std::regex("^\\.i32$"),
-              std::bind(&skiff_assemble::assembler_c::directive_int_32, this)},
-      match_t{std::regex("^\\.i64$"),
-              std::bind(&skiff_assemble::assembler_c::directive_int_64, this)},
-      match_t{std::regex("^\\.u8$"),
-              std::bind(&skiff_assemble::assembler_c::directive_uint_8, this)},
+      match_t{
+          std::regex("^\\.init$"),
+          std::bind(&libskiff::assembler::assembler_c::directive_init, this)},
+      match_t{
+          std::regex("^\\.lib$"),
+          std::bind(&libskiff::assembler::assembler_c::directive_lib, this)},
+      match_t{
+          std::regex("^\\.debug$"),
+          std::bind(&libskiff::assembler::assembler_c::directive_debug, this)},
+      match_t{
+          std::regex("^\\.code$"),
+          std::bind(&libskiff::assembler::assembler_c::directive_code, this)},
+      match_t{
+          std::regex("^\\.string$"),
+          std::bind(&libskiff::assembler::assembler_c::directive_string, this)},
+      match_t{
+          std::regex("^\\.float$"),
+          std::bind(&libskiff::assembler::assembler_c::directive_float, this)},
+      match_t{
+          std::regex("^\\.i8$"),
+          std::bind(&libskiff::assembler::assembler_c::directive_int_8, this)},
+      match_t{
+          std::regex("^\\.i16$"),
+          std::bind(&libskiff::assembler::assembler_c::directive_int_16, this)},
+      match_t{
+          std::regex("^\\.i32$"),
+          std::bind(&libskiff::assembler::assembler_c::directive_int_32, this)},
+      match_t{
+          std::regex("^\\.i64$"),
+          std::bind(&libskiff::assembler::assembler_c::directive_int_64, this)},
+      match_t{
+          std::regex("^\\.u8$"),
+          std::bind(&libskiff::assembler::assembler_c::directive_uint_8, this)},
       match_t{std::regex("^\\.u16$"),
-              std::bind(&skiff_assemble::assembler_c::directive_uint_16, this)},
+              std::bind(&libskiff::assembler::assembler_c::directive_uint_16,
+                        this)},
       match_t{std::regex("^\\.u32$"),
-              std::bind(&skiff_assemble::assembler_c::directive_uint_32, this)},
+              std::bind(&libskiff::assembler::assembler_c::directive_uint_32,
+                        this)},
       match_t{std::regex("^\\.u64$"),
-              std::bind(&skiff_assemble::assembler_c::directive_uint_64, this)},
+              std::bind(&libskiff::assembler::assembler_c::directive_uint_64,
+                        this)},
   };
   _instruction_match = {
       match_t{std::regex("^nop$"),
-              std::bind(&skiff_assemble::assembler_c::build_nop, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_nop, this)},
       match_t{std::regex("^blt"),
-              std::bind(&skiff_assemble::assembler_c::build_blt, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_blt, this)},
       match_t{std::regex("^bgt"),
-              std::bind(&skiff_assemble::assembler_c::build_bgt, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_bgt, this)},
       match_t{std::regex("^beq"),
-              std::bind(&skiff_assemble::assembler_c::build_beq, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_beq, this)},
       match_t{std::regex("^jmp"),
-              std::bind(&skiff_assemble::assembler_c::build_jmp, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_jmp, this)},
       match_t{std::regex("^call"),
-              std::bind(&skiff_assemble::assembler_c::build_call, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_call, this)},
       match_t{std::regex("^ret"),
-              std::bind(&skiff_assemble::assembler_c::build_ret, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_ret, this)},
       match_t{std::regex("^exit"),
-              std::bind(&skiff_assemble::assembler_c::build_exit, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_exit, this)},
       match_t{std::regex("^mov"),
-              std::bind(&skiff_assemble::assembler_c::build_mov, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_mov, this)},
       match_t{std::regex("^add"),
-              std::bind(&skiff_assemble::assembler_c::build_add, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_add, this)},
       match_t{std::regex("^sub"),
-              std::bind(&skiff_assemble::assembler_c::build_sub, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_sub, this)},
       match_t{std::regex("^div"),
-              std::bind(&skiff_assemble::assembler_c::build_div, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_div, this)},
       match_t{std::regex("^mul"),
-              std::bind(&skiff_assemble::assembler_c::build_mul, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_mul, this)},
       match_t{std::regex("^addf"),
-              std::bind(&skiff_assemble::assembler_c::build_addf, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_addf, this)},
       match_t{std::regex("^subf"),
-              std::bind(&skiff_assemble::assembler_c::build_subf, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_subf, this)},
       match_t{std::regex("^divf"),
-              std::bind(&skiff_assemble::assembler_c::build_divf, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_divf, this)},
       match_t{std::regex("^mulf"),
-              std::bind(&skiff_assemble::assembler_c::build_mulf, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_mulf, this)},
       match_t{std::regex("^lsh"),
-              std::bind(&skiff_assemble::assembler_c::build_lsh, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_lsh, this)},
       match_t{std::regex("^rsh"),
-              std::bind(&skiff_assemble::assembler_c::build_rsh, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_rsh, this)},
       match_t{std::regex("^and"),
-              std::bind(&skiff_assemble::assembler_c::build_and, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_and, this)},
       match_t{std::regex("^or"),
-              std::bind(&skiff_assemble::assembler_c::build_or, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_or, this)},
       match_t{std::regex("^xor"),
-              std::bind(&skiff_assemble::assembler_c::build_xor, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_xor, this)},
       match_t{std::regex("^not"),
-              std::bind(&skiff_assemble::assembler_c::build_not, this)},
+              std::bind(&libskiff::assembler::assembler_c::build_not, this)},
   };
 }
 
 assembled_t assembler_c::get_result()
 {
   // If we are building a library we need to build a section table
-  if(_build_type == build_type_e::LIBRARY) {
-    for(auto &item : _label_to_location) {
+  if (_build_type == build_type_e::LIBRARY) {
+    for (auto &item : _label_to_location) {
       auto section = _ins_gen.gen_lib_section(item.second, item.first);
-      if(section == std::nullopt) {
+      if (section == std::nullopt) {
         add_error("Unable to encode section");
       }
-      reinterpret_cast<libskiff::binary::generator::library_c*>(_generator.get())->add_section(
-        *section
-      );
+      reinterpret_cast<libskiff::generator::library_c *>(_generator.get())
+          ->add_section(*section);
     }
   }
-  
-  _result.bin = _generator->generate_binary(); 
-  return _result; 
+
+  _result.bin = _generator->generate_binary();
+  return _result;
 }
 
 void assembler_c::add_error(const std::string &str)
@@ -462,7 +472,7 @@ bool assembler_c::directive_init()
     add_error(".init directive must be the first item in the asm file");
     return false;
   }
-  
+
   if (_directive_checks.lib) {
     add_error(".init can not be declared along-side .lib directive");
     return false;
@@ -486,8 +496,9 @@ bool assembler_c::directive_init()
 
   _directive_checks.init = true;
   _build_type = build_type_e::EXECUTABLE;
-  _generator = std::make_unique<libskiff::binary::generator::executable_c>();
-  reinterpret_cast<libskiff::binary::generator::executable_c*>(_generator.get())->set_entry(*init_address);
+  _generator = std::make_unique<libskiff::generator::executable_c>();
+  reinterpret_cast<libskiff::generator::executable_c *>(_generator.get())
+      ->set_entry(*init_address);
   return true;
 }
 
@@ -517,7 +528,7 @@ bool assembler_c::directive_lib()
 
   _directive_checks.lib = true;
   _build_type = build_type_e::LIBRARY;
-  _generator = std::make_unique<libskiff::binary::generator::library_c>();
+  _generator = std::make_unique<libskiff::generator::library_c>();
   return true;
 }
 
@@ -570,14 +581,14 @@ bool assembler_c::directive_debug()
     return false;
   }
 
-  add_debug("Set .debug level to " +
-            std::to_string(*value));
+  add_debug("Set .debug level to " + std::to_string(*value));
 
   _generator->set_debug(*value);
   return true;
 }
 
-bool assembler_c::add_constant(std::string name, libskiff::binary::constant_type_e type,
+bool assembler_c::add_constant(std::string name,
+                               libskiff::binary::constant_type_e type,
                                std::vector<uint8_t> data)
 {
   if (_constant_name_to_value.find(name) != _constant_name_to_value.end()) {
@@ -586,8 +597,8 @@ bool assembler_c::add_constant(std::string name, libskiff::binary::constant_type
   }
 
   uint64_t address = _generator->add_constant(type, data);
-  _constant_name_to_value[name] = constant_value_t{
-      .type = type, .address = address, .data = data};
+  _constant_name_to_value[name] =
+      constant_value_t{.type = type, .address = address, .data = data};
   return true;
 }
 
@@ -606,7 +617,8 @@ bool assembler_c::directive_string()
     return false;
   }
 
-  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::STRING, *value);
+  return add_constant(_current_chunks[1],
+                      libskiff::binary::constant_type_e::STRING, *value);
 }
 
 bool assembler_c::directive_float()
@@ -624,7 +636,8 @@ bool assembler_c::directive_float()
     return false;
   }
 
-  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::FLOAT,
+  return add_constant(_current_chunks[1],
+                      libskiff::binary::constant_type_e::FLOAT,
                       _ins_gen.generate_fp_constant(*fp_value));
   return false;
 }
@@ -677,7 +690,8 @@ bool assembler_c::directive_int_16()
     return false;
   }
 
-  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::I16,
+  return add_constant(_current_chunks[1],
+                      libskiff::binary::constant_type_e::I16,
                       _ins_gen.generate_i16_constant(*value));
   return false;
 }
@@ -702,7 +716,8 @@ bool assembler_c::directive_int_32()
     return false;
   }
 
-  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::I32,
+  return add_constant(_current_chunks[1],
+                      libskiff::binary::constant_type_e::I32,
                       _ins_gen.generate_i32_constant(*value));
   return false;
 }
@@ -727,7 +742,8 @@ bool assembler_c::directive_int_64()
     return false;
   }
 
-  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::I64,
+  return add_constant(_current_chunks[1],
+                      libskiff::binary::constant_type_e::I64,
                       _ins_gen.generate_i64_constant(*value));
   return false;
 }
@@ -779,7 +795,8 @@ bool assembler_c::directive_uint_16()
     return false;
   }
 
-  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::U16,
+  return add_constant(_current_chunks[1],
+                      libskiff::binary::constant_type_e::U16,
                       _ins_gen.generate_u16_constant(*value));
   return false;
 }
@@ -805,7 +822,8 @@ bool assembler_c::directive_uint_32()
     return false;
   }
 
-  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::U32,
+  return add_constant(_current_chunks[1],
+                      libskiff::binary::constant_type_e::U32,
                       _ins_gen.generate_u32_constant(*value));
   return false;
 }
@@ -831,7 +849,8 @@ bool assembler_c::directive_uint_64()
     return false;
   }
 
-  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::U64,
+  return add_constant(_current_chunks[1],
+                      libskiff::binary::constant_type_e::U64,
                       _ins_gen.generate_u64_constant(*value));
   return false;
 }
@@ -1503,4 +1522,5 @@ bool assembler_c::build_not()
   return true;
 }
 
-} // namespace skiff_assemble
+} // namespace assembler
+} // namespace libskiff

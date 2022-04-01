@@ -4,6 +4,7 @@
 #include <cstdint>
 
 namespace libskiff {
+namespace bytecode {
 namespace instructions {
 
 constexpr uint8_t INS_SIZE_BYTES = 8;
@@ -33,6 +34,7 @@ constexpr uint8_t XOR = 0x15;
 constexpr uint8_t NOT = 0x16;
 
 } // namespace instructions
+} // namespace bytecode
 } // namespace libskiff
 
 #endif

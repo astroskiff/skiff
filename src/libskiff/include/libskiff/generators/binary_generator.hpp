@@ -4,10 +4,9 @@
 #include <cstdint>
 #include <vector>
 
-#include "binary.hpp"
+#include "libskiff/bytecode/binary.hpp"
 
 namespace libskiff {
-namespace binary {
 namespace generator {
 
 //! \brief Generator interface
@@ -18,8 +17,8 @@ public:
   //! \brief Add a constant encoded from the instruction_generator
   //! \param data Encoded constant
   //! \returns Address assigned to constant
-  virtual uint64_t add_constant(const constant_type_e type,
-                        const std::vector<uint8_t> data) = 0;
+  virtual uint64_t add_constant(const binary::constant_type_e type,
+                                const std::vector<uint8_t> data) = 0;
 
   //! \brief Add an instruction made by the instruction_generator
   //!        to the binary
@@ -40,7 +39,7 @@ class executable_c : public generator_if {
 public:
   executable_c();
 
-  uint64_t add_constant(const constant_type_e type,
+  uint64_t add_constant(const binary::constant_type_e type,
                         const std::vector<uint8_t> data) override;
 
   void add_instruction(const std::vector<uint8_t> instruction) override;
@@ -51,7 +50,6 @@ public:
 
   //! \brief Set the entry address to the binary
   void set_entry(const uint64_t address);
-
 
 private:
   std::vector<uint8_t> _constant_data;
@@ -67,7 +65,7 @@ class library_c : public generator_if {
 public:
   library_c();
 
-  uint64_t add_constant(const constant_type_e type,
+  uint64_t add_constant(const binary::constant_type_e type,
                         const std::vector<uint8_t> data) override;
 
   void add_instruction(const std::vector<uint8_t> instruction) override;
@@ -88,10 +86,7 @@ private:
   uint8_t _debug{0};
 };
 
-
-
 } // namespace generator
-} // namespace binary
 } // namespace libskiff
 
 #endif

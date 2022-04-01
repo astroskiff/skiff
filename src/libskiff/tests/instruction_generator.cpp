@@ -1,7 +1,7 @@
 #include <CppUTest/TestHarness.h>
 
-#include <libskiff/floating_point.hpp>
-#include <libskiff/instruction_generator.hpp>
+#include <libskiff/bytecode/floating_point.hpp>
+#include <libskiff/generators/instruction_generator.hpp>
 #include <libutil/generate_random.hpp>
 #include <libutil/random_string.hpp>
 
@@ -184,7 +184,7 @@ TEST(instruction_generator_tests, constants)
     x |= static_cast<uint64_t>(data[5]) << 16;
     x |= static_cast<uint64_t>(data[6]) << 8;
     x |= static_cast<uint64_t>(data[7]);
-    CHECK_EQUAL(value, libskiff::floating_point::from_uint64_t(x));
+    CHECK_EQUAL(value, libskiff::bytecode::floating_point::from_uint64_t(x));
   }
 
   //  string
@@ -223,17 +223,19 @@ TEST(instruction_generator_tests, constants)
 TEST(instruction_generator_tests, lib_sections)
 {
   libskiff::instructions::instruction_generator_c gen;
-  for(uint8_t i = 0; i < 10; i++) {
+  for (uint8_t i = 0; i < 10; i++) {
     std::string s = libutil::generate::random_string_c().generate_string(
         libutil::generate::generate_random_c<uint8_t>().get_range(10, 20));
 
-    uint64_t address = libutil::generate::generate_random_c<uint64_t>()
-                               .get_range(std::numeric_limits<uint64_t>::min(), 
-                               std::numeric_limits<uint64_t>::max());
+    uint64_t address =
+        libutil::generate::generate_random_c<uint64_t>().get_range(
+            std::numeric_limits<uint64_t>::min(),
+            std::numeric_limits<uint64_t>::max());
 
     auto encoded = gen.gen_lib_section(address, s);
 
-    CHECK_TRUE_TEXT(encoded != std::nullopt, "Unable to encode string into library section");
+    CHECK_TRUE_TEXT(encoded != std::nullopt,
+                    "Unable to encode string into library section");
 
     auto value = encoded.value();
 
@@ -295,10 +297,10 @@ TEST(instruction_generator_tests, instruction_nop)
 {
   libskiff::instructions::instruction_generator_c gen;
   auto bytes = gen.gen_nop();
-  CHECK_EQUAL(libskiff::instructions::INS_SIZE_BYTES, bytes.size());
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
   for (auto i = 0; i < bytes.size(); i++) {
     if (i == 3) {
-      CHECK_EQUAL_TEXT(libskiff::instructions::NOP, bytes[i],
+      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::NOP, bytes[i],
                        "Instruction opcode did not match expected value");
     }
     else {
@@ -311,10 +313,10 @@ TEST(instruction_generator_tests, instruction_exit)
 {
   libskiff::instructions::instruction_generator_c gen;
   auto bytes = gen.gen_exit();
-  CHECK_EQUAL(libskiff::instructions::INS_SIZE_BYTES, bytes.size());
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
   for (auto i = 0; i < bytes.size(); i++) {
     if (i == 3) {
-      CHECK_EQUAL_TEXT(libskiff::instructions::EXIT, bytes[i],
+      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::EXIT, bytes[i],
                        "Instruction opcode did not match expected value");
     }
     else {
@@ -326,8 +328,9 @@ TEST(instruction_generator_tests, instruction_exit)
 TEST(instruction_generator_tests, instruction_branch)
 {
   // All branch instructions match the same encoding, so we test them all here
-  for (auto &ins : {libskiff::instructions::BLT, libskiff::instructions::BGT,
-                    libskiff::instructions::BEQ}) {
+  for (auto &ins : {libskiff::bytecode::instructions::BLT,
+                    libskiff::bytecode::instructions::BGT,
+                    libskiff::bytecode::instructions::BEQ}) {
 
     auto lhs_register =
         known_good_registers[libutil::generate::generate_random_c<uint8_t>()
@@ -348,13 +351,13 @@ TEST(instruction_generator_tests, instruction_branch)
     std::vector<uint8_t> bytes;
 
     switch (ins) {
-    case libskiff::instructions::BLT:
+    case libskiff::bytecode::instructions::BLT:
       bytes = gen.gen_blt(lhs_register.value, rhs_register.value, address);
       break;
-    case libskiff::instructions::BGT:
+    case libskiff::bytecode::instructions::BGT:
       bytes = gen.gen_bgt(lhs_register.value, rhs_register.value, address);
       break;
-    case libskiff::instructions::BEQ:
+    case libskiff::bytecode::instructions::BEQ:
       bytes = gen.gen_beq(lhs_register.value, rhs_register.value, address);
       break;
     default:
@@ -362,7 +365,7 @@ TEST(instruction_generator_tests, instruction_branch)
       break;
     };
 
-    CHECK_EQUAL(libskiff::instructions::INS_SIZE_BYTES, bytes.size());
+    CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
 
     CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
     CHECK_EQUAL_TEXT(lhs_register.value, bytes[1],
@@ -392,11 +395,11 @@ TEST(instruction_generator_tests, instruction_jmp)
 
   auto bytes = gen.gen_jmp(address);
 
-  CHECK_EQUAL(libskiff::instructions::INS_SIZE_BYTES, bytes.size());
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
 
   for (auto i = 0; i < 4; i++) {
     if (i == 3) {
-      CHECK_EQUAL_TEXT(libskiff::instructions::JMP, bytes[i],
+      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::JMP, bytes[i],
                        "Instruction opcode did not match expected value");
     }
     else {
@@ -423,11 +426,11 @@ TEST(instruction_generator_tests, instruction_call)
 
   auto bytes = gen.gen_call(address);
 
-  CHECK_EQUAL(libskiff::instructions::INS_SIZE_BYTES, bytes.size());
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
 
   for (auto i = 0; i < 4; i++) {
     if (i == 3) {
-      CHECK_EQUAL_TEXT(libskiff::instructions::CALL, bytes[i],
+      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::CALL, bytes[i],
                        "Instruction opcode did not match expected value");
     }
     else {
@@ -448,10 +451,10 @@ TEST(instruction_generator_tests, instruction_ret)
 {
   libskiff::instructions::instruction_generator_c gen;
   auto bytes = gen.gen_ret();
-  CHECK_EQUAL(libskiff::instructions::INS_SIZE_BYTES, bytes.size());
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
   for (auto i = 0; i < bytes.size(); i++) {
     if (i == 3) {
-      CHECK_EQUAL_TEXT(libskiff::instructions::RET, bytes[i],
+      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::RET, bytes[i],
                        "Instruction opcode did not match expected value");
     }
     else {
@@ -473,13 +476,13 @@ TEST(instruction_generator_tests, instruction_mov)
   libskiff::instructions::instruction_generator_c gen;
   auto bytes = gen.gen_mov(dest_register.value, value);
 
-  CHECK_EQUAL(libskiff::instructions::INS_SIZE_BYTES, bytes.size());
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
 
   CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
   CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
   CHECK_EQUAL_TEXT(dest_register.value, bytes[2],
                    "Incorrect destination register encoded");
-  CHECK_EQUAL_TEXT(libskiff::instructions::MOV, bytes[3],
+  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::MOV, bytes[3],
                    "Instruction opcode did not match expected value");
 
   uint32_t decoded_value = 0;
@@ -495,13 +498,19 @@ TEST(instruction_generator_tests, instruction_math_ops)
 {
   // All of these math instructions match the same encoding, so we test them all
   // here
-  for (auto &ins : {libskiff::instructions::ADD, libskiff::instructions::ADDF,
-                    libskiff::instructions::SUB, libskiff::instructions::SUBF,
-                    libskiff::instructions::DIV, libskiff::instructions::DIVF,
-                    libskiff::instructions::MUL, libskiff::instructions::MULF,
-                    libskiff::instructions::LSH, libskiff::instructions::RSH,
-                    libskiff::instructions::AND, libskiff::instructions::OR,
-                    libskiff::instructions::XOR}) {
+  for (auto &ins : {libskiff::bytecode::instructions::ADD,
+                    libskiff::bytecode::instructions::ADDF,
+                    libskiff::bytecode::instructions::SUB,
+                    libskiff::bytecode::instructions::SUBF,
+                    libskiff::bytecode::instructions::DIV,
+                    libskiff::bytecode::instructions::DIVF,
+                    libskiff::bytecode::instructions::MUL,
+                    libskiff::bytecode::instructions::MULF,
+                    libskiff::bytecode::instructions::LSH,
+                    libskiff::bytecode::instructions::RSH,
+                    libskiff::bytecode::instructions::AND,
+                    libskiff::bytecode::instructions::OR,
+                    libskiff::bytecode::instructions::XOR}) {
 
     auto dest_register =
         known_good_registers[libutil::generate::generate_random_c<uint8_t>()
@@ -523,55 +532,55 @@ TEST(instruction_generator_tests, instruction_math_ops)
     std::vector<uint8_t> bytes;
 
     switch (ins) {
-    case libskiff::instructions::ADD:
+    case libskiff::bytecode::instructions::ADD:
       bytes = gen.gen_add(dest_register.value, lhs_register.value,
                           rhs_register.value);
       break;
-    case libskiff::instructions::ADDF:
+    case libskiff::bytecode::instructions::ADDF:
       bytes = gen.gen_addf(dest_register.value, lhs_register.value,
                            rhs_register.value);
       break;
-    case libskiff::instructions::SUB:
+    case libskiff::bytecode::instructions::SUB:
       bytes = gen.gen_sub(dest_register.value, lhs_register.value,
                           rhs_register.value);
       break;
-    case libskiff::instructions::SUBF:
+    case libskiff::bytecode::instructions::SUBF:
       bytes = gen.gen_subf(dest_register.value, lhs_register.value,
                            rhs_register.value);
       break;
-    case libskiff::instructions::DIV:
+    case libskiff::bytecode::instructions::DIV:
       bytes = gen.gen_div(dest_register.value, lhs_register.value,
                           rhs_register.value);
       break;
-    case libskiff::instructions::DIVF:
+    case libskiff::bytecode::instructions::DIVF:
       bytes = gen.gen_divf(dest_register.value, lhs_register.value,
                            rhs_register.value);
       break;
-    case libskiff::instructions::MUL:
+    case libskiff::bytecode::instructions::MUL:
       bytes = gen.gen_mul(dest_register.value, lhs_register.value,
                           rhs_register.value);
       break;
-    case libskiff::instructions::MULF:
+    case libskiff::bytecode::instructions::MULF:
       bytes = gen.gen_mulf(dest_register.value, lhs_register.value,
                            rhs_register.value);
       break;
-    case libskiff::instructions::LSH:
+    case libskiff::bytecode::instructions::LSH:
       bytes = gen.gen_lsh(dest_register.value, lhs_register.value,
                           rhs_register.value);
       break;
-    case libskiff::instructions::RSH:
+    case libskiff::bytecode::instructions::RSH:
       bytes = gen.gen_rsh(dest_register.value, lhs_register.value,
                           rhs_register.value);
       break;
-    case libskiff::instructions::AND:
+    case libskiff::bytecode::instructions::AND:
       bytes = gen.gen_and(dest_register.value, lhs_register.value,
                           rhs_register.value);
       break;
-    case libskiff::instructions::OR:
+    case libskiff::bytecode::instructions::OR:
       bytes = gen.gen_or(dest_register.value, lhs_register.value,
                          rhs_register.value);
       break;
-    case libskiff::instructions::XOR:
+    case libskiff::bytecode::instructions::XOR:
       bytes = gen.gen_xor(dest_register.value, lhs_register.value,
                           rhs_register.value);
       break;
@@ -580,7 +589,7 @@ TEST(instruction_generator_tests, instruction_math_ops)
       break;
     };
 
-    CHECK_EQUAL(libskiff::instructions::INS_SIZE_BYTES, bytes.size());
+    CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
 
     CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
     CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
@@ -608,12 +617,12 @@ TEST(instruction_generator_tests, instruction_not)
   libskiff::instructions::instruction_generator_c gen;
   auto bytes = gen.gen_not(dest_register.value, source_register.value);
 
-  CHECK_EQUAL(libskiff::instructions::INS_SIZE_BYTES, bytes.size());
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
 
   CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
   CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
   CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
-  CHECK_EQUAL_TEXT(libskiff::instructions::NOT, bytes[3],
+  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::NOT, bytes[3],
                    "Instruction opcode did not match expected value");
 
   CHECK_EQUAL_TEXT(dest_register.value, bytes[4], "Expected empty byte");
