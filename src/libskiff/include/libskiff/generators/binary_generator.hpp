@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "libskiff/types.hpp"
 #include "libskiff/bytecode/binary.hpp"
 
 namespace libskiff {
@@ -17,7 +18,7 @@ public:
   //! \brief Add a constant encoded from the instruction_generator
   //! \param data Encoded constant
   //! \returns Address assigned to constant
-  virtual uint64_t add_constant(const binary::constant_type_e type,
+  virtual uint64_t add_constant(const libskiff::types::constant_type_e type,
                                 const std::vector<uint8_t> data) = 0;
 
   //! \brief Add an instruction made by the instruction_generator
@@ -39,7 +40,7 @@ class executable_c : public generator_if {
 public:
   executable_c();
 
-  uint64_t add_constant(const binary::constant_type_e type,
+  uint64_t add_constant(const libskiff::types::constant_type_e type,
                         const std::vector<uint8_t> data) override;
 
   void add_instruction(const std::vector<uint8_t> instruction) override;
@@ -65,7 +66,7 @@ class library_c : public generator_if {
 public:
   library_c();
 
-  uint64_t add_constant(const binary::constant_type_e type,
+  uint64_t add_constant(const libskiff::types::constant_type_e type,
                         const std::vector<uint8_t> data) override;
 
   void add_instruction(const std::vector<uint8_t> instruction) override;

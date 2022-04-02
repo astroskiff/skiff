@@ -5,6 +5,7 @@ set(CMAKE_STATIC_LIBRARY_PREFIX "")
 add_library(${PROJECT_NAME} 
   src/assembler/assemble.cpp
   src/bytecode/floating_point.cpp
+  src/bytecode/loader.cpp
   src/generators/binary_generator.cpp
   src/generators/instruction_generator.cpp)
 

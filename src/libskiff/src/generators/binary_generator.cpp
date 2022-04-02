@@ -33,7 +33,7 @@ static inline std::vector<uint8_t> pack_8(const uint64_t value)
 
 executable_c::executable_c() {}
 
-uint64_t executable_c::add_constant(const binary::constant_type_e type,
+uint64_t executable_c::add_constant(const libskiff::types::constant_type_e type,
                                     const std::vector<uint8_t> data)
 {
   _constant_data.push_back(static_cast<uint8_t>(type));
@@ -79,7 +79,7 @@ std::vector<uint8_t> executable_c::generate_binary() const
 
 library_c::library_c() {}
 
-uint64_t library_c::add_constant(const binary::constant_type_e type,
+uint64_t library_c::add_constant(const libskiff::types::constant_type_e type,
                                  const std::vector<uint8_t> data)
 {
   _constant_data.push_back(static_cast<uint8_t>(type));

@@ -22,8 +22,10 @@
 #include <sstream>
 #include <unordered_map>
 
+#include "libskiff/types.hpp"
 #include "libskiff/generators/binary_generator.hpp"
 #include "libskiff/generators/instruction_generator.hpp"
+#include "libskiff/logging/aixlog.hpp"
 
 namespace libskiff {
 namespace assembler {
@@ -42,7 +44,7 @@ template <class T> std::optional<T> get_number(const std::string value)
 
 class assembler_c {
 public:
-  assembler_c(const std::string &input);
+  assembler_c(const std::string &input, std::vector<std::string> libraries);
   assembled_t get_result();
   void assemble();
 
@@ -54,10 +56,8 @@ private:
     INSTRUCTION_DIGESTION,
   };
 
-  enum class build_type_e { EXECUTABLE, LIBRARY };
-
   struct constant_value_t {
-    libskiff::binary::constant_type_e type;
+    libskiff::types::constant_type_e type;
     uint64_t address;
     std::vector<uint8_t> data;
   };
@@ -78,11 +78,12 @@ private:
   const std::string &_input_file;
   uint64_t _current_line_number{0};
   state_e _state{state_e::DIRECTIVE_DIGESTION};
-  build_type_e _build_type{build_type_e::EXECUTABLE};
+  libskiff::types::binary_type_e _build_type{libskiff::types::binary_type_e::EXECUTABLE};
   assembled_t _result{.stats = {.num_instructions = 0},
                       .errors = std::nullopt,
                       .warnings = std::nullopt,
-                      .bin = std::nullopt};
+                      .bin = std::nullopt,
+                      .build_type = libskiff::types::binary_type_e::EXECUTABLE};
   std::vector<std::string> _file_data;
   std::vector<match_t> _directive_match;
   std::vector<match_t> _instruction_match;
@@ -94,15 +95,18 @@ private:
   std::vector<std::string> _current_chunks;
   libskiff::instructions::instruction_generator_c _ins_gen;
   std::unique_ptr<libskiff::generator::generator_if> _generator;
+  std::vector<std::string> _libraries;
 
   std::string remove_comments(const std::string &str);
   void add_error(const std::string &str);
   void add_warning(const std::string &str);
   void add_debug(const std::string &str);
+  void add_trace(const std::string &str);
   void pre_scan();
+  bool load_libraries();
   void parse(const std::vector<match_t> &function_match);
 
-  bool add_constant(std::string name, libskiff::binary::constant_type_e type,
+  bool add_constant(std::string name, libskiff::types::constant_type_e type,
                     std::vector<uint8_t> value);
   bool directive_init();
   bool directive_lib();
@@ -151,6 +155,8 @@ private:
 
 inline std::vector<std::string> chunk_line(std::string line)
 {
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+
   std::vector<std::string> chunks;
   bool in_sub_str = false;
   std::string token = "";
@@ -178,8 +184,11 @@ inline std::vector<std::string> chunk_line(std::string line)
 }
 } // namespace
 
-assembler_c::assembler_c(const std::string &input) : _input_file(input)
+assembler_c::assembler_c(const std::string &input,
+                         std::vector<std::string> libraries)
+    : _input_file(input), _libraries(libraries)
 {
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
   _directive_match = {
       match_t{
           std::regex("^\\.init$"),
@@ -276,8 +285,18 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
 
 assembled_t assembler_c::get_result()
 {
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  // Something went wrong and _generator didn't get defined
+  if (!_generator) {
+    return {.stats = {.num_instructions = 0},
+            .errors = std::nullopt,
+            .warnings = std::nullopt,
+            .bin = std::nullopt,
+            .build_type = libskiff::types::binary_type_e::EXECUTABLE};
+  }
+
   // If we are building a library we need to build a section table
-  if (_build_type == build_type_e::LIBRARY) {
+  if (_build_type == libskiff::types::binary_type_e::LIBRARY) {
     for (auto &item : _label_to_location) {
       auto section = _ins_gen.gen_lib_section(item.second, item.first);
       if (section == std::nullopt) {
@@ -288,12 +307,14 @@ assembled_t assembler_c::get_result()
     }
   }
 
+  _result.build_type = _build_type;
   _result.bin = _generator->generate_binary();
   return _result;
 }
 
 void assembler_c::add_error(const std::string &str)
 {
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
   std::string e = "Error (line: ";
   e += std::to_string(_current_line_number);
   e += ") : ";
@@ -306,10 +327,13 @@ void assembler_c::add_error(const std::string &str)
     return;
   }
   _result.errors.value().push_back(e);
+
+  LOG(FATAL) << TAG("assembler") << "line: " << _current_line_number << ": "  << str << "\n";
 }
 
 void assembler_c::add_warning(const std::string &str)
 {
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
   std::string e = "Warning (line: ";
   e += std::to_string(_current_line_number);
   e += ") : ";
@@ -322,16 +346,23 @@ void assembler_c::add_warning(const std::string &str)
     return;
   }
   _result.warnings.value().push_back(e);
+
+  LOG(WARNING) << TAG("assembler") << "line: " << _current_line_number << ": "  << str << "\n";
 }
 
 void assembler_c::add_debug(const std::string &str)
 {
-  std::cout << "DEBUG (line: " << _current_line_number << ") : " << str
-            << std::endl;
+  LOG(DEBUG) << TAG("assembler") << "line: " << _current_line_number << ": " << str << "\n";
+}
+
+void assembler_c::add_trace(const std::string &str)
+{
+  LOG(TRACE) << TAG("assembler") << "line: " << _current_line_number << ": " << str << "\n";
 }
 
 void assembler_c::pre_scan()
 {
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
   _expected_bin_size = 0;
   bool count_items = false;
   for (auto &line : _file_data) {
@@ -377,6 +408,7 @@ void assembler_c::pre_scan()
 
 void assembler_c::parse(const std::vector<match_t> &function_match)
 {
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
   if (_current_chunks.empty()) {
     return;
   }
@@ -389,13 +421,31 @@ void assembler_c::parse(const std::vector<match_t> &function_match)
   }
 }
 
+bool assembler_c::load_libraries()
+{
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  for (auto &item : _libraries) {
+    std::cout << "Load : " << item << std::endl;
+  }
+  return false;
+}
+
 std::string assembler_c::remove_comments(const std::string &line)
 {
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
   return line.substr(0, line.find_first_of(';'));
 }
 
 void assembler_c::assemble()
 {
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  if (!_libraries.empty()) {
+    if (!load_libraries()) {
+      add_error("Unable to load libraries");
+      return;
+    }
+  }
+
   std::ifstream ifs(_input_file);
   if (!ifs.is_open()) {
     add_error("Unable to open file for assembly");
@@ -435,30 +485,21 @@ void assembler_c::assemble()
     add_error("Missing .code directive");
   }
 
-  // ----------------------------------------------------
-  //    Remove all this
-  // ----------------------------------------------------
-
-  for (auto item : _constant_name_to_value) {
-
-    std::cout << "Constant : " << item.first
-              << ", type = " << (int)item.second.type
-              << ", address = " << item.second.address << std::endl;
-  }
-
-  // ----------------------------------------------------
   _result.stats.num_instructions = _ins_gen.get_number_instructions_generated();
 }
 
-assembled_t assemble(const std::string &input)
+assembled_t assemble(const std::string &input,
+                     std::vector<std::string> libraries)
 {
-  assembler_c assembler(input);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  assembler_c assembler(input, libraries);
   assembler.assemble();
   return assembler.get_result();
 }
 
 std::optional<uint64_t> assembler_c::get_label_address(const std::string label)
 {
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
   if (_label_to_location.find(label) == _label_to_location.end()) {
     return std::nullopt;
   }
@@ -467,7 +508,8 @@ std::optional<uint64_t> assembler_c::get_label_address(const std::string label)
 
 bool assembler_c::directive_init()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
   if (_current_line_number != 1) {
     add_error(".init directive must be the first item in the asm file");
     return false;
@@ -495,7 +537,7 @@ bool assembler_c::directive_init()
   }
 
   _directive_checks.init = true;
-  _build_type = build_type_e::EXECUTABLE;
+  _build_type = libskiff::types::binary_type_e::EXECUTABLE;
   _generator = std::make_unique<libskiff::generator::executable_c>();
   reinterpret_cast<libskiff::generator::executable_c *>(_generator.get())
       ->set_entry(*init_address);
@@ -504,7 +546,8 @@ bool assembler_c::directive_init()
 
 bool assembler_c::directive_lib()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
 
   if (_current_line_number != 1) {
     add_error(".lib directive must be the first item in the asm file");
@@ -527,14 +570,15 @@ bool assembler_c::directive_lib()
   }
 
   _directive_checks.lib = true;
-  _build_type = build_type_e::LIBRARY;
+  _build_type = libskiff::types::binary_type_e::LIBRARY;
   _generator = std::make_unique<libskiff::generator::library_c>();
   return true;
 }
 
 bool assembler_c::directive_code()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
   if (_directive_checks.code) {
     add_error("Duplicate .code directive");
     return false;
@@ -552,7 +596,8 @@ bool assembler_c::directive_code()
 
 bool assembler_c::directive_debug()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
   if (_directive_checks.debug) {
     add_error("Duplicate .debug directive");
     return false;
@@ -588,9 +633,10 @@ bool assembler_c::directive_debug()
 }
 
 bool assembler_c::add_constant(std::string name,
-                               libskiff::binary::constant_type_e type,
+                               libskiff::types::constant_type_e type,
                                std::vector<uint8_t> data)
 {
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
   if (_constant_name_to_value.find(name) != _constant_name_to_value.end()) {
     add_error("Duplicate constant name '" + _current_chunks[1] + "'");
     return false;
@@ -604,7 +650,8 @@ bool assembler_c::add_constant(std::string name,
 
 bool assembler_c::directive_string()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
   if (_current_chunks.size() != 3) {
     add_error("Malformed .string directive");
     return false;
@@ -618,12 +665,13 @@ bool assembler_c::directive_string()
   }
 
   return add_constant(_current_chunks[1],
-                      libskiff::binary::constant_type_e::STRING, *value);
+                      libskiff::types::constant_type_e::STRING, *value);
 }
 
 bool assembler_c::directive_float()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
   if (_current_chunks.size() != 3) {
     add_error("Malformed .float directive");
     return false;
@@ -637,7 +685,7 @@ bool assembler_c::directive_float()
   }
 
   return add_constant(_current_chunks[1],
-                      libskiff::binary::constant_type_e::FLOAT,
+                      libskiff::types::constant_type_e::FLOAT,
                       _ins_gen.generate_fp_constant(*fp_value));
   return false;
 }
@@ -647,7 +695,8 @@ bool assembler_c::directive_float()
 
 bool assembler_c::directive_int_8()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
   if (_current_chunks.size() != 3) {
     add_error("Malformed .i8 directive");
     return false;
@@ -665,14 +714,15 @@ bool assembler_c::directive_int_8()
     return false;
   }
 
-  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::I8,
+  return add_constant(_current_chunks[1], libskiff::types::constant_type_e::I8,
                       _ins_gen.generate_i8_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_int_16()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
   if (_current_chunks.size() != 3) {
     add_error("Malformed .i16 directive");
     return false;
@@ -691,14 +741,15 @@ bool assembler_c::directive_int_16()
   }
 
   return add_constant(_current_chunks[1],
-                      libskiff::binary::constant_type_e::I16,
+                      libskiff::types::constant_type_e::I16,
                       _ins_gen.generate_i16_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_int_32()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
   if (_current_chunks.size() != 3) {
     add_error("Malformed .i32 directive");
     return false;
@@ -717,14 +768,15 @@ bool assembler_c::directive_int_32()
   }
 
   return add_constant(_current_chunks[1],
-                      libskiff::binary::constant_type_e::I32,
+                      libskiff::types::constant_type_e::I32,
                       _ins_gen.generate_i32_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_int_64()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
   if (_current_chunks.size() != 3) {
     add_error("Malformed .i64 directive");
     return false;
@@ -743,14 +795,15 @@ bool assembler_c::directive_int_64()
   }
 
   return add_constant(_current_chunks[1],
-                      libskiff::binary::constant_type_e::I64,
+                      libskiff::types::constant_type_e::I64,
                       _ins_gen.generate_i64_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_uint_8()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
   if (_current_chunks.size() != 3) {
     add_error("Malformed .u8 directive");
     return false;
@@ -769,14 +822,15 @@ bool assembler_c::directive_uint_8()
     return false;
   }
 
-  return add_constant(_current_chunks[1], libskiff::binary::constant_type_e::U8,
+  return add_constant(_current_chunks[1], libskiff::types::constant_type_e::U8,
                       _ins_gen.generate_u8_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_uint_16()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
   if (_current_chunks.size() != 3) {
     add_error("Malformed .u16 directive");
     return false;
@@ -796,14 +850,15 @@ bool assembler_c::directive_uint_16()
   }
 
   return add_constant(_current_chunks[1],
-                      libskiff::binary::constant_type_e::U16,
+                      libskiff::types::constant_type_e::U16,
                       _ins_gen.generate_u16_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_uint_32()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
   if (_current_chunks.size() != 3) {
     add_error("Malformed .u32 directive");
     return false;
@@ -823,14 +878,15 @@ bool assembler_c::directive_uint_32()
   }
 
   return add_constant(_current_chunks[1],
-                      libskiff::binary::constant_type_e::U32,
+                      libskiff::types::constant_type_e::U32,
                       _ins_gen.generate_u32_constant(*value));
   return false;
 }
 
 bool assembler_c::directive_uint_64()
 {
-  add_debug(__func__);
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  add_trace(__func__);
   if (_current_chunks.size() != 3) {
     add_error("Malformed .u64 directive");
     return false;
@@ -850,18 +906,20 @@ bool assembler_c::directive_uint_64()
   }
 
   return add_constant(_current_chunks[1],
-                      libskiff::binary::constant_type_e::U64,
+                      libskiff::types::constant_type_e::U64,
                       _ins_gen.generate_u64_constant(*value));
   return false;
 }
 
 void assembler_c::add_instruction_bytes(std::vector<uint8_t> bytes)
 {
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
   _generator->add_instruction(bytes);
 }
 
 std::optional<uint32_t> assembler_c::get_value(const std::string item)
 {
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
   if (item.size() < 2) {
     return std::nullopt;
   }
@@ -937,22 +995,21 @@ std::optional<uint32_t> assembler_c::get_value(const std::string item)
 
 bool assembler_c::build_nop()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   add_instruction_bytes(_ins_gen.gen_nop());
   return true;
 }
 
 bool assembler_c::build_exit()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   add_instruction_bytes(_ins_gen.gen_exit());
   return true;
 }
 
 bool assembler_c::build_blt()
 {
-  add_debug(__func__);
-
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed blt instruction");
     return false;
@@ -982,7 +1039,7 @@ bool assembler_c::build_blt()
 
 bool assembler_c::build_bgt()
 {
-  add_debug(__func__);
+  add_trace(__func__);
 
   if (_current_chunks.size() != 4) {
     add_error("Malformed bgt instruction");
@@ -1013,7 +1070,7 @@ bool assembler_c::build_bgt()
 
 bool assembler_c::build_beq()
 {
-  add_debug(__func__);
+  add_trace(__func__);
 
   if (_current_chunks.size() != 4) {
     add_error("Malformed beq instruction");
@@ -1044,7 +1101,7 @@ bool assembler_c::build_beq()
 
 bool assembler_c::build_jmp()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 2) {
     add_error("Malformed jmp instruction");
     return false;
@@ -1062,7 +1119,7 @@ bool assembler_c::build_jmp()
 
 bool assembler_c::build_call()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 2) {
     add_error("Malformed call instruction");
     return false;
@@ -1086,7 +1143,7 @@ bool assembler_c::build_ret()
 
 bool assembler_c::build_mov()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 3) {
     add_error("Malformed mov instruction");
     return false;
@@ -1110,7 +1167,7 @@ bool assembler_c::build_mov()
 
 bool assembler_c::build_add()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed add instruction");
     return false;
@@ -1140,7 +1197,7 @@ bool assembler_c::build_add()
 
 bool assembler_c::build_sub()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed sub instruction");
     return false;
@@ -1170,7 +1227,7 @@ bool assembler_c::build_sub()
 
 bool assembler_c::build_div()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed div instruction");
     return false;
@@ -1200,7 +1257,7 @@ bool assembler_c::build_div()
 
 bool assembler_c::build_mul()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed mul instruction");
     return false;
@@ -1230,7 +1287,7 @@ bool assembler_c::build_mul()
 
 bool assembler_c::build_addf()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed addf instruction");
     return false;
@@ -1260,7 +1317,7 @@ bool assembler_c::build_addf()
 
 bool assembler_c::build_subf()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed subf instruction");
     return false;
@@ -1290,7 +1347,7 @@ bool assembler_c::build_subf()
 
 bool assembler_c::build_divf()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed divf instruction");
     return false;
@@ -1320,7 +1377,7 @@ bool assembler_c::build_divf()
 
 bool assembler_c::build_mulf()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed mulf instruction");
     return false;
@@ -1350,7 +1407,7 @@ bool assembler_c::build_mulf()
 
 bool assembler_c::build_lsh()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed lsh instruction");
     return false;
@@ -1380,7 +1437,7 @@ bool assembler_c::build_lsh()
 
 bool assembler_c::build_rsh()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed rsh instruction");
     return false;
@@ -1410,7 +1467,7 @@ bool assembler_c::build_rsh()
 
 bool assembler_c::build_and()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed and instruction");
     return false;
@@ -1440,7 +1497,7 @@ bool assembler_c::build_and()
 
 bool assembler_c::build_or()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed or instruction");
     return false;
@@ -1470,7 +1527,7 @@ bool assembler_c::build_or()
 
 bool assembler_c::build_xor()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 4) {
     add_error("Malformed xor instruction");
     return false;
@@ -1500,7 +1557,7 @@ bool assembler_c::build_xor()
 
 bool assembler_c::build_not()
 {
-  add_debug(__func__);
+  add_trace(__func__);
   if (_current_chunks.size() != 3) {
     add_error("Malformed not instruction");
     return false;
