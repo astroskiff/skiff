@@ -6,7 +6,7 @@
 |    Register  |  Byte code  |  Description  |
 |----|----|----|
 | x0 | 0x00 | `Read-only` '0' constant |
-| x1 | 0x00 | `Read-only` '1' constant |
+| x1 | 0x01 | `Read-only` '1' constant |
 | ip | 0x02 | `Read-only` Instruction pointer |
 | fp | 0x03 | `Read-only` Stack pointer |
 | i0 | 0x10 | Integer Register |
@@ -33,20 +33,10 @@
 
 # ASM Directives
 
-## .data
-
-**Description:**
-Should be the first thing listed in a file. Starts the data segment where all of the other directives should exist.
-
-**Example:**
-```
-  .data
-```
-
 ##  .init
 
 **Description:**
-Used to define the name of the first label to start execution from
+*Required* Used to define the name of the first label to start execution from. 
 
 **Example:**
 ```
@@ -182,6 +172,9 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Format:** `blt <register lhs> <register rhs> <label>`
 **Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs < rhs`
 **Example:**	`blt i0 i1 label_name	; Branch to a label`
+**Note:** In the future this instruction should be updated to allow the
+currently empty byte to be a `variant` byte, and allow registers to be
+used in the stead of labels. That way we can branch further than u32
 
 ## bgt
 **Opcode** 0x03
@@ -197,6 +190,9 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Format:** `bgt <register lhs> <register rhs> <label>`
 **Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs > rhs`
 **Example:**	`blt i0 i1 label_name	; Branch to a label`
+**Note:** In the future this instruction should be updated to allow the
+currently empty byte to be a `variant` byte, and allow registers to be
+used in the stead of labels. That way we can branch further than u32
 
 ## beq
 **Opcode** 0x04
@@ -212,6 +208,9 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Format:** `beq <register lhs> <register rhs> <label>`
 **Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs = rhs`
 **Example:**	`beq i0 i1 label_name	; Branch to a label`
+**Note:** In the future this instruction should be updated to allow the
+currently empty byte to be a `variant` byte, and allow registers to be
+used in the stead of labels. That way we can branch further than u32
 
 ## jmp
 **Opcode** 0x05
@@ -227,6 +226,9 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Format:** `jmp <label>`
 **Description:** Unconditionally jump to a label.
 **Example:**	`jmp label_name`
+**Note:** In the future this instruction should be updated to allow one
+of the currently empty byte to be a `variant` byte, and allow registers 
+to be used in the stead of labels. That way we can branch further than u32
 
 ## call
 **Opcode** 0x06
@@ -262,7 +264,7 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Opcode** 0x08
 **Instruction Layout:**
 ```
-	[ ------ Length ----- ] [ Variant ] [ Opcode ]
+	[ ----- Empty ------ ]  [ Dest ]   [ Opcode ]
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 1000 
 	
 	[ ------------------ Value ---------------- ]
@@ -270,13 +272,13 @@ Indicates the start of 'code' space. No more directives shall follow this
 ```
 
 **Format:** `mov <register> <source>`
-**Description:** Move some data into a given register. If the second 32-bit section contains the data to be moved into the register, the variant byte will be set to `1`, otherwise, the data in the second section will be used as an address, and `length` number of bytes will be copied into the register from the address. Since a register is 8 bytes, the most amount of data that will be copied is 8 bytes.
+**Description:** Move some data into a given register.
 
 **Example:**	
 ```
-	mov i0 &my_int	; Address of my_int
+	mov i0 &my_int	; Address of constant
 	mov i0 &label	; Label address
-	mov i0 #my_int	; Value of my_int
+	mov i0 #my_int	; Length of constant
 	mov i0 @33		; Move raw value into i0
 ```
 
@@ -446,11 +448,11 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
 
 ## or
-**Opcode** 0x13
+**Opcode** 0x14
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0001 0011 
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 0100 
 	
 	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
@@ -461,11 +463,11 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
 
 ## xor
-**Opcode** 0x14
+**Opcode** 0x15
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0001 0100 
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 0101 
 	
 	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
@@ -476,11 +478,11 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
 
 ## not
-**Opcode** 0x15
+**Opcode** 0x16
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0001 0101 
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 0110
 	
 	[ Dest Reg ] [  Reg   ] [ ------ Empty ----- ]
 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 

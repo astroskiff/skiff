@@ -9,6 +9,8 @@ include_directories(
 add_executable(libskiff_unit_tests
         ${PROJECT_SOURCES}
         example.cpp
+        assembler.cpp
+        instruction_generator.cpp
         floating_point.cpp
         main.cpp)
 

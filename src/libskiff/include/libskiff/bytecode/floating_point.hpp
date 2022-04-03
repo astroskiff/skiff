@@ -4,6 +4,7 @@
 #include <cstdint>
 
 namespace libskiff {
+namespace bytecode {
 namespace floating_point {
 
 //! \brief Components of a floating point data type
@@ -42,5 +43,6 @@ extern bool are_equal(const double lhs, const double rhs,
                       const double precision = 0.00001);
 
 } // namespace floating_point
+} // namespace bytecode
 } // namespace libskiff
 #endif

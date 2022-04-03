@@ -1,7 +1,7 @@
 
+#include <libutil/random_string.hpp>
 #include <set>
 #include <string>
-#include <libutil/random_string.hpp>
 
 #include "CppUTest/TestHarness.h"
 TEST_GROUP(RandomStrings){void setup(){}

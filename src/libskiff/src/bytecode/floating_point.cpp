@@ -1,7 +1,8 @@
-#include "libskiff/floating_point.hpp"
+#include "libskiff/bytecode/floating_point.hpp"
 #include <cmath>
 
 namespace libskiff {
+namespace bytecode {
 namespace floating_point {
 
 namespace {
@@ -53,15 +54,12 @@ double construct(const struct deconstructed_t dd)
 
 bool are_equal(const double lhs, const double rhs, double precision)
 {
-  if (((lhs - precision) < rhs) && ((lhs + precision) > rhs)) {
-    return 1;
-  }
-  return 0;
+  return std::fabs(lhs - rhs) < precision;
 }
 
 uint64_t to_uint64_t(const double value)
 {
-  extract_u d; 
+  extract_u d;
   d.d = value;
   return d.bin;
 }
@@ -74,4 +72,5 @@ double from_uint64_t(const uint64_t value)
 }
 
 } // namespace floating_point
+} // namespace bytecode
 } // namespace libskiff
