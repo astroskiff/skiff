@@ -1,5 +1,3 @@
-#include <CppUTest/TestHarness.h>
-
 #include <libskiff/assembler/assemble.hpp>
 #include <libskiff/bytecode/executable.hpp>
 #include <libskiff/logging/aixlog.hpp>
@@ -7,6 +5,7 @@
 
 #include <fstream>
 #include <vector>
+#include <CppUTest/TestHarness.h>
 
 namespace {
 

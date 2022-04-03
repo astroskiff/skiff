@@ -1,16 +1,17 @@
-#include "CppUTest/TestHarness.h"
+
 #include <iostream>
 #include <libskiff/bytecode/floating_point.hpp>
 #include <libutil/generate_random.hpp>
 #include <limits>
 #include <stdint.h>
+#include "CppUTest/TestHarness.h"
 
 TEST_GROUP(floating_point){void setup(){} void teardown(){}};
 
 TEST(floating_point, construction_deconstruction)
 {
   for (auto i = 0; i < 100; i++) {
-    auto value = libutil::generate::generate_random_c<double>().get_range(
+    auto value = libutil::generate::generate_random_c<double>().get_floating_point_range(
         std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
 
     // Deconstruct it
@@ -28,7 +29,7 @@ TEST(floating_point, construction_deconstruction)
 TEST(floating_point, equality)
 {
   for (auto i = 0; i < 100; i++) {
-    auto value = libutil::generate::generate_random_c<double>().get_range(
+    auto value = libutil::generate::generate_random_c<double>().get_floating_point_range(
         std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
 
     auto modified = value;
@@ -40,7 +41,7 @@ TEST(floating_point, equality)
 TEST(floating_point, encode_decode)
 {
   for (auto i = 0; i < 100; i++) {
-    auto value = libutil::generate::generate_random_c<double>().get_range(
+    auto value = libutil::generate::generate_random_c<double>().get_floating_point_range(
         std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
 
     CHECK_EQUAL(value,
