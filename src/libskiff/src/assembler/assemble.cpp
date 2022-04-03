@@ -45,6 +45,7 @@ template <class T> std::optional<T> get_number(const std::string value)
 class assembler_c {
 public:
   assembler_c(const std::string &input);
+  ~assembler_c() = default;
   assembled_t get_result();
   void assemble();
 

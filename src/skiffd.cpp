@@ -33,7 +33,7 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
 
   if (display_stats && assembled.bin != std::nullopt) {
     std::cout << assembled.stats.num_instructions
-              << " number of instructions generated resulting in "
+              << " items assembled resulting in "
               << assembled.bin.value().size() << " bytes" << std::endl;
   }
 
@@ -71,7 +71,6 @@ int main(int argc, char **argv)
 
   // Display for now - remove later
   if (opts != std::nullopt) {
-    skiff_opt::display_opts(opts.value());
     setup_logger(opts->log_level);
   } else {
     AixLog::Log::init<AixLog::SinkCout>(AixLog::Severity::fatal);

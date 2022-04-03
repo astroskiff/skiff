@@ -53,7 +53,8 @@ std::optional<std::unique_ptr<executable_c>> load_binary(const std::string &file
     }
 
     // Debug Level
-    auto dbg_level = static_cast<libskiff::types::exec_debug_level_e>(read(is, 1)[0]);
+    auto dlevel = read(is, 1)[0];
+    auto dbg_level = static_cast<libskiff::types::exec_debug_level_e>(dlevel);
     switch(dbg_level) {
       case libskiff::types::exec_debug_level_e::NONE:
         [[fallthrough]];
@@ -67,6 +68,7 @@ std::optional<std::unique_ptr<executable_c>> load_binary(const std::string &file
         LOG(FATAL) << TAG("loader") << "Invalid debug level\n";
         return std::nullopt;
     }
+    LOG(DEBUG) << TAG("loader") << "Setting debug to level : " << (int) dlevel<< "\n";
     loaded_object->set_debug_level(dbg_level);
 
     // Section table num entries

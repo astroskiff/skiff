@@ -15,7 +15,7 @@ namespace binary {
 //! \brief A loaded item
 class executable_c {
 public:
-  executable_c() = default;
+  executable_c() : _debug_level(libskiff::types::exec_debug_level_e::NONE){};
 
   //! \brief Construct an executable item
   executable_c(const uint32_t compatibility) : _compatiblity_dword(compatibility){}
@@ -59,7 +59,7 @@ private:
   libskiff::types::semver_t _semver;
   uint64_t _entry_address{0};
   std::unordered_map<std::string, uint64_t> _section_table;
-  libskiff::types::exec_debug_level_e _debug_level{libskiff::types::exec_debug_level_e::NONE};
+  libskiff::types::exec_debug_level_e _debug_level;
 };
 
 //! \brief Load a given binary

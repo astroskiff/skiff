@@ -29,18 +29,6 @@ static void show_usage()
                "[-l | --loglevel ] \n\t[trace|debug|info|warn|error]\tDisplay statistics\n";
 }
 
-static void display_opts(skiff_opt::options_t opts)
-{
-  if (opts.assemble_file != std::nullopt) {
-    std::cout << "Asked to assemble file : "
-              << opts.assemble_file.value().file_in << std::endl;
-    if (opts.assemble_file.value().file_out != std::nullopt) {
-      std::cout << "Asked to output the file as : "
-                << opts.assemble_file.value().file_out.value() << std::endl;
-    }
-  }
-}
-
 static std::optional<options_t> build_options(std::vector<std::string> opts)
 {
   options_t options{std::nullopt, AixLog::Severity::fatal};
