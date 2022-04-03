@@ -7,11 +7,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Properties Common
-          command: 'sudo apt-get install software-properties-common'
-      - run:
           name: Installing SUDO
           command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
+      - run:
+          name: Properties Common
+          command: 'sudo apt-get install software-properties-common'
       - run: 
           name: Install toolchain repository
           command: 'sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test'
