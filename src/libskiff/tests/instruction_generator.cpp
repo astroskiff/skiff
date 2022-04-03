@@ -1,4 +1,3 @@
-#include <CppUTest/TestHarness.h>
 
 #include <libskiff/bytecode/floating_point.hpp>
 #include <libskiff/generators/instruction_generator.hpp>
@@ -7,6 +6,8 @@
 
 #include <bitset>
 #include <iostream>
+
+#include <CppUTest/TestHarness.h>
 
 namespace {
 struct tc_register_t {
