@@ -12,10 +12,12 @@ jobs:
       - run:
           name: Installing build tools
           command: 'sudo apt-get update && apt-get install -y gcc g++ wget pkg-config'
-
       - run:
-          name: CMake
-          command: 'wget https://github.com/Kitware/CMake/releases/download/v3.23.0/cmake-3.23.0-linux-x86_64.sh && bash cmake-3.23.0-linux-x86_64.sh'
+          name: Download CMake
+          command: 'wget https://github.com/Kitware/CMake/releases/download/v3.13.4/cmake-3.13.4.tar.gz && tar zxvf cmake-3.13.4.tar.gz'
+      - run:
+          name: Build / Install CMake
+          command: 'cd cmake-3.13.4 && sudo ./bootstrap && sudo make && sudo make install'
       - run:
           name: Install CppuTest
           command: 'bash scripts/install_cpputest.sh'
