@@ -1,0 +1,32 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: "debian:stretch"
+    steps:
+      - checkout
+      - run:
+          name: Installing SUDO
+          command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
+      - run:
+          name: Installing GCC
+          command: 'apt-get update && apt-get install -y gcc g++'
+      - run:
+          name: Install CMAKE
+          command: 'apt-get update && sudo apt-get install -y cmake'
+      - run:
+          name: Install CppuTest
+          command: 'bash scripts/install_cpputest.sh'
+      - run:
+          name: Dir setup
+          command: 'mkdir build && mkdir build-release && mkdir build-asan'
+      - run:
+          name: Debug build
+          command: 'cd build && cmake ../src -DCMAKE_BUILD_TYPE=Debug'
+      - run:
+          name: Release build
+          command: 'cd build && cmake ../src -DCMAKE_BUILD_TYPE=Release'
+      - run:
+          name: Debug build
+          command: 'cd build && cmake ../src -DCMAKE_BUILD_TYPE=Release -DWITH_ASAN=ON'
