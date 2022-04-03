@@ -1,6 +1,7 @@
 #include "libskiff/generators/instruction_generator.hpp"
 #include "libskiff/bytecode/floating_point.hpp"
 #include "libskiff/bytecode/instructions.hpp"
+#include "libskiff/bytecode/helpers.hpp"
 
 #include <limits>
 
@@ -45,38 +46,6 @@ void instruction_generator_c::update_meta(const uint64_t bytes)
   _bytes_generated += bytes;
 }
 
-static inline std::vector<uint8_t> pack_2(const uint16_t value)
-{
-  std::vector<uint8_t> encoded_bytes;
-  encoded_bytes.push_back(value >> 8);
-  encoded_bytes.push_back(value);
-  return encoded_bytes;
-}
-
-static inline std::vector<uint8_t> pack_4(const uint32_t value)
-{
-  std::vector<uint8_t> encoded_bytes;
-  encoded_bytes.push_back(value >> 24);
-  encoded_bytes.push_back(value >> 16);
-  encoded_bytes.push_back(value >> 8);
-  encoded_bytes.push_back(value);
-  return encoded_bytes;
-}
-
-static inline std::vector<uint8_t> pack_8(const uint64_t value)
-{
-  std::vector<uint8_t> encoded_bytes;
-  encoded_bytes.push_back(value >> 56);
-  encoded_bytes.push_back(value >> 48);
-  encoded_bytes.push_back(value >> 40);
-  encoded_bytes.push_back(value >> 32);
-  encoded_bytes.push_back(value >> 24);
-  encoded_bytes.push_back(value >> 16);
-  encoded_bytes.push_back(value >> 8);
-  encoded_bytes.push_back(value);
-  return encoded_bytes;
-}
-
 std::optional<std::vector<uint8_t>>
 instruction_generator_c::gen_string_constant(const std::string_view str)
 {
@@ -89,8 +58,7 @@ instruction_generator_c::gen_string_constant(const std::string_view str)
   std::vector<uint8_t> encoded_bytes;
   encoded_bytes.reserve(
       8 + str.size()); // eight byte length encoding + string length
-
-  auto encoded_size = pack_8(static_cast<uint64_t>(str.size()));
+  auto encoded_size = libskiff::bytecode::helpers::pack_8(static_cast<uint64_t>(str.size()));
   encoded_bytes.insert(encoded_bytes.end(), encoded_size.begin(),
                        encoded_size.end());
 
@@ -106,7 +74,7 @@ instruction_generator_c::gen_lib_section(const uint64_t address,
                                          const std::string section_name)
 {
   std::vector<uint8_t> encoded_bytes;
-  auto encoded_address = pack_8(address);
+  auto encoded_address = libskiff::bytecode::helpers::pack_8(address);
   auto encoded_section = gen_string_constant(section_name); // Same encoding
 
   if (encoded_section == std::nullopt) {
@@ -133,7 +101,7 @@ instruction_generator_c::generate_u8_constant(const uint8_t value)
 std::vector<uint8_t>
 instruction_generator_c::generate_u16_constant(const uint16_t value)
 {
-  auto encoded_bytes = pack_2(value);
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_2(value);
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -141,7 +109,7 @@ instruction_generator_c::generate_u16_constant(const uint16_t value)
 std::vector<uint8_t>
 instruction_generator_c::generate_u32_constant(const uint32_t value)
 {
-  auto encoded_bytes = pack_4(value);
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_4(value);
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -149,7 +117,7 @@ instruction_generator_c::generate_u32_constant(const uint32_t value)
 std::vector<uint8_t>
 instruction_generator_c::generate_u64_constant(const uint64_t value)
 {
-  auto encoded_bytes = pack_8(value);
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_8(value);
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -166,7 +134,7 @@ instruction_generator_c::generate_i8_constant(const int8_t value)
 std::vector<uint8_t>
 instruction_generator_c::generate_i16_constant(const int16_t value)
 {
-  auto encoded_bytes = pack_2(static_cast<uint16_t>(value));
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_2(static_cast<uint16_t>(value));
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -174,7 +142,7 @@ instruction_generator_c::generate_i16_constant(const int16_t value)
 std::vector<uint8_t>
 instruction_generator_c::generate_i32_constant(const int32_t value)
 {
-  auto encoded_bytes = pack_4(static_cast<uint32_t>(value));
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_4(static_cast<uint32_t>(value));
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -182,7 +150,7 @@ instruction_generator_c::generate_i32_constant(const int32_t value)
 std::vector<uint8_t>
 instruction_generator_c::generate_i64_constant(const int64_t value)
 {
-  auto encoded_bytes = pack_8(static_cast<uint64_t>(value));
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_8(static_cast<uint64_t>(value));
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -191,7 +159,7 @@ std::vector<uint8_t>
 instruction_generator_c::generate_fp_constant(const double value)
 {
   auto encoded_bytes =
-      pack_8(libskiff::bytecode::floating_point::to_uint64_t(value));
+      libskiff::bytecode::helpers::pack_8(libskiff::bytecode::floating_point::to_uint64_t(value));
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -208,7 +176,7 @@ instruction_generator_c::get_register_value(const std::string &value)
 std::vector<uint8_t> instruction_generator_c::gen_nop()
 {
   auto encoded_bytes =
-      pack_8(static_cast<uint64_t>(bytecode::instructions::NOP));
+      libskiff::bytecode::helpers::pack_8(static_cast<uint64_t>(bytecode::instructions::NOP));
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -216,7 +184,7 @@ std::vector<uint8_t> instruction_generator_c::gen_nop()
 std::vector<uint8_t> instruction_generator_c::gen_exit()
 {
   auto encoded_bytes =
-      pack_8(static_cast<uint64_t>(bytecode::instructions::EXIT) << 32);
+      libskiff::bytecode::helpers::pack_8(static_cast<uint64_t>(bytecode::instructions::EXIT) << 32);
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -232,7 +200,7 @@ std::vector<uint8_t> instruction_generator_c::gen_blt(const uint8_t lhs,
   uint64_t ins = static_cast<uint64_t>(top) << 32;
   ins |= static_cast<uint64_t>(address);
 
-  auto encoded_bytes = pack_8(ins);
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_8(ins);
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -248,7 +216,7 @@ std::vector<uint8_t> instruction_generator_c::gen_bgt(const uint8_t lhs,
   uint64_t ins = static_cast<uint64_t>(top) << 32;
   ins |= static_cast<uint64_t>(address);
 
-  auto encoded_bytes = pack_8(ins);
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_8(ins);
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -264,7 +232,7 @@ std::vector<uint8_t> instruction_generator_c::gen_beq(const uint8_t lhs,
   uint64_t ins = static_cast<uint64_t>(top) << 32;
   ins |= static_cast<uint64_t>(address);
 
-  auto encoded_bytes = pack_8(ins);
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_8(ins);
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -275,7 +243,7 @@ std::vector<uint8_t> instruction_generator_c::gen_jmp(const uint32_t address)
   uint64_t ins = static_cast<uint64_t>(top) << 32;
   ins |= static_cast<uint64_t>(address);
 
-  auto encoded_bytes = pack_8(ins);
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_8(ins);
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -286,7 +254,7 @@ std::vector<uint8_t> instruction_generator_c::gen_call(const uint32_t address)
   uint64_t ins = static_cast<uint64_t>(top) << 32;
   ins |= static_cast<uint64_t>(address);
 
-  auto encoded_bytes = pack_8(ins);
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_8(ins);
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -294,7 +262,7 @@ std::vector<uint8_t> instruction_generator_c::gen_call(const uint32_t address)
 std::vector<uint8_t> instruction_generator_c::gen_ret()
 {
   auto encoded_bytes =
-      pack_8(static_cast<uint64_t>(bytecode::instructions::RET) << 32);
+      libskiff::bytecode::helpers::pack_8(static_cast<uint64_t>(bytecode::instructions::RET) << 32);
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -308,7 +276,7 @@ std::vector<uint8_t> instruction_generator_c::gen_mov(const uint8_t reg,
   uint64_t ins = static_cast<uint64_t>(top) << 32;
   ins |= static_cast<uint64_t>(value);
 
-  auto encoded_bytes = pack_8(ins);
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_8(ins);
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }

@@ -17,13 +17,6 @@ The value here is split up into 4 - 8 byte chunks that indicate the following:
       Patch
 ```
 
-## Type Indicator Byte:
-
-```
-   Executable:  0xAA
-   Library:     0xFF
-```
-
 ## Constant Type IDs :
 
 These indicate to the reader how to interpret a segment of data when reading in a constant.
@@ -44,71 +37,33 @@ String constants
   [constant id] [8 byte length field] [string bytes]
 ```
 
-# Executable Binary layout:
-```
-
-Binary compatibility DWORD
-   0000 0000 0000 0000 | 0000 0000 0000 0000 
-
-Type indicator BYTE
-
-Number of constants QWORD
-   0000 0000 0000 0000 | 0000 0000 0000 0000
-   0000 0000 0000 0000 | 0000 0000 0000 0000
-
-Filler BYTE
-   1111 1111
-
-Constant encodings .... 
-
-Filler BYTE
-   1111 1111
-
-Entry Address QWORD
-   0000 0000 0000 0000 | 0000 0000 0000 0000
-   0000 0000 0000 0000 | 0000 0000 0000 0000
-
-Instructions ....
-
-```
-
-# Library:
-
 ## Section Table
 
 ```
-
 [ Number of sections QWORD ]
 [ Section Address QWORD ] [ Section Length QWORD ] [ Section Name String ]
 [ Section Address QWORD ] [ Section Length QWORD ] [ Section Name String ]
 [ Section Address QWORD ] [ Section Length QWORD ] [ Section Name String ]
 ...
-
-
 ```
 
+# Executable Binary layout:
 ```
+
 Binary compatibility DWORD
-   0000 0000 0000 0000 | 0000 0000 0000 0000 
 
-Type indicator BYTE
+Debug Level BYTE
+
+[Section Table]
 
 Number of constants QWORD
-   0000 0000 0000 0000 | 0000 0000 0000 0000
-   0000 0000 0000 0000 | 0000 0000 0000 0000
 
-Filler BYTE
-   1111 1111
+[Encoded Constants]
 
-Constant encodings .... 
+Entry Address QWORD
 
-Filler BYTE
-   1111 1111
+Number of instructions QWORD
 
-< Section Table >
+[Instructions]
 
-Filler BYTE
-   1111 1111
-
-Instructions ....
 ```

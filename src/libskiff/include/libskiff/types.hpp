@@ -7,12 +7,6 @@
 namespace libskiff {
 namespace types{
 
-//! \brief Types of binary files 
-enum class binary_type_e {
-  LIBRARY = 0xFF,    //! Library 
-  EXECUTABLE = 0xAA  //! Executable
-};
-
 //! \brief Encoded constant types
 enum class constant_type_e {
   U8 = 0x00,
@@ -25,6 +19,14 @@ enum class constant_type_e {
   I64 = 0x13,
   FLOAT = 0x20,
   STRING = 0x30,
+};
+
+//! \brief Execution-time debug level 
+enum class exec_debug_level_e {
+  NONE = 0x00,
+  MINIMAL = 0x01,
+  MODERATE = 0x02,
+  EXTREME = 0x03
 };
 
 //! \brief Semantic version

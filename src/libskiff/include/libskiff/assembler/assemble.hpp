@@ -21,11 +21,10 @@ struct assembled_t {
   std::optional<std::vector<std::string>> errors;   //! Errors produced
   std::optional<std::vector<std::string>> warnings; //! Warnings produced
   std::optional<std::vector<uint8_t>> bin;          //! Resulting binary
-  libskiff::types::binary_type_e build_type;
 };
 
 //! \brief Assemble
-extern assembled_t assemble(const std::string &input, std::vector<std::string> libraries);
+extern assembled_t assemble(const std::string &input);
 
 } // namespace assembler
 } // namespace libskiff

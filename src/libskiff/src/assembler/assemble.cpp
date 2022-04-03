@@ -44,7 +44,7 @@ template <class T> std::optional<T> get_number(const std::string value)
 
 class assembler_c {
 public:
-  assembler_c(const std::string &input, std::vector<std::string> libraries);
+  assembler_c(const std::string &input);
   assembled_t get_result();
   void assemble();
 
@@ -69,7 +69,6 @@ private:
 
   struct directive_checks_t {
     bool init;
-    bool lib;
     bool code;
     bool debug;
     bool data_first;
@@ -78,24 +77,21 @@ private:
   const std::string &_input_file;
   uint64_t _current_line_number{0};
   state_e _state{state_e::DIRECTIVE_DIGESTION};
-  libskiff::types::binary_type_e _build_type{libskiff::types::binary_type_e::EXECUTABLE};
   assembled_t _result{.stats = {.num_instructions = 0},
                       .errors = std::nullopt,
                       .warnings = std::nullopt,
-                      .bin = std::nullopt,
-                      .build_type = libskiff::types::binary_type_e::EXECUTABLE};
+                      .bin = std::nullopt};
   std::vector<std::string> _file_data;
   std::vector<match_t> _directive_match;
   std::vector<match_t> _instruction_match;
 
-  directive_checks_t _directive_checks = {false, false, false, false, false};
+  directive_checks_t _directive_checks = {false, false, false, false};
   std::unordered_map<std::string, uint64_t> _label_to_location;
   std::unordered_map<std::string, constant_value_t> _constant_name_to_value;
   uint64_t _expected_bin_size{0};
   std::vector<std::string> _current_chunks;
   libskiff::instructions::instruction_generator_c _ins_gen;
-  std::unique_ptr<libskiff::generator::generator_if> _generator;
-  std::vector<std::string> _libraries;
+  std::unique_ptr<libskiff::generator::binary_generator> _generator;
 
   std::string remove_comments(const std::string &str);
   void add_error(const std::string &str);
@@ -103,7 +99,6 @@ private:
   void add_debug(const std::string &str);
   void add_trace(const std::string &str);
   void pre_scan();
-  bool load_libraries();
   void parse(const std::vector<match_t> &function_match);
 
   bool add_constant(std::string name, libskiff::types::constant_type_e type,
@@ -184,18 +179,14 @@ inline std::vector<std::string> chunk_line(std::string line)
 }
 } // namespace
 
-assembler_c::assembler_c(const std::string &input,
-                         std::vector<std::string> libraries)
-    : _input_file(input), _libraries(libraries)
+assembler_c::assembler_c(const std::string &input)
+    : _input_file(input)
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
   _directive_match = {
       match_t{
           std::regex("^\\.init$"),
           std::bind(&libskiff::assembler::assembler_c::directive_init, this)},
-      match_t{
-          std::regex("^\\.lib$"),
-          std::bind(&libskiff::assembler::assembler_c::directive_lib, this)},
       match_t{
           std::regex("^\\.debug$"),
           std::bind(&libskiff::assembler::assembler_c::directive_debug, this)},
@@ -291,23 +282,18 @@ assembled_t assembler_c::get_result()
     return {.stats = {.num_instructions = 0},
             .errors = std::nullopt,
             .warnings = std::nullopt,
-            .bin = std::nullopt,
-            .build_type = libskiff::types::binary_type_e::EXECUTABLE};
+            .bin = std::nullopt};
   }
 
-  // If we are building a library we need to build a section table
-  if (_build_type == libskiff::types::binary_type_e::LIBRARY) {
-    for (auto &item : _label_to_location) {
-      auto section = _ins_gen.gen_lib_section(item.second, item.first);
-      if (section == std::nullopt) {
-        add_error("Unable to encode section");
-      }
-      reinterpret_cast<libskiff::generator::library_c *>(_generator.get())
-          ->add_section(*section);
+  LOG(TRACE) << TAG("assembler") << "Building sections\n";
+  for (auto &item : _label_to_location) {
+    auto section = _ins_gen.gen_lib_section(item.second, item.first);
+    if (section == std::nullopt) {
+      add_error("Unable to encode section");
     }
+    _generator->add_section(*section);
   }
 
-  _result.build_type = _build_type;
   _result.bin = _generator->generate_binary();
   return _result;
 }
@@ -421,15 +407,6 @@ void assembler_c::parse(const std::vector<match_t> &function_match)
   }
 }
 
-bool assembler_c::load_libraries()
-{
-  LOG(TRACE) << TAG("func") << __func__ << "\n";
-  for (auto &item : _libraries) {
-    std::cout << "Load : " << item << std::endl;
-  }
-  return false;
-}
-
 std::string assembler_c::remove_comments(const std::string &line)
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
@@ -439,12 +416,6 @@ std::string assembler_c::remove_comments(const std::string &line)
 void assembler_c::assemble()
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
-  if (!_libraries.empty()) {
-    if (!load_libraries()) {
-      add_error("Unable to load libraries");
-      return;
-    }
-  }
 
   std::ifstream ifs(_input_file);
   if (!ifs.is_open()) {
@@ -478,8 +449,8 @@ void assembler_c::assemble()
     }
   }
 
-  if (!_directive_checks.init && !_directive_checks.lib) {
-    add_error("Missing .init / .lib directive");
+  if (!_directive_checks.init) {
+    add_error("Missing .init directive");
   }
   if (!_directive_checks.code) {
     add_error("Missing .code directive");
@@ -488,11 +459,10 @@ void assembler_c::assemble()
   _result.stats.num_instructions = _ins_gen.get_number_instructions_generated();
 }
 
-assembled_t assemble(const std::string &input,
-                     std::vector<std::string> libraries)
+assembled_t assemble(const std::string &input)
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
-  assembler_c assembler(input, libraries);
+  assembler_c assembler(input);
   assembler.assemble();
   return assembler.get_result();
 }
@@ -515,11 +485,6 @@ bool assembler_c::directive_init()
     return false;
   }
 
-  if (_directive_checks.lib) {
-    add_error(".init can not be declared along-side .lib directive");
-    return false;
-  }
-
   if (_directive_checks.init) {
     add_error("Duplicate .init directive");
     return false;
@@ -537,41 +502,8 @@ bool assembler_c::directive_init()
   }
 
   _directive_checks.init = true;
-  _build_type = libskiff::types::binary_type_e::EXECUTABLE;
-  _generator = std::make_unique<libskiff::generator::executable_c>();
-  reinterpret_cast<libskiff::generator::executable_c *>(_generator.get())
-      ->set_entry(*init_address);
-  return true;
-}
-
-bool assembler_c::directive_lib()
-{
-  LOG(TRACE) << TAG("func") << __func__ << "\n";
-  add_trace(__func__);
-
-  if (_current_line_number != 1) {
-    add_error(".lib directive must be the first item in the asm file");
-    return false;
-  }
-
-  if (_directive_checks.init) {
-    add_error(".lib can not be declared along-side .init directive");
-    return false;
-  }
-
-  if (_directive_checks.lib) {
-    add_error("Duplicate .lib directive");
-    return false;
-  }
-
-  if (_current_chunks.size() != 1) {
-    add_error("Malformed .lib");
-    return false;
-  }
-
-  _directive_checks.lib = true;
-  _build_type = libskiff::types::binary_type_e::LIBRARY;
-  _generator = std::make_unique<libskiff::generator::library_c>();
+  _generator = std::make_unique<libskiff::generator::binary_generator>();
+  _generator->set_entry(*init_address);
   return true;
 }
 
@@ -614,11 +546,15 @@ bool assembler_c::directive_debug()
     return false;
   }
 
-  switch (*value) {
-  case 0:
-  case 1:
-  case 2:
-  case 3:
+  auto converted = static_cast<libskiff::types::exec_debug_level_e>(*value);
+  switch (converted) {
+  case libskiff::types::exec_debug_level_e::NONE:
+        [[fallthrough]];
+  case libskiff::types::exec_debug_level_e::MINIMAL:
+        [[fallthrough]];
+  case libskiff::types::exec_debug_level_e::MODERATE:
+        [[fallthrough]];
+  case libskiff::types::exec_debug_level_e::EXTREME:
     break;
   default:
     add_error("Invalid debug level given to .debug directive : " +
@@ -628,7 +564,7 @@ bool assembler_c::directive_debug()
 
   add_debug("Set .debug level to " + std::to_string(*value));
 
-  _generator->set_debug(*value);
+  _generator->set_debug(converted);
   return true;
 }
 

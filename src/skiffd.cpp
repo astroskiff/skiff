@@ -6,7 +6,7 @@
 #include "options.hpp"
 #include <libskiff/types.hpp>
 #include <libskiff/assembler/assemble.hpp>
-#include <libskiff/bytecode/loader.hpp>
+#include <libskiff/bytecode/executable.hpp>
 #include <libskiff/logging/aixlog.hpp>
 
 void setup_logger(AixLog::Severity level)
@@ -37,10 +37,7 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
               << assembled.bin.value().size() << " bytes" << std::endl;
   }
 
-  std::string out_name =
-      (assembled.build_type == libskiff::types::binary_type_e::EXECUTABLE)
-          ? "out.skiff_bin"
-          : "out.skiff_lib";
+  std::string out_name = "out.skiff";
 
   if (output != std::nullopt) {
     out_name = output.value();
@@ -51,6 +48,20 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
              assembled.bin.value().size());
 
   LOG(DEBUG) << TAG("app") << "Binary written to file : " << out_name << "\n";
+}
+
+int run(const std::string& bin)
+{
+  std::optional<std::unique_ptr<libskiff::binary::executable_c>> loaded_binary = 
+    libskiff::binary::load_binary(bin);
+
+  if(loaded_binary == std::nullopt) {
+    LOG(FATAL) << TAG("app") << "Failed to load suspected binary file : " << bin << "\n";
+    return 1;
+  }
+
+  // TODO: Pass the loaded object to a VM instance to be executed
+  return 0;
 }
 
 int main(int argc, char **argv)
@@ -78,25 +89,22 @@ int main(int argc, char **argv)
       std::exit(EXIT_FAILURE);
     }
 
-    // Ensure any included libs exist
-    if (!opts->assemble_file->libs.empty()) {
-      LOG(DEBUG) << TAG("app") << "Ensuring given libraries exist\n";
-      for (auto &item : opts->assemble_file.value().libs) {
-        if (!std::filesystem::is_regular_file(item)) {
-          std::cout << "Error: Assumed library file '" << item
-                    << "' does not exist" << std::endl;
-          std::exit(EXIT_FAILURE);
-        }
-      }
-    }
-
     // Assemble input
-    auto result = libskiff::assembler::assemble(
-        opts->assemble_file.value().file_in, opts->assemble_file.value().libs);
+    auto result = libskiff::assembler::assemble(opts->assemble_file.value().file_in);
 
     // Handle resulting object
     handle_assebmled_t(result, opts->assemble_file->file_out,
                        opts->assemble_file->display_stats);
+    return 0;
+  }
+
+  //  Check for bins
+  if(!opts->suspected_bin.empty()) {
+    for(auto &item : opts->suspected_bin) {
+      if(auto i = run(item); i != 0) {
+        return i;
+      }
+    }
     return 0;
   }
 
