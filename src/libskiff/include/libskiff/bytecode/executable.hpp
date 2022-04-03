@@ -18,7 +18,10 @@ public:
   executable_c() : _debug_level(libskiff::types::exec_debug_level_e::NONE){};
 
   //! \brief Construct an executable item
-  executable_c(const uint32_t compatibility) : _compatiblity_dword(compatibility){}
+  executable_c(const uint32_t compatibility)
+      : _compatiblity_dword(compatibility)
+  {
+  }
 
   //! \brief Returns true if loaded object was marked as experimental
   bool is_experimental() const { return (_compatiblity_dword >> 24) == 0xFF; }
@@ -27,7 +30,10 @@ public:
   libskiff::types::semver_t bytecode_semver() const { return _semver; }
 
   //! \brief Set the debug level
-  void set_debug_level(libskiff::types::exec_debug_level_e level) { _debug_level = level; }
+  void set_debug_level(libskiff::types::exec_debug_level_e level)
+  {
+    _debug_level = level;
+  }
 
   //! \brief Set constants
   void set_constants(const std::vector<uint8_t> &c) { _constants = c; }
@@ -40,10 +46,13 @@ public:
 
   //! \brief Adds a section and address
   //! \returns false iff the name is not unique
-  bool add_section(const std::string& name, const uint64_t address);
+  bool add_section(const std::string &name, const uint64_t address);
 
   //! \brief Retrieve the debug level for the executable
-  libskiff::types::exec_debug_level_e get_debug_level() const { return _debug_level; }
+  libskiff::types::exec_debug_level_e get_debug_level() const
+  {
+    return _debug_level;
+  }
 
   //! \brief Get the entry address
   uint64_t get_entry_address() const { return _entry_address; }
@@ -66,7 +75,8 @@ private:
 //! \param file The file to load
 //! \returns Optional unique pointer to a executable_c object. If there are
 //!          errors loading the file nullopt will be returned
-std::optional<std::unique_ptr<executable_c>> load_binary(const std::string &file);
+std::optional<std::unique_ptr<executable_c>>
+load_binary(const std::string &file);
 
 } // namespace binary
 } // namespace libskiff

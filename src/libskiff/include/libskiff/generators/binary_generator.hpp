@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <vector>
 
-#include "libskiff/types.hpp"
 #include "libskiff/bytecode/binary.hpp"
+#include "libskiff/types.hpp"
 
 namespace libskiff {
 namespace generator {
@@ -17,7 +17,7 @@ public:
   //! \param data Encoded constant
   //! \returns Address assigned to constant
   uint64_t add_constant(const libskiff::types::constant_type_e type,
-                                const std::vector<uint8_t> data);
+                        const std::vector<uint8_t> data);
 
   //! \brief Add an instruction made by the instruction_generator
   //!        to the binary
@@ -47,7 +47,8 @@ private:
   uint64_t _constant_address{0};
   uint64_t _num_sections{0};
   uint64_t _entry{0};
-  libskiff::types::exec_debug_level_e _debug{libskiff::types::exec_debug_level_e::NONE};
+  libskiff::types::exec_debug_level_e _debug{
+      libskiff::types::exec_debug_level_e::NONE};
 };
 
 } // namespace generator

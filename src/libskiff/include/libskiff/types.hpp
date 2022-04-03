@@ -5,7 +5,7 @@
 #include <string>
 
 namespace libskiff {
-namespace types{
+namespace types {
 
 //! \brief Encoded constant types
 enum class constant_type_e {
@@ -21,7 +21,7 @@ enum class constant_type_e {
   STRING = 0x30,
 };
 
-//! \brief Execution-time debug level 
+//! \brief Execution-time debug level
 enum class exec_debug_level_e {
   NONE = 0x00,
   MINIMAL = 0x01,
@@ -37,13 +37,13 @@ struct semver_t {
 };
 
 //! \brief Dump a semver to a string
-static std::string semver_to_string(const semver_t &s) {
-  return std::to_string(s.major) + "." +
-         std::to_string(s.minor) + "." +
+static std::string semver_to_string(const semver_t &s)
+{
+  return std::to_string(s.major) + "." + std::to_string(s.minor) + "." +
          std::to_string(s.patch);
 }
 
-}
-}
+} // namespace types
+} // namespace libskiff
 
 #endif

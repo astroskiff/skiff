@@ -22,10 +22,10 @@
 #include <sstream>
 #include <unordered_map>
 
-#include "libskiff/types.hpp"
 #include "libskiff/generators/binary_generator.hpp"
 #include "libskiff/generators/instruction_generator.hpp"
 #include "libskiff/logging/aixlog.hpp"
+#include "libskiff/types.hpp"
 
 namespace libskiff {
 namespace assembler {
@@ -180,8 +180,7 @@ inline std::vector<std::string> chunk_line(std::string line)
 }
 } // namespace
 
-assembler_c::assembler_c(const std::string &input)
-    : _input_file(input)
+assembler_c::assembler_c(const std::string &input) : _input_file(input)
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
   _directive_match = {
@@ -315,7 +314,8 @@ void assembler_c::add_error(const std::string &str)
   }
   _result.errors.value().push_back(e);
 
-  LOG(FATAL) << TAG("assembler") << "line: " << _current_line_number << ": "  << str << "\n";
+  LOG(FATAL) << TAG("assembler") << "line: " << _current_line_number << ": "
+             << str << "\n";
 }
 
 void assembler_c::add_warning(const std::string &str)
@@ -334,17 +334,20 @@ void assembler_c::add_warning(const std::string &str)
   }
   _result.warnings.value().push_back(e);
 
-  LOG(WARNING) << TAG("assembler") << "line: " << _current_line_number << ": "  << str << "\n";
+  LOG(WARNING) << TAG("assembler") << "line: " << _current_line_number << ": "
+               << str << "\n";
 }
 
 void assembler_c::add_debug(const std::string &str)
 {
-  LOG(DEBUG) << TAG("assembler") << "line: " << _current_line_number << ": " << str << "\n";
+  LOG(DEBUG) << TAG("assembler") << "line: " << _current_line_number << ": "
+             << str << "\n";
 }
 
 void assembler_c::add_trace(const std::string &str)
 {
-  LOG(TRACE) << TAG("assembler") << "line: " << _current_line_number << ": " << str << "\n";
+  LOG(TRACE) << TAG("assembler") << "line: " << _current_line_number << ": "
+             << str << "\n";
 }
 
 void assembler_c::pre_scan()
@@ -550,11 +553,11 @@ bool assembler_c::directive_debug()
   auto converted = static_cast<libskiff::types::exec_debug_level_e>(*value);
   switch (converted) {
   case libskiff::types::exec_debug_level_e::NONE:
-        [[fallthrough]];
+    [[fallthrough]];
   case libskiff::types::exec_debug_level_e::MINIMAL:
-        [[fallthrough]];
+    [[fallthrough]];
   case libskiff::types::exec_debug_level_e::MODERATE:
-        [[fallthrough]];
+    [[fallthrough]];
   case libskiff::types::exec_debug_level_e::EXTREME:
     break;
   default:
@@ -677,8 +680,7 @@ bool assembler_c::directive_int_16()
     return false;
   }
 
-  return add_constant(_current_chunks[1],
-                      libskiff::types::constant_type_e::I16,
+  return add_constant(_current_chunks[1], libskiff::types::constant_type_e::I16,
                       _ins_gen.generate_i16_constant(*value));
   return false;
 }
@@ -704,8 +706,7 @@ bool assembler_c::directive_int_32()
     return false;
   }
 
-  return add_constant(_current_chunks[1],
-                      libskiff::types::constant_type_e::I32,
+  return add_constant(_current_chunks[1], libskiff::types::constant_type_e::I32,
                       _ins_gen.generate_i32_constant(*value));
   return false;
 }
@@ -731,8 +732,7 @@ bool assembler_c::directive_int_64()
     return false;
   }
 
-  return add_constant(_current_chunks[1],
-                      libskiff::types::constant_type_e::I64,
+  return add_constant(_current_chunks[1], libskiff::types::constant_type_e::I64,
                       _ins_gen.generate_i64_constant(*value));
   return false;
 }
@@ -786,8 +786,7 @@ bool assembler_c::directive_uint_16()
     return false;
   }
 
-  return add_constant(_current_chunks[1],
-                      libskiff::types::constant_type_e::U16,
+  return add_constant(_current_chunks[1], libskiff::types::constant_type_e::U16,
                       _ins_gen.generate_u16_constant(*value));
   return false;
 }
@@ -814,8 +813,7 @@ bool assembler_c::directive_uint_32()
     return false;
   }
 
-  return add_constant(_current_chunks[1],
-                      libskiff::types::constant_type_e::U32,
+  return add_constant(_current_chunks[1], libskiff::types::constant_type_e::U32,
                       _ins_gen.generate_u32_constant(*value));
   return false;
 }
@@ -842,8 +840,7 @@ bool assembler_c::directive_uint_64()
     return false;
   }
 
-  return add_constant(_current_chunks[1],
-                      libskiff::types::constant_type_e::U64,
+  return add_constant(_current_chunks[1], libskiff::types::constant_type_e::U64,
                       _ins_gen.generate_u64_constant(*value));
   return false;
 }

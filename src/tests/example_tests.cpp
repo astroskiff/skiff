@@ -2,7 +2,4 @@
 
 TEST_GROUP(ex_tests){};
 
-TEST(ex_tests, all)
-{
-}
-
+TEST(ex_tests, all) {}

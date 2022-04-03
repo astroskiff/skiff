@@ -4,15 +4,18 @@
 #include <vector>
 
 #include "options.hpp"
-#include <libskiff/types.hpp>
 #include <libskiff/assembler/assemble.hpp>
 #include <libskiff/bytecode/executable.hpp>
 #include <libskiff/logging/aixlog.hpp>
+#include <libskiff/types.hpp>
 
 void setup_logger(AixLog::Severity level)
 {
-  auto sink_cout = std::make_shared<AixLog::SinkCout>(level, "[#severity] (#tag) #message");
-  auto sink_file = std::make_shared<AixLog::SinkFile>(level, "skiffd.log", "%Y-%m-%d %H-%M-%S.#ms | [#severity] (#tag) #message");
+  auto sink_cout =
+      std::make_shared<AixLog::SinkCout>(level, "[#severity] (#tag) #message");
+  auto sink_file = std::make_shared<AixLog::SinkFile>(
+      level, "skiffd.log",
+      "%Y-%m-%d %H-%M-%S.#ms | [#severity] (#tag) #message");
   AixLog::Log::init({sink_cout, sink_file});
 }
 
@@ -50,13 +53,14 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
   LOG(DEBUG) << TAG("app") << "Binary written to file : " << out_name << "\n";
 }
 
-int run(const std::string& bin)
+int run(const std::string &bin)
 {
-  std::optional<std::unique_ptr<libskiff::binary::executable_c>> loaded_binary = 
-    libskiff::binary::load_binary(bin);
+  std::optional<std::unique_ptr<libskiff::binary::executable_c>> loaded_binary =
+      libskiff::binary::load_binary(bin);
 
-  if(loaded_binary == std::nullopt) {
-    LOG(FATAL) << TAG("app") << "Failed to load suspected binary file : " << bin << "\n";
+  if (loaded_binary == std::nullopt) {
+    LOG(FATAL) << TAG("app") << "Failed to load suspected binary file : " << bin
+               << "\n";
     return 1;
   }
 
@@ -72,13 +76,15 @@ int main(int argc, char **argv)
   // Display for now - remove later
   if (opts != std::nullopt) {
     setup_logger(opts->log_level);
-  } else {
+  }
+  else {
     AixLog::Log::init<AixLog::SinkCout>(AixLog::Severity::fatal);
   }
-  LOG(DEBUG) << TAG("app") << "Logger set up" << "\n";
+  LOG(DEBUG) << TAG("app") << "Logger set up"
+             << "\n";
 
   if (opts->assemble_file != std::nullopt) {
-    
+
     // Ensure file input exists
     LOG(DEBUG) << TAG("app") << "Ensuring file exists\n";
     if (!std::filesystem::is_regular_file(
@@ -89,7 +95,8 @@ int main(int argc, char **argv)
     }
 
     // Assemble input
-    auto result = libskiff::assembler::assemble(opts->assemble_file.value().file_in);
+    auto result =
+        libskiff::assembler::assemble(opts->assemble_file.value().file_in);
 
     // Handle resulting object
     handle_assebmled_t(result, opts->assemble_file->file_out,
@@ -98,9 +105,9 @@ int main(int argc, char **argv)
   }
 
   //  Check for bins
-  if(!opts->suspected_bin.empty()) {
-    for(auto &item : opts->suspected_bin) {
-      if(auto i = run(item); i != 0) {
+  if (!opts->suspected_bin.empty()) {
+    for (auto &item : opts->suspected_bin) {
+      if (auto i = run(item); i != 0) {
         return i;
       }
     }

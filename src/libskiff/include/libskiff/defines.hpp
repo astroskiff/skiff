@@ -2,12 +2,12 @@
 #define LIBSKIFF_DEFINES_HPP
 
 // Ensure we have __func__
-#if defined ( WIN32 )
+#if defined(WIN32)
 #define __func__ __FUNCTION__
 #endif
 
 // Term colors
-#if defined ( WIN32 )
+#if defined(WIN32)
 
 #define TERM_COLOR_BLACK ""
 #define TERM_COLOR_RED ""
@@ -52,6 +52,5 @@
 #define TERM_COLOR_END "\033[0m"
 
 #endif
-
 
 #endif

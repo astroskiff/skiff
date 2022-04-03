@@ -26,7 +26,8 @@ static void show_usage()
   std::cout << "[-a | --assemble ] <file>\t\tAssemble a file\n"
                "[-o | --out      ] <file>\t\tOutput file for assemble command\n"
                "[-s | --stats    ] \t\t\tDisplay statistics\n"
-               "[-l | --loglevel ] \n\t[trace|debug|info|warn|error]\tDisplay statistics\n";
+               "[-l | --loglevel ] \n\t[trace|debug|info|warn|error]\tDisplay "
+               "statistics\n";
 }
 
 static std::optional<options_t> build_options(std::vector<std::string> opts)
@@ -77,15 +78,25 @@ static std::optional<options_t> build_options(std::vector<std::string> opts)
         std::cout << "Expected loglevel for 'log' instruction" << std::endl;
         return std::nullopt;
       }
-      
-      if (opts[i + 1] == "trace") { options.log_level = AixLog::Severity::trace; }
-      else if (opts[i + 1] == "debug") { options.log_level = AixLog::Severity::debug; }
-      else if (opts[i + 1] == "info") { options.log_level = AixLog::Severity::info; }
-      else if (opts[i + 1] == "warn") { options.log_level = AixLog::Severity::warning; }
-      else if (opts[i + 1] == "error") { options.log_level = AixLog::Severity::error; }
+
+      if (opts[i + 1] == "trace") {
+        options.log_level = AixLog::Severity::trace;
+      }
+      else if (opts[i + 1] == "debug") {
+        options.log_level = AixLog::Severity::debug;
+      }
+      else if (opts[i + 1] == "info") {
+        options.log_level = AixLog::Severity::info;
+      }
+      else if (opts[i + 1] == "warn") {
+        options.log_level = AixLog::Severity::warning;
+      }
+      else if (opts[i + 1] == "error") {
+        options.log_level = AixLog::Severity::error;
+      }
       else {
-        std::cout << "Invalid level '" << opts[i + 1] 
-        << "' given to '" << opts[i] << "' instruction" << std::endl;
+        std::cout << "Invalid level '" << opts[i + 1] << "' given to '"
+                  << opts[i] << "' instruction" << std::endl;
         std::exit(EXIT_FAILURE);
       }
 
