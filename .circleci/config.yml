@@ -3,7 +3,10 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: "debian:stretch"
+      - image: conanio/clang10
+        environment:
+          CXX: clang++-10
+          CC: clang-10
     steps:
       - checkout
       - run:
