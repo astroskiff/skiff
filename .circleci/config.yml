@@ -14,7 +14,7 @@ jobs:
           command: 'sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test'
       - run:
           name: Installing Build tools
-          command: 'sudo apt-get update && apt-get install -y g++-9 cmake cpputest pkg-config'
+          command: 'sudo killall -9 apt-get || true && sudo apt-get update && apt-get install -y g++-9 cmake cpputest pkg-config'
       - run:
           name: Dir setup
           command: 'mkdir build && mkdir build-release && mkdir build-asan'
