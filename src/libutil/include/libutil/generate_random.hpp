@@ -24,6 +24,16 @@ public:
     return dist(eng);
   }
 
+  //! \brief     Get a floating point value within a specified range
+  //! \param min Minimum value
+  //! \param max Maximum Value
+  //! \return    Return the randomly generated type T value
+  T get_floating_point_range(T min, T max)
+  {
+    std::uniform_real_distribution<T> dist(min, max);
+    return dist(eng);
+  }
+
 private:
   std::random_device rd;
   std::default_random_engine eng;
