@@ -7,9 +7,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Installing SUDO
-          command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
-      - run:
           name: Properties Common
           command: 'sudo apt-get install software-properties-common'
       - run: 
