@@ -1,5 +1,4 @@
 #include "libskiff/bytecode/executable.hpp"
-#include "libskiff/bytecode/binary.hpp"
 #include "libskiff/bytecode/helpers.hpp"
 #include "libskiff/logging/aixlog.hpp"
 #include "libskiff/types.hpp"

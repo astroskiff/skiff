@@ -71,6 +71,16 @@ public:
   // \brief Get the compatiblity DWORD
   uint32_t get_compatiblity() const { return _compatiblity_dword; }
 
+  // \brief Retrieve the semver that compiled the code
+  libskiff::types::semver_t get_compatiblity_semver() const 
+  { 
+    return libskiff::types::semver_t {
+      .major = static_cast<uint8_t>(_compatiblity_dword >> 16),
+      .minor = static_cast<uint8_t>(_compatiblity_dword >> 8),
+      .patch = static_cast<uint8_t>(_compatiblity_dword)
+    };
+  }
+
 private:
   std::vector<uint8_t> _constants;
   std::vector<uint8_t> _instructions;

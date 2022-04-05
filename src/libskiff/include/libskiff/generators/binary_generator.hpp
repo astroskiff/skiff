@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <vector>
 
-#include "libskiff/bytecode/binary.hpp"
 #include "libskiff/types.hpp"
 
 namespace libskiff {
@@ -39,6 +38,9 @@ public:
   void add_section(std::vector<uint8_t> encoded_section);
 
 private:
+  // TODO: Add compile option to toggle this
+  static constexpr bool is_experimental{false};
+
   std::vector<uint8_t> _constant_data;
   std::vector<uint8_t> _instruction_data;
   std::vector<uint8_t> _section_table;

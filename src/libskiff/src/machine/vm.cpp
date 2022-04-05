@@ -1,7 +1,10 @@
 #include "libskiff/machine/vm.hpp"
 #include "libskiff/bytecode/instructions.hpp"
 #include "libskiff/logging/aixlog.hpp"
-
+#include "libskiff/defines.hpp"
+#include "libskiff/types.hpp"
+#include "libskiff/version.hpp"
+#include <iostream>
 /*
 
   Design thoughts:
@@ -15,6 +18,24 @@
 namespace libskiff {
 namespace machine {
 
+namespace 
+{
+  // Force warning to screen and logger
+  void issue_forced_warning(const std::string& warn)
+  {
+    std::cout << TERM_COLOR_YELLOW << "[WARNING] : " 
+              << TERM_COLOR_END << warn << std::endl; 
+    LOG(WARNING) << TAG("vm") << warn << "\n";
+  }
+  // Force error to screen and logger
+  void issue_forced_error(const std::string& err)
+  {
+    std::cout << TERM_COLOR_RED << "[ERROR] : " 
+              << TERM_COLOR_END << err << std::endl; 
+    LOG(WARNING) << TAG("vm") << err << "\n";
+  }
+}
+
 vm_c::vm_c() { LOG(TRACE) << TAG("func") << __func__ << "\n"; }
 
 void vm_c::set_runtime_callback(libskiff::types::runtime_error_cb cb)
@@ -26,7 +47,30 @@ void vm_c::set_runtime_callback(libskiff::types::runtime_error_cb cb)
 bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
-  // Check compatibility
+
+  // Check if its experimental
+  if(executable->is_experimental()) {
+    issue_forced_warning("Code marked experimental");
+  }
+
+  // Check compatibilty
+  auto version = executable->get_compatiblity_semver();
+  if(libskiff::version::semantic_version.major < version.major) {
+    issue_forced_error("Incompatibility detected : "
+    "Bytecode version.major newer than VM version.major. ");
+    return false;
+  }
+  if(libskiff::version::semantic_version.minor < version.minor) {
+    issue_forced_warning("Potential incompatibility detected : "
+    "Bytecode version.minor newer than VM version.minor. ");
+  }
+  if(libskiff::version::semantic_version.patch < version.patch) {
+    issue_forced_warning("Potential incompatibility detected : "
+    "Bytecode version.patch newer than VM version.patch. ");
+  }
+
+  // Set instruction pointer to the entry address
+  _ip = executable->get_entry_address();
 
   // Create instructions - return false if illegal instruction found
   auto instructions = executable->get_instructions();
@@ -308,6 +352,133 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
       _instructions.emplace_back(
           std::make_unique<libskiff::machine::instruction_mulf_c>(*dest_reg,
                                                                   *lhs, *rhs));
+      break;
+    }
+    case libskiff::bytecode::instructions::RSH: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `RSH`\n";
+      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      if (!dest_reg) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
+        return false;
+      }
+      auto lhs = get_int_reg(instruction_bot >> 16);
+      if (!lhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
+        return false;
+      }
+      auto rhs = get_int_reg(instruction_bot >> 8);
+      if (!rhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_rsh_c>(*dest_reg,
+                                                                  *lhs, *rhs));
+      break;
+    }
+    case libskiff::bytecode::instructions::LSH: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `LSH`\n";
+      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      if (!dest_reg) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
+        return false;
+      }
+      auto lhs = get_int_reg(instruction_bot >> 16);
+      if (!lhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
+        return false;
+      }
+      auto rhs = get_int_reg(instruction_bot >> 8);
+      if (!rhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_lsh_c>(*dest_reg,
+                                                                  *lhs, *rhs));
+      break;
+    }
+    case libskiff::bytecode::instructions::AND: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `AND`\n";
+      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      if (!dest_reg) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
+        return false;
+      }
+      auto lhs = get_int_reg(instruction_bot >> 16);
+      if (!lhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
+        return false;
+      }
+      auto rhs = get_int_reg(instruction_bot >> 8);
+      if (!rhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_and_c>(*dest_reg,
+                                                                  *lhs, *rhs));
+      break;
+    }
+    case libskiff::bytecode::instructions::OR: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `OR`\n";
+      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      if (!dest_reg) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
+        return false;
+      }
+      auto lhs = get_int_reg(instruction_bot >> 16);
+      if (!lhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
+        return false;
+      }
+      auto rhs = get_int_reg(instruction_bot >> 8);
+      if (!rhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_or_c>(*dest_reg,
+                                                                  *lhs, *rhs));
+      break;
+    }
+    case libskiff::bytecode::instructions::XOR: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `XOR`\n";
+      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      if (!dest_reg) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
+        return false;
+      }
+      auto lhs = get_int_reg(instruction_bot >> 16);
+      if (!lhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
+        return false;
+      }
+      auto rhs = get_int_reg(instruction_bot >> 8);
+      if (!rhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_xor_c>(*dest_reg,
+                                                                  *lhs, *rhs));
+      break;
+    }
+    case libskiff::bytecode::instructions::NOT: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `NOT`\n";
+      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      if (!dest_reg) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
+        return false;
+      }
+      auto source = get_int_reg(instruction_bot >> 16);
+      if (!source) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode SOURCE register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_not_c>(*dest_reg,
+                                                                  *source));
       break;
     }
     }

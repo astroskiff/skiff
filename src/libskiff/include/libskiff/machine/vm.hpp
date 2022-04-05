@@ -12,6 +12,7 @@
 #include <stack>
 #include <utility>
 #include <vector>
+#include "libskiff/types.hpp"
 
 namespace libskiff {
 namespace machine {
@@ -51,7 +52,7 @@ private:
   std::array<types::vm_floating_point_reg, num_floating_point_registers>
       _floating_point_registers{};
   types::vm_integer_reg _x0{0};
-  types::vm_integer_reg _x1{0};
+  types::vm_integer_reg _x1{1};
   types::vm_integer_reg _ip{0};
   types::vm_integer_reg _fp{0};
 
