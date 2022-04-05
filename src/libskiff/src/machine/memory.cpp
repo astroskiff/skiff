@@ -3,5 +3,7 @@
 namespace libskiff {
 namespace machine {
 
-} // namespace memory
+memory_c::memory_c() {}
+
+} // namespace machine
 } // namespace libskiff

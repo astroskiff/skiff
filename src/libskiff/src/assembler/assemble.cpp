@@ -455,9 +455,11 @@ void assembler_c::assemble()
 
   if (!_directive_checks.init) {
     add_error("Missing .init directive");
+    return;
   }
   if (!_directive_checks.code) {
     add_error("Missing .code directive");
+    return;
   }
 
   _result.stats.num_instructions = _ins_gen.get_number_instructions_generated();

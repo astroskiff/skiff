@@ -1,8 +1,8 @@
 #ifndef LIBSKIFF_MEMORY_HPP
 #define LIBSKIFF_MEMORY_HPP
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 namespace libskiff {
@@ -14,7 +14,7 @@ public:
   memory_c();
 };
 
-} // namespace memory
+} // namespace machine
 } // namespace libskiff
 
 #endif

@@ -3,12 +3,10 @@
 
 #include "libskiff/types.hpp"
 
-namespace libskiff
-{
-namespace machine
-{
+namespace libskiff {
+namespace machine {
 
-//! \brief FED of the executor_if used as a visitor pattern 
+//! \brief FED of the executor_if used as a visitor pattern
 class executor_if;
 
 //! \brief Base level instruction
@@ -30,8 +28,11 @@ public:
 
 class instruction_blt_c : public instruction_c {
 public:
-  instruction_blt_c(uint32_t dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    destination(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_blt_c(uint32_t dest, types::vm_integer_reg &lhs,
+                    types::vm_integer_reg &rhs)
+      : destination(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &lhs_reg;
   types::vm_integer_reg &rhs_reg;
@@ -40,8 +41,11 @@ public:
 
 class instruction_bgt_c : public instruction_c {
 public:
-  instruction_bgt_c(uint32_t dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    destination(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_bgt_c(uint32_t dest, types::vm_integer_reg &lhs,
+                    types::vm_integer_reg &rhs)
+      : destination(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &lhs_reg;
   types::vm_integer_reg &rhs_reg;
@@ -50,8 +54,11 @@ public:
 
 class instruction_beq_c : public instruction_c {
 public:
-  instruction_beq_c(uint32_t dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    destination(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_beq_c(uint32_t dest, types::vm_integer_reg &lhs,
+                    types::vm_integer_reg &rhs)
+      : destination(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &lhs_reg;
   types::vm_integer_reg &rhs_reg;
@@ -60,14 +67,14 @@ public:
 
 class instruction_jmp_c : public instruction_c {
 public:
-  instruction_jmp_c(uint32_t dest) : destination(dest){}
+  instruction_jmp_c(uint32_t dest) : destination(dest) {}
   virtual void visit(executor_if &e) override;
   uint32_t destination;
 };
 
 class instruction_call_c : public instruction_c {
 public:
-  instruction_call_c(uint32_t dest) : destination(dest){}
+  instruction_call_c(uint32_t dest) : destination(dest) {}
   virtual void visit(executor_if &e) override;
   uint32_t destination;
 };
@@ -79,7 +86,10 @@ public:
 
 class instruction_mov_c : public instruction_c {
 public:
-  instruction_mov_c(types::vm_integer_reg &dest, uint32_t value) : dest_reg(dest), value(value){}
+  instruction_mov_c(types::vm_integer_reg &dest, uint32_t value)
+      : dest_reg(dest), value(value)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &dest_reg;
   uint32_t value;
@@ -87,8 +97,11 @@ public:
 
 class instruction_add_c : public instruction_c {
 public:
-  instruction_add_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_add_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs,
+                    types::vm_integer_reg &rhs)
+      : dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &dest_reg;
   types::vm_integer_reg &lhs_reg;
@@ -97,8 +110,11 @@ public:
 
 class instruction_sub_c : public instruction_c {
 public:
-  instruction_sub_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_sub_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs,
+                    types::vm_integer_reg &rhs)
+      : dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &dest_reg;
   types::vm_integer_reg &lhs_reg;
@@ -107,8 +123,11 @@ public:
 
 class instruction_div_c : public instruction_c {
 public:
-  instruction_div_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_div_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs,
+                    types::vm_integer_reg &rhs)
+      : dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &dest_reg;
   types::vm_integer_reg &lhs_reg;
@@ -117,8 +136,11 @@ public:
 
 class instruction_mul_c : public instruction_c {
 public:
-  instruction_mul_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_mul_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs,
+                    types::vm_integer_reg &rhs)
+      : dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &dest_reg;
   types::vm_integer_reg &lhs_reg;
@@ -127,48 +149,67 @@ public:
 
 class instruction_addf_c : public instruction_c {
 public:
-  instruction_addf_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_addf_c(types::vm_floating_point_reg &dest,
+                     types::vm_floating_point_reg &lhs,
+                     types::vm_floating_point_reg &rhs)
+      : dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
-  types::vm_integer_reg &dest_reg;
-  types::vm_integer_reg &lhs_reg;
-  types::vm_integer_reg &rhs_reg;
+  types::vm_floating_point_reg &dest_reg;
+  types::vm_floating_point_reg &lhs_reg;
+  types::vm_floating_point_reg &rhs_reg;
 };
 
 class instruction_subf_c : public instruction_c {
 public:
-  instruction_subf_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_subf_c(types::vm_floating_point_reg &dest,
+                     types::vm_floating_point_reg &lhs,
+                     types::vm_floating_point_reg &rhs)
+      : dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
-  types::vm_integer_reg &dest_reg;
-  types::vm_integer_reg &lhs_reg;
-  types::vm_integer_reg &rhs_reg;
+  types::vm_floating_point_reg &dest_reg;
+  types::vm_floating_point_reg &lhs_reg;
+  types::vm_floating_point_reg &rhs_reg;
 };
 
 class instruction_divf_c : public instruction_c {
 public:
-  instruction_divf_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_divf_c(types::vm_floating_point_reg &dest,
+                     types::vm_floating_point_reg &lhs,
+                     types::vm_floating_point_reg &rhs)
+      : dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
-  types::vm_integer_reg &dest_reg;
-  types::vm_integer_reg &lhs_reg;
-  types::vm_integer_reg &rhs_reg;
+  types::vm_floating_point_reg &dest_reg;
+  types::vm_floating_point_reg &lhs_reg;
+  types::vm_floating_point_reg &rhs_reg;
 };
 
 class instruction_mulf_c : public instruction_c {
 public:
-  instruction_mulf_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_mulf_c(types::vm_floating_point_reg &dest,
+                     types::vm_floating_point_reg &lhs,
+                     types::vm_floating_point_reg &rhs)
+      : dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
-  types::vm_integer_reg &dest_reg;
-  types::vm_integer_reg &lhs_reg;
-  types::vm_integer_reg &rhs_reg;
+  types::vm_floating_point_reg &dest_reg;
+  types::vm_floating_point_reg &lhs_reg;
+  types::vm_floating_point_reg &rhs_reg;
 };
 
 class instruction_lsh_c : public instruction_c {
 public:
-  instruction_lsh_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_lsh_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs,
+                    types::vm_integer_reg &rhs)
+      : dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &dest_reg;
   types::vm_integer_reg &lhs_reg;
@@ -177,8 +218,11 @@ public:
 
 class instruction_rsh_c : public instruction_c {
 public:
-  instruction_rsh_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_rsh_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs,
+                    types::vm_integer_reg &rhs)
+      : dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &dest_reg;
   types::vm_integer_reg &lhs_reg;
@@ -187,8 +231,11 @@ public:
 
 class instruction_and_c : public instruction_c {
 public:
-  instruction_and_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_and_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs,
+                    types::vm_integer_reg &rhs)
+      : dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &dest_reg;
   types::vm_integer_reg &lhs_reg;
@@ -197,8 +244,11 @@ public:
 
 class instruction_or_c : public instruction_c {
 public:
-  instruction_or_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_or_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs,
+                   types::vm_integer_reg &rhs)
+      : dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &dest_reg;
   types::vm_integer_reg &lhs_reg;
@@ -207,8 +257,11 @@ public:
 
 class instruction_xor_c : public instruction_c {
 public:
-  instruction_xor_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs, types::vm_integer_reg &rhs) : 
-    dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs){}
+  instruction_xor_c(types::vm_integer_reg &dest, types::vm_integer_reg &lhs,
+                    types::vm_integer_reg &rhs)
+      : dest_reg(dest), lhs_reg(lhs), rhs_reg(rhs)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &dest_reg;
   types::vm_integer_reg &lhs_reg;
@@ -217,16 +270,17 @@ public:
 
 class instruction_not_c : public instruction_c {
 public:
-  instruction_not_c(types::vm_integer_reg &dest, types::vm_integer_reg &source) : 
-    dest_reg(dest), source_reg(source) {}
+  instruction_not_c(types::vm_integer_reg &dest, types::vm_integer_reg &source)
+      : dest_reg(dest), source_reg(source)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_integer_reg &dest_reg;
   types::vm_integer_reg &source_reg;
 };
 
 //! \brief Executor of instructions interface
-class executor_if
-{
+class executor_if {
 public:
   virtual void accept(instruction_nop_c &ins) = 0;
   virtual void accept(instruction_exit_c &ins) = 0;
@@ -253,7 +307,7 @@ public:
   virtual void accept(instruction_not_c &ins) = 0;
 };
 
-}
-}
+} // namespace machine
+} // namespace libskiff
 
 #endif

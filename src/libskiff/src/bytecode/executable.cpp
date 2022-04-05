@@ -220,8 +220,15 @@ load_binary(const std::string &file)
       instructions.insert(instructions.end(), instruction.begin(),
                           instruction.end());
     }
-    loaded_object->set_instructions(instructions);
 
+    // Ensure we have a reasonable number of bytes
+    // as each instruction is 8-byte fixed
+    if (instructions.size() % 8 != 0) {
+      LOG(FATAL) << TAG("loader")
+                 << "Invalid number of bytes for loaded instruction set\n";
+    }
+
+    loaded_object->set_instructions(instructions);
     return std::unique_ptr<executable_c>(loaded_object);
   }
   return std::nullopt;

@@ -7,6 +7,7 @@
 #include <libskiff/assembler/assemble.hpp>
 #include <libskiff/bytecode/executable.hpp>
 #include <libskiff/logging/aixlog.hpp>
+#include <libskiff/machine/vm.hpp>
 #include <libskiff/types.hpp>
 
 void setup_logger(AixLog::Severity level)
@@ -64,7 +65,9 @@ int run(const std::string &bin)
     return 1;
   }
 
-  // TODO: Pass the loaded object to a VM instance to be executed
+  libskiff::machine::vm_c skiff_vm;
+  skiff_vm.load(std::move(loaded_binary.value()));
+
   return 0;
 }
 

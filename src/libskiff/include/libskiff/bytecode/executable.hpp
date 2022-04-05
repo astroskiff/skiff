@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "libskiff/machine/execution_context.hpp"
 #include "libskiff/types.hpp"
 
 namespace libskiff {
@@ -60,6 +61,15 @@ public:
   //! \brief Attempt to get a section address from the library table
   //! \returns nullopt if the name
   std::optional<uint64_t> get_section_address(const std::string &name) const;
+
+  //! \brief Get the constants
+  std::vector<uint8_t> get_constants() const { return _constants; }
+
+  //! \brief Get the instructions
+  std::vector<uint8_t> get_instructions() const { return _instructions; }
+
+  // \brief Get the compatiblity DWORD
+  uint32_t get_compatiblity() const { return _compatiblity_dword; }
 
 private:
   std::vector<uint8_t> _constants;
