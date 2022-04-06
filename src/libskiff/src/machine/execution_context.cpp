@@ -29,6 +29,9 @@ void instruction_and_c::visit(executor_if &e) { e.accept(*this); }
 void instruction_or_c::visit(executor_if &e) { e.accept(*this); }
 void instruction_xor_c::visit(executor_if &e) { e.accept(*this); }
 void instruction_not_c::visit(executor_if &e) { e.accept(*this); }
+void instruction_bltf_c::visit(executor_if &e) { e.accept(*this); }
+void instruction_bgtf_c::visit(executor_if &e) { e.accept(*this); }
+void instruction_beqf_c::visit(executor_if &e) { e.accept(*this); }
 
 } // namespace machine
 } // namespace libskiff

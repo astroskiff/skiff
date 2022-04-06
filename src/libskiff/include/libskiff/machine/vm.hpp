@@ -50,13 +50,13 @@ public:
 private:
   bool _is_alive{true};
   types::exec_debug_level_e _debug_level{types::exec_debug_level_e::NONE};
-  std::array<types::vm_integer_reg, num_integer_registers> _integer_registers{};
-  std::array<types::vm_floating_point_reg, num_floating_point_registers>
+  std::array<types::vm_register, num_integer_registers> _integer_registers{};
+  std::array<types::vm_register, num_floating_point_registers>
       _floating_point_registers{};
-  types::vm_integer_reg _x0{0};
-  types::vm_integer_reg _x1{1};
-  types::vm_integer_reg _ip{0};
-  types::vm_integer_reg _fp{0};
+  types::vm_register _x0{0};
+  types::vm_register _x1{1};
+  types::vm_register _ip{0};
+  types::vm_register _fp{0};
   execution_result_e _return_value{execution_result_e::OKAY};
 
   std::vector<std::unique_ptr<instruction_c>> _instructions;
@@ -65,9 +65,7 @@ private:
   std::optional<libskiff::types::runtime_error_cb> _runtime_error_cb;
   memory_c _memory;
 
-  types::vm_integer_reg *get_int_reg(uint8_t id);
-  types::vm_floating_point_reg *get_floating_point_reg(uint8_t id);
-
+  types::vm_register *get_register(uint8_t id);
   void issue_forced_error(const std::string &err);
   void issue_forced_warning(const std::string &err);
   void kill_with_error(const types::runtime_error_e err,
@@ -95,6 +93,9 @@ private:
   virtual void accept(instruction_or_c &ins) override;
   virtual void accept(instruction_xor_c &ins) override;
   virtual void accept(instruction_not_c &ins) override;
+  virtual void accept(instruction_bltf_c &ins) override;
+  virtual void accept(instruction_bgtf_c &ins) override;
+  virtual void accept(instruction_beqf_c &ins) override;
 };
 
 } // namespace machine

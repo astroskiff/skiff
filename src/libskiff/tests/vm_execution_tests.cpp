@@ -97,7 +97,45 @@ TEST(vm_execution_tests, basic_tests)
        "exit\n",
        33},
 
-      // Fall through branches
+      // Float branching
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov f1 @11323123\n"
+       "mov f2 @31415333\n"
+       "bltf f1 f2 load_data\n"
+       "mov i0 @99\n"
+       "exit\n"
+       "load_data:\n"
+       "mov i0 @88\n"
+       "exit\n",
+       88},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov f2 @11323123\n"
+       "mov f1 @31415333\n"
+       "bgtf f1 f2 load_data\n"
+       "mov i0 @99\n"
+       "exit\n"
+       "load_data:\n"
+       "mov i0 @88\n"
+       "exit\n",
+       88},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov f2 @31415333\n"
+       "mov f1 @31415333\n"
+       "beqf f1 f2 load_data\n"
+       "mov i0 @99\n"
+       "exit\n"
+       "load_data:\n"
+       "mov i0 @88\n"
+       "exit\n",
+       88},
+
+      // Fall through integer-based branches
       {".init main\n"
        ".code\n"
        "dest:\n"
@@ -129,6 +167,44 @@ TEST(vm_execution_tests, basic_tests)
        "mov i1 @1\n"
        "beq i0 i1 dest\n"
        "mov i0 @99\n"
+       "exit\n",
+       99},
+
+      // Fall through float-based branches
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov f2 @11323123\n"
+       "mov f1 @31415333\n"
+       "bltf f1 f2 load_data\n"
+       "mov i0 @99\n"
+       "exit\n"
+       "load_data:\n"
+       "mov i0 @88\n"
+       "exit\n",
+       99},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov f1 @11323123\n"
+       "mov f2 @31415333\n"
+       "bgtf f1 f2 load_data\n"
+       "mov i0 @99\n"
+       "exit\n"
+       "load_data:\n"
+       "mov i0 @88\n"
+       "exit\n",
+       99},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov f2 @000000\n"
+       "mov f1 @999999\n"
+       "beqf f1 f2 load_data\n"
+       "mov i0 @99\n"
+       "exit\n"
+       "load_data:\n"
+       "mov i0 @88\n"
        "exit\n",
        99},
 
@@ -220,6 +296,8 @@ TEST(vm_execution_tests, basic_tests)
        "not i0 i0\n"
        "exit\n",
        1}
+
+
   };
 
   for (auto &tc : programs) {
