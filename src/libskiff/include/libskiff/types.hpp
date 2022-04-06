@@ -43,8 +43,7 @@ enum class runtime_error_e {
 using runtime_error_cb = std::function<void(runtime_error_e)>;
 
 //! \brief Register for vm
-using vm_integer_reg = int64_t;
-using vm_floating_point_reg = double;
+using vm_register = uint64_t;
 
 //! \brief Semantic version
 struct semver_t {

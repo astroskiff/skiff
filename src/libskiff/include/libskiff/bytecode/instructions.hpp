@@ -31,6 +31,9 @@ constexpr uint8_t AND = 0x13;
 constexpr uint8_t OR = 0x14;
 constexpr uint8_t XOR = 0x15;
 constexpr uint8_t NOT = 0x16;
+constexpr uint8_t BLTF = 0x17;
+constexpr uint8_t BGTF = 0x18;
+constexpr uint8_t BEQF = 0x19;
 
 } // namespace instructions
 } // namespace bytecode

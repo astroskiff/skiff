@@ -158,6 +158,18 @@ public:
   //! \brief Generate not instruction
   std::vector<uint8_t> gen_not(const uint8_t dest, const uint8_t source);
 
+  //! \brief Generate bltf instruction
+  std::vector<uint8_t> gen_bltf(const uint8_t lhs, const uint8_t rhs,
+                                const uint32_t address);
+
+  //! \brief Generate bgtf instruction
+  std::vector<uint8_t> gen_bgtf(const uint8_t lhs, const uint8_t rhs,
+                                const uint32_t address);
+
+  //! \brief Generate beqf instruction
+  std::vector<uint8_t> gen_beqf(const uint8_t lhs, const uint8_t rhs,
+                                const uint32_t address);
+
 private:
   void update_meta(const uint64_t bytes_generated);
   uint64_t _instructions_generated{0};

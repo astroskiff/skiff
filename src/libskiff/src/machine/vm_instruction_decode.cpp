@@ -116,12 +116,12 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::BLT: {
       LOG(DEBUG) << TAG("vm") << "Decoded `BLT`\n";
-      auto lhs = get_int_reg(instruction_top >> 16);
+      auto lhs = get_register(instruction_top >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_int_reg(instruction_top >> 8);
+      auto rhs = get_register(instruction_top >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -133,12 +133,12 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::BGT: {
       LOG(DEBUG) << TAG("vm") << "Decoded `BGT`\n";
-      auto lhs = get_int_reg(instruction_top >> 16);
+      auto lhs = get_register(instruction_top >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_int_reg(instruction_top >> 8);
+      auto rhs = get_register(instruction_top >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -150,12 +150,12 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::BEQ: {
       LOG(DEBUG) << TAG("vm") << "Decoded `BEQ`\n";
-      auto lhs = get_int_reg(instruction_top >> 16);
+      auto lhs = get_register(instruction_top >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_int_reg(instruction_top >> 8);
+      auto rhs = get_register(instruction_top >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -167,9 +167,9 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::MOV: {
       LOG(DEBUG) << TAG("vm") << "Decoded `MOV`\n";
-      auto dest_reg = get_int_reg(instruction_top >> 8);
+      auto dest_reg = get_register(instruction_top >> 8);
       if (!dest_reg) {
-        LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
       _instructions.emplace_back(
@@ -179,17 +179,17 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::ADD: {
       LOG(DEBUG) << TAG("vm") << "Decoded `ADD`\n";
-      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto lhs = get_int_reg(instruction_bot >> 16);
+      auto lhs = get_register(instruction_bot >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_int_reg(instruction_bot >> 8);
+      auto rhs = get_register(instruction_bot >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -201,17 +201,17 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::SUB: {
       LOG(DEBUG) << TAG("vm") << "Decoded `SUB`\n";
-      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto lhs = get_int_reg(instruction_bot >> 16);
+      auto lhs = get_register(instruction_bot >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_int_reg(instruction_bot >> 8);
+      auto rhs = get_register(instruction_bot >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -223,17 +223,17 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::DIV: {
       LOG(DEBUG) << TAG("vm") << "Decoded `DIV`\n";
-      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto lhs = get_int_reg(instruction_bot >> 16);
+      auto lhs = get_register(instruction_bot >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_int_reg(instruction_bot >> 8);
+      auto rhs = get_register(instruction_bot >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -245,17 +245,17 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::MUL: {
       LOG(DEBUG) << TAG("vm") << "Decoded `MUL`\n";
-      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto lhs = get_int_reg(instruction_bot >> 16);
+      auto lhs = get_register(instruction_bot >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_int_reg(instruction_bot >> 8);
+      auto rhs = get_register(instruction_bot >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -267,17 +267,17 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::ADDF: {
       LOG(DEBUG) << TAG("vm") << "Decoded `ADDF`\n";
-      auto dest_reg = get_floating_point_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto lhs = get_floating_point_reg(instruction_bot >> 16);
+      auto lhs = get_register(instruction_bot >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_floating_point_reg(instruction_bot >> 8);
+      auto rhs = get_register(instruction_bot >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -289,17 +289,17 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::SUBF: {
       LOG(DEBUG) << TAG("vm") << "Decoded `SUBF`\n";
-      auto dest_reg = get_floating_point_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto lhs = get_floating_point_reg(instruction_bot >> 16);
+      auto lhs = get_register(instruction_bot >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_floating_point_reg(instruction_bot >> 8);
+      auto rhs = get_register(instruction_bot >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -311,17 +311,17 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::DIVF: {
       LOG(DEBUG) << TAG("vm") << "Decoded `DIVF`\n";
-      auto dest_reg = get_floating_point_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto lhs = get_floating_point_reg(instruction_bot >> 16);
+      auto lhs = get_register(instruction_bot >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_floating_point_reg(instruction_bot >> 8);
+      auto rhs = get_register(instruction_bot >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -333,17 +333,17 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::MULF: {
       LOG(DEBUG) << TAG("vm") << "Decoded `MULF`\n";
-      auto dest_reg = get_floating_point_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto lhs = get_floating_point_reg(instruction_bot >> 16);
+      auto lhs = get_register(instruction_bot >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_floating_point_reg(instruction_bot >> 8);
+      auto rhs = get_register(instruction_bot >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -355,17 +355,17 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::RSH: {
       LOG(DEBUG) << TAG("vm") << "Decoded `RSH`\n";
-      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto lhs = get_int_reg(instruction_bot >> 16);
+      auto lhs = get_register(instruction_bot >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_int_reg(instruction_bot >> 8);
+      auto rhs = get_register(instruction_bot >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -377,17 +377,17 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::LSH: {
       LOG(DEBUG) << TAG("vm") << "Decoded `LSH`\n";
-      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto lhs = get_int_reg(instruction_bot >> 16);
+      auto lhs = get_register(instruction_bot >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_int_reg(instruction_bot >> 8);
+      auto rhs = get_register(instruction_bot >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -399,17 +399,17 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::AND: {
       LOG(DEBUG) << TAG("vm") << "Decoded `AND`\n";
-      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto lhs = get_int_reg(instruction_bot >> 16);
+      auto lhs = get_register(instruction_bot >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_int_reg(instruction_bot >> 8);
+      auto rhs = get_register(instruction_bot >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -421,17 +421,17 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::OR: {
       LOG(DEBUG) << TAG("vm") << "Decoded `OR`\n";
-      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto lhs = get_int_reg(instruction_bot >> 16);
+      auto lhs = get_register(instruction_bot >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_int_reg(instruction_bot >> 8);
+      auto rhs = get_register(instruction_bot >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -443,17 +443,17 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::XOR: {
       LOG(DEBUG) << TAG("vm") << "Decoded `XOR`\n";
-      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto lhs = get_int_reg(instruction_bot >> 16);
+      auto lhs = get_register(instruction_bot >> 16);
       if (!lhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
         return false;
       }
-      auto rhs = get_int_reg(instruction_bot >> 8);
+      auto rhs = get_register(instruction_bot >> 8);
       if (!rhs) {
         LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
         return false;
@@ -465,12 +465,12 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
     }
     case libskiff::bytecode::instructions::NOT: {
       LOG(DEBUG) << TAG("vm") << "Decoded `NOT`\n";
-      auto dest_reg = get_int_reg(instruction_bot >> 24);
+      auto dest_reg = get_register(instruction_bot >> 24);
       if (!dest_reg) {
         LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
-      auto source = get_int_reg(instruction_bot >> 16);
+      auto source = get_register(instruction_bot >> 16);
       if (!source) {
         LOG(FATAL) << TAG("vm") << "Unable to decode SOURCE register`\n";
         return false;
@@ -480,6 +480,57 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
                                                                  *source));
       break;
     }
+    case libskiff::bytecode::instructions::BLTF: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `BLTF`\n";
+      auto lhs = get_register(instruction_top >> 16);
+      if (!lhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
+        return false;
+      }
+      auto rhs = get_register(instruction_top >> 8);
+      if (!rhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_bltf_c>(
+              instruction_bot, *lhs, *rhs));
+      break;
+    }
+    case libskiff::bytecode::instructions::BGTF: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `BGTF`\n";
+      auto lhs = get_register(instruction_top >> 16);
+      if (!lhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
+        return false;
+      }
+      auto rhs = get_register(instruction_top >> 8);
+      if (!rhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_bgtf_c>(
+              instruction_bot, *lhs, *rhs));
+      break;
+    }
+    case libskiff::bytecode::instructions::BEQF: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `BEQF`\n";
+      auto lhs = get_register(instruction_top >> 16);
+      if (!lhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
+        return false;
+      }
+      auto rhs = get_register(instruction_top >> 8);
+      if (!rhs) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode RHS register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_beqf_c>(
+              instruction_bot, *lhs, *rhs));
+      break;
+    }
     }
   }
 
@@ -487,11 +538,10 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
   return true;
 }
 
-types::vm_integer_reg *vm_c::get_int_reg(uint8_t id)
+types::vm_register *vm_c::get_register(uint8_t id)
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
-  LOG(DEBUG) << TAG("vm")
-             << "Request for integer register : " << static_cast<int>(id)
+  LOG(DEBUG) << TAG("vm") << "Request for register : " << static_cast<int>(id)
              << "\n";
   switch (id) {
   case 0x00:
@@ -536,18 +586,6 @@ types::vm_integer_reg *vm_c::get_int_reg(uint8_t id)
   case 0x19:
     return &_integer_registers[9];
     break;
-  default:
-    return nullptr;
-  }
-}
-
-types::vm_floating_point_reg *vm_c::get_floating_point_reg(uint8_t id)
-{
-  LOG(TRACE) << TAG("func") << __func__ << "\n";
-  LOG(DEBUG) << TAG("vm")
-             << "Request for floating point register : " << static_cast<int>(id)
-             << "\n";
-  switch (id) {
   case 0x20:
     return &_floating_point_registers[0];
     break;

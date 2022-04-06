@@ -56,7 +56,7 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
     out_name = output.value();
   }
 
-  if(assembled.bin == std::nullopt) {
+  if (assembled.bin == std::nullopt) {
     std::cout << "No resulting binary. Nothing to write" << std::endl;
     return;
   }
