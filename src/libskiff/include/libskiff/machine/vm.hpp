@@ -6,13 +6,13 @@
 #include "libskiff/machine/memory.hpp"
 #include "libskiff/types.hpp"
 
+#include "libskiff/types.hpp"
 #include <array>
 #include <memory>
 #include <optional>
 #include <stack>
 #include <utility>
 #include <vector>
-#include "libskiff/types.hpp"
 
 namespace libskiff {
 namespace machine {
@@ -67,10 +67,11 @@ private:
 
   types::vm_integer_reg *get_int_reg(uint8_t id);
   types::vm_floating_point_reg *get_floating_point_reg(uint8_t id);
-  
-  void issue_forced_error(const std::string& err);
-  void issue_forced_warning(const std::string& err);
-  void kill_with_error(const types::runtime_error_e err, const std::string& err_str);
+
+  void issue_forced_error(const std::string &err);
+  void issue_forced_warning(const std::string &err);
+  void kill_with_error(const types::runtime_error_e err,
+                       const std::string &err_str);
   virtual void accept(instruction_nop_c &ins) override;
   virtual void accept(instruction_exit_c &ins) override;
   virtual void accept(instruction_blt_c &ins) override;

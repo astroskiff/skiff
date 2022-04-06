@@ -18,11 +18,10 @@ namespace binary {
 //! \brief A loaded item
 class executable_c {
 public:
-
   //! \brief Construct an executable item
   executable_c(const uint32_t compatibility)
-      :  _debug_level(libskiff::types::exec_debug_level_e::NONE),
-      _compatiblity_dword(compatibility)
+      : _debug_level(libskiff::types::exec_debug_level_e::NONE),
+        _compatiblity_dword(compatibility)
   {
   }
 
@@ -74,13 +73,12 @@ public:
   uint32_t get_compatiblity() const { return _compatiblity_dword; }
 
   // \brief Retrieve the semver that compiled the code
-  libskiff::types::semver_t get_compatiblity_semver() const 
-  { 
-    return libskiff::types::semver_t {
-      .major = static_cast<uint8_t>(_compatiblity_dword >> 16),
-      .minor = static_cast<uint8_t>(_compatiblity_dword >> 8),
-      .patch = static_cast<uint8_t>(_compatiblity_dword)
-    };
+  libskiff::types::semver_t get_compatiblity_semver() const
+  {
+    return libskiff::types::semver_t{
+        .major = static_cast<uint8_t>(_compatiblity_dword >> 16),
+        .minor = static_cast<uint8_t>(_compatiblity_dword >> 8),
+        .patch = static_cast<uint8_t>(_compatiblity_dword)};
   }
 
 private:

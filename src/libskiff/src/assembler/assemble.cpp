@@ -379,7 +379,11 @@ void assembler_c::pre_scan()
 
       std::string label_name =
           chunks[0].substr(0, chunks[0].find_first_of(':'));
-      _label_to_location[label_name] = _expected_bin_size;
+
+      // Calculate label location within instructions by taking size of binary
+      // and dividing it by the number of bytes per instruction
+      _label_to_location[label_name] =
+          _expected_bin_size / INSTRUCTION_SIZE_BYTES;
 
       add_debug(label_name);
 
