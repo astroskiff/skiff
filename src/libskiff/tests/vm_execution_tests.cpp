@@ -179,11 +179,47 @@ TEST(vm_execution_tests, basic_tests)
        "rsh i0 i0 i1\n"
        "exit\n",
        2},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @512\n"
+       "mov i1 @8\n"
+       "rsh i0 i0 i1\n"
+       "exit\n",
+       2},
 
-      /*
-            TODO: add tests for [ and or xor not ]
-      */
-
+      // Bitwise
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @9\n"
+       "mov i1 @3\n"
+       "and i0 i0 i1\n"
+       "exit\n",
+       1},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @9\n"
+       "mov i1 @3\n"
+       "or i0 i0 i1\n"
+       "exit\n",
+       11},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @9\n"
+       "mov i1 @3\n"
+       "xor i0 i0 i1\n"
+       "exit\n",
+       10},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @0\n"
+       "not i0 i0\n"
+       "exit\n",
+       1}
   };
 
   for (auto &tc : programs) {

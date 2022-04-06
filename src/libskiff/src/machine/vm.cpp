@@ -237,7 +237,7 @@ void vm_c::accept(instruction_and_c &ins)
 }
 void vm_c::accept(instruction_or_c &ins)
 {
-  ins.dest_reg = ins.lhs_reg || ins.rhs_reg;
+  ins.dest_reg = ins.lhs_reg | ins.rhs_reg;
   _ip++;
 }
 
