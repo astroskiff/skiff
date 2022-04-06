@@ -43,8 +43,6 @@ load_binary(const std::string &file)
 
   if (std::ifstream is{file, std::ios::binary}) {
 
-    executable_c *loaded_object = new executable_c();
-
     // Read compatibility DWORD
     auto compatiblity = libskiff::bytecode::helpers::unpack_4(read(is, 4));
     if (compatiblity == std::nullopt) {
@@ -52,6 +50,8 @@ load_binary(const std::string &file)
                  << "Unable to read compatibility DWORD : " << file << "\n";
       return std::nullopt;
     }
+
+    executable_c *loaded_object = new executable_c(*compatiblity);
 
     // Debug Level
     auto dlevel = read(is, 1)[0];

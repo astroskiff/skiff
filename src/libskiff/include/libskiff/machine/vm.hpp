@@ -48,6 +48,8 @@ public:
   std::pair<execution_result_e, int> execute();
 
 private:
+  bool _is_alive{true};
+  types::exec_debug_level_e _debug_level{types::exec_debug_level_e::NONE};
   std::array<types::vm_integer_reg, num_integer_registers> _integer_registers{};
   std::array<types::vm_floating_point_reg, num_floating_point_registers>
       _floating_point_registers{};
@@ -55,6 +57,7 @@ private:
   types::vm_integer_reg _x1{1};
   types::vm_integer_reg _ip{0};
   types::vm_integer_reg _fp{0};
+  execution_result_e _return_value{execution_result_e::OKAY};
 
   std::vector<std::unique_ptr<instruction_c>> _instructions;
   std::stack<uint64_t> _call_stack;
@@ -64,7 +67,10 @@ private:
 
   types::vm_integer_reg *get_int_reg(uint8_t id);
   types::vm_floating_point_reg *get_floating_point_reg(uint8_t id);
-
+  
+  void issue_forced_error(const std::string& err);
+  void issue_forced_warning(const std::string& err);
+  void kill_with_error(const types::runtime_error_e err, const std::string& err_str);
   virtual void accept(instruction_nop_c &ins) override;
   virtual void accept(instruction_exit_c &ins) override;
   virtual void accept(instruction_blt_c &ins) override;

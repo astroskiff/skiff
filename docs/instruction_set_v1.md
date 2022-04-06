@@ -53,7 +53,8 @@
 | 3 | Extreme debug |
 
 **Description:**
-Indicates to the VM that debug mode should be enabled at a specified level. This directive is not required.
+Indicates to the VM that debug mode should be enabled at a specified level. This directive is not required, but when set will force output debug messages
+at runtime.
 
 **Example:**
 ```

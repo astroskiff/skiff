@@ -39,9 +39,12 @@ std::vector<uint8_t> binary_generator::generate_binary() const
 {
   uint32_t compatibility{0};
   compatibility |= static_cast<uint32_t>(is_experimental ? 0xFF : 0x00) << 24;
-  compatibility |= static_cast<uint32_t>(libskiff::version::semantic_version.major) << 16;
-  compatibility |= static_cast<uint32_t>(libskiff::version::semantic_version.minor) << 8;
-  compatibility |= static_cast<uint32_t>(libskiff::version::semantic_version.patch);
+  compatibility |=
+      static_cast<uint32_t>(libskiff::version::semantic_version.major) << 16;
+  compatibility |=
+      static_cast<uint32_t>(libskiff::version::semantic_version.minor) << 8;
+  compatibility |=
+      static_cast<uint32_t>(libskiff::version::semantic_version.patch);
 
   auto encoded_compatibility =
       libskiff::bytecode::helpers::pack_4(compatibility);

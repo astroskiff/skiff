@@ -10,6 +10,7 @@ add_library(${PROJECT_NAME}
   src/generators/instruction_generator.cpp
   src/machine/execution_context.cpp
   src/machine/memory.cpp
+  src/machine/vm_instruction_decode.cpp
   src/machine/vm.cpp)
 
 add_library(skiff::libskiff ALIAS ${PROJECT_NAME})

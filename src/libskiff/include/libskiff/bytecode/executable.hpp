@@ -10,17 +10,19 @@
 #include "libskiff/machine/execution_context.hpp"
 #include "libskiff/types.hpp"
 
+#include <iostream>
+
 namespace libskiff {
 namespace binary {
 
 //! \brief A loaded item
 class executable_c {
 public:
-  executable_c() : _debug_level(libskiff::types::exec_debug_level_e::NONE){};
 
   //! \brief Construct an executable item
   executable_c(const uint32_t compatibility)
-      : _compatiblity_dword(compatibility)
+      :  _debug_level(libskiff::types::exec_debug_level_e::NONE),
+      _compatiblity_dword(compatibility)
   {
   }
 
