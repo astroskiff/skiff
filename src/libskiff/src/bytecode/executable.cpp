@@ -1,5 +1,4 @@
 #include "libskiff/bytecode/executable.hpp"
-#include "libskiff/bytecode/binary.hpp"
 #include "libskiff/bytecode/helpers.hpp"
 #include "libskiff/logging/aixlog.hpp"
 #include "libskiff/types.hpp"
@@ -44,8 +43,6 @@ load_binary(const std::string &file)
 
   if (std::ifstream is{file, std::ios::binary}) {
 
-    executable_c *loaded_object = new executable_c();
-
     // Read compatibility DWORD
     auto compatiblity = libskiff::bytecode::helpers::unpack_4(read(is, 4));
     if (compatiblity == std::nullopt) {
@@ -53,6 +50,8 @@ load_binary(const std::string &file)
                  << "Unable to read compatibility DWORD : " << file << "\n";
       return std::nullopt;
     }
+
+    executable_c *loaded_object = new executable_c(*compatiblity);
 
     // Debug Level
     auto dlevel = read(is, 1)[0];
@@ -220,8 +219,15 @@ load_binary(const std::string &file)
       instructions.insert(instructions.end(), instruction.begin(),
                           instruction.end());
     }
-    loaded_object->set_instructions(instructions);
 
+    // Ensure we have a reasonable number of bytes
+    // as each instruction is 8-byte fixed
+    if (instructions.size() % 8 != 0) {
+      LOG(FATAL) << TAG("loader")
+                 << "Invalid number of bytes for loaded instruction set\n";
+    }
+
+    loaded_object->set_instructions(instructions);
     return std::unique_ptr<executable_c>(loaded_object);
   }
   return std::nullopt;

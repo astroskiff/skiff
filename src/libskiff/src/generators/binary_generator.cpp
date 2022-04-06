@@ -1,5 +1,6 @@
 #include "libskiff/generators/binary_generator.hpp"
 #include "libskiff/bytecode/helpers.hpp"
+#include "libskiff/version.hpp"
 
 namespace libskiff {
 namespace generator {
@@ -36,8 +37,17 @@ void binary_generator::set_debug(
 
 std::vector<uint8_t> binary_generator::generate_binary() const
 {
+  uint32_t compatibility{0};
+  compatibility |= static_cast<uint32_t>(is_experimental ? 0xFF : 0x00) << 24;
+  compatibility |=
+      static_cast<uint32_t>(libskiff::version::semantic_version.major) << 16;
+  compatibility |=
+      static_cast<uint32_t>(libskiff::version::semantic_version.minor) << 8;
+  compatibility |=
+      static_cast<uint32_t>(libskiff::version::semantic_version.patch);
+
   auto encoded_compatibility =
-      libskiff::bytecode::helpers::pack_4(libskiff::binary::compatibility);
+      libskiff::bytecode::helpers::pack_4(compatibility);
   auto encoded_number_of_constants =
       libskiff::bytecode::helpers::pack_8(_number_of_constants);
   auto encoded_number_of_sections =

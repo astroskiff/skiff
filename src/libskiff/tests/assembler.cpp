@@ -3,9 +3,9 @@
 #include <libskiff/logging/aixlog.hpp>
 #include <libskiff/types.hpp>
 
+#include <CppUTest/TestHarness.h>
 #include <fstream>
 #include <vector>
-#include <CppUTest/TestHarness.h>
 
 namespace {
 

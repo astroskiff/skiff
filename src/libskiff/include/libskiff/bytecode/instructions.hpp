@@ -8,7 +8,6 @@ namespace bytecode {
 namespace instructions {
 
 constexpr uint8_t INS_SIZE_BYTES = 8;
-
 constexpr uint8_t NOP = 0x00;
 constexpr uint8_t EXIT = 0x01;
 constexpr uint8_t BLT = 0x02;

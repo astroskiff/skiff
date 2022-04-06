@@ -7,6 +7,7 @@
 #include <libskiff/assembler/assemble.hpp>
 #include <libskiff/bytecode/executable.hpp>
 #include <libskiff/logging/aixlog.hpp>
+#include <libskiff/machine/vm.hpp>
 #include <libskiff/types.hpp>
 
 void setup_logger(AixLog::Severity level)
@@ -27,11 +28,17 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
   if (assembled.warnings != std::nullopt) {
     std::cout << assembled.warnings.value().size() << " warnings were generated"
               << std::endl;
+    for (auto &w : *assembled.warnings) {
+      std::cout << w << std::endl;
+    }
   }
 
   if (assembled.errors != std::nullopt) {
     std::cout << assembled.errors.value().size() << " errors were generated"
               << std::endl;
+    for (auto &err : *assembled.errors) {
+      std::cout << err << std::endl;
+    }
   }
 
   if (display_stats && assembled.bin != std::nullopt) {
@@ -64,8 +71,22 @@ int run(const std::string &bin)
     return 1;
   }
 
-  // TODO: Pass the loaded object to a VM instance to be executed
-  return 0;
+  libskiff::machine::vm_c skiff_vm;
+  if (!skiff_vm.load(std::move(loaded_binary.value()))) {
+    LOG(FATAL) << TAG("app") << "Failed to load VM\n";
+    return 1;
+  }
+
+  auto [value, code] = skiff_vm.execute();
+
+  if (value != libskiff::machine::vm_c::execution_result_e::OKAY) {
+    LOG(FATAL) << TAG("app") << "VM Died with an error\n";
+    return code;
+  }
+
+  LOG(DEBUG) << TAG("app") << "VM returned code : " << code << "\n";
+
+  return code;
 }
 
 int main(int argc, char **argv)

@@ -171,8 +171,10 @@ TEST(instruction_generator_tests, constants)
   //  fp
   //
   for (uint8_t i = 0; i < num_const_tests; i++) {
-    auto value = libutil::generate::generate_random_c<double>().get_floating_point_range(
-        std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
+    auto value =
+        libutil::generate::generate_random_c<double>().get_floating_point_range(
+            std::numeric_limits<double>::min(),
+            std::numeric_limits<double>::max());
 
     auto data = gen.generate_fp_constant(value);
     CHECK_TRUE(data.size() == 8);

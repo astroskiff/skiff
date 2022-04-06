@@ -379,7 +379,11 @@ void assembler_c::pre_scan()
 
       std::string label_name =
           chunks[0].substr(0, chunks[0].find_first_of(':'));
-      _label_to_location[label_name] = _expected_bin_size;
+
+      // Calculate label location within instructions by taking size of binary
+      // and dividing it by the number of bytes per instruction
+      _label_to_location[label_name] =
+          _expected_bin_size / INSTRUCTION_SIZE_BYTES;
 
       add_debug(label_name);
 
@@ -455,9 +459,11 @@ void assembler_c::assemble()
 
   if (!_directive_checks.init) {
     add_error("Missing .init directive");
+    return;
   }
   if (!_directive_checks.code) {
     add_error("Missing .code directive");
+    return;
   }
 
   _result.stats.num_instructions = _ins_gen.get_number_instructions_generated();

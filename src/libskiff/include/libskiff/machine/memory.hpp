@@ -1,16 +1,20 @@
 #ifndef LIBSKIFF_MEMORY_HPP
 #define LIBSKIFF_MEMORY_HPP
 
+#include <cstddef>
 #include <cstdint>
+#include <vector>
 
 namespace libskiff {
-namespace memory {
+namespace machine {
 
-constexpr uint8_t WORD_SIZE_BYTES = 2;  // 16-bit
-constexpr uint8_t DWORD_SIZE_BYTES = 4; // 32-bits
-constexpr uint8_t QWORD_SIZE_BYTES = 8; // 64-bits
+//! \brief A memory structure for the nabla vsys
+class memory_c {
+public:
+  memory_c();
+};
 
-} // namespace memory
+} // namespace machine
 } // namespace libskiff
 
 #endif

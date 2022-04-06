@@ -7,7 +7,10 @@
 #include <unordered_map>
 #include <vector>
 
+#include "libskiff/machine/execution_context.hpp"
 #include "libskiff/types.hpp"
+
+#include <iostream>
 
 namespace libskiff {
 namespace binary {
@@ -15,11 +18,10 @@ namespace binary {
 //! \brief A loaded item
 class executable_c {
 public:
-  executable_c() : _debug_level(libskiff::types::exec_debug_level_e::NONE){};
-
   //! \brief Construct an executable item
   executable_c(const uint32_t compatibility)
-      : _compatiblity_dword(compatibility)
+      : _debug_level(libskiff::types::exec_debug_level_e::NONE),
+        _compatiblity_dword(compatibility)
   {
   }
 
@@ -60,6 +62,24 @@ public:
   //! \brief Attempt to get a section address from the library table
   //! \returns nullopt if the name
   std::optional<uint64_t> get_section_address(const std::string &name) const;
+
+  //! \brief Get the constants
+  std::vector<uint8_t> get_constants() const { return _constants; }
+
+  //! \brief Get the instructions
+  std::vector<uint8_t> get_instructions() const { return _instructions; }
+
+  // \brief Get the compatiblity DWORD
+  uint32_t get_compatiblity() const { return _compatiblity_dword; }
+
+  // \brief Retrieve the semver that compiled the code
+  libskiff::types::semver_t get_compatiblity_semver() const
+  {
+    return libskiff::types::semver_t{
+        .major = static_cast<uint8_t>(_compatiblity_dword >> 16),
+        .minor = static_cast<uint8_t>(_compatiblity_dword >> 8),
+        .patch = static_cast<uint8_t>(_compatiblity_dword)};
+  }
 
 private:
   std::vector<uint8_t> _constants;
