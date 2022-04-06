@@ -77,6 +77,7 @@ private:
 
   const std::string &_input_file;
   uint64_t _current_line_number{0};
+  uint64_t _current_processed_line_number{0};
   state_e _state{state_e::DIRECTIVE_DIGESTION};
   assembled_t _result{.stats = {.num_instructions = 0},
                       .errors = std::nullopt,
@@ -310,9 +311,9 @@ void assembler_c::add_error(const std::string &str)
     std::vector<std::string> errors;
     errors.push_back(e);
     _result.errors = {errors};
-    return;
+  } else {
+    _result.errors.value().push_back(e);
   }
-  _result.errors.value().push_back(e);
 
   LOG(FATAL) << TAG("assembler") << "line: " << _current_line_number << ": "
              << str << "\n";
@@ -441,10 +442,10 @@ void assembler_c::assemble()
 
   for (auto &line : _file_data) {
     _current_line_number++;
-
     if (line.empty() || current.find_first_not_of(' ') != std::string::npos) {
       continue;
     }
+    _current_processed_line_number++;
     _current_chunks.clear();
     _current_chunks = chunk_line(line);
     switch (_state) {
@@ -490,7 +491,7 @@ bool assembler_c::directive_init()
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
   add_trace(__func__);
-  if (_current_line_number != 1) {
+  if (_current_processed_line_number != 1) {
     add_error(".init directive must be the first item in the asm file");
     return false;
   }

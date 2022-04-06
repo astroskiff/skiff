@@ -26,6 +26,7 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
   LOG(TRACE) << TAG("func") << __func__ << "\n";
 
   if (assembled.warnings != std::nullopt) {
+    LOG(DEBUG) << TAG("app") << "Show warnings\n";
     std::cout << assembled.warnings.value().size() << " warnings were generated"
               << std::endl;
     for (auto &w : *assembled.warnings) {
@@ -34,6 +35,7 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
   }
 
   if (assembled.errors != std::nullopt) {
+    LOG(DEBUG) << TAG("app") << "Show errors\n";
     std::cout << assembled.errors.value().size() << " errors were generated"
               << std::endl;
     for (auto &err : *assembled.errors) {
@@ -42,6 +44,7 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
   }
 
   if (display_stats && assembled.bin != std::nullopt) {
+    LOG(DEBUG) << TAG("app") << "Show stats\n";
     std::cout << assembled.stats.num_instructions
               << " items assembled resulting in "
               << assembled.bin.value().size() << " bytes" << std::endl;
@@ -53,6 +56,12 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
     out_name = output.value();
   }
 
+  if(assembled.bin == std::nullopt) {
+    std::cout << "No resulting binary. Nothing to write" << std::endl;
+    return;
+  }
+
+  LOG(DEBUG) << TAG("app") << "Write bin\n";
   std::ofstream fout(out_name, std::ios::out | std::ios::binary);
   fout.write(reinterpret_cast<const char *>(&assembled.bin.value()[0]),
              assembled.bin.value().size());
