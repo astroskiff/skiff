@@ -321,7 +321,8 @@ void assembler_c::add_error(const std::string &str)
     std::vector<std::string> errors;
     errors.push_back(e);
     _result.errors = {errors};
-  } else {
+  }
+  else {
     _result.errors.value().push_back(e);
   }
 

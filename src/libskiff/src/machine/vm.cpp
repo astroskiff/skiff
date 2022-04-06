@@ -156,7 +156,8 @@ void vm_c::accept(instruction_ret_c &ins)
 
 void vm_c::accept(instruction_mov_c &ins)
 {
- // issue_forced_warning("MOV : Move is only moving 32 bits and is not directly 'moving' constants into place. ");
+  // issue_forced_warning("MOV : Move is only moving 32 bits and is not directly
+  // 'moving' constants into place. ");
   ins.dest_reg = ins.value;
   _ip++;
 }
@@ -194,8 +195,8 @@ void vm_c::accept(instruction_addf_c &ins)
 {
   issue_forced_warning("ADDF : Operation is untested");
   ins.dest_reg = libskiff::bytecode::floating_point::to_uint64_t(
-  libskiff::bytecode::floating_point::from_uint64_t(ins.lhs_reg) + 
-                 libskiff::bytecode::floating_point::from_uint64_t(ins.rhs_reg));
+      libskiff::bytecode::floating_point::from_uint64_t(ins.lhs_reg) +
+      libskiff::bytecode::floating_point::from_uint64_t(ins.rhs_reg));
   _ip++;
 }
 
@@ -203,8 +204,8 @@ void vm_c::accept(instruction_subf_c &ins)
 {
   issue_forced_warning("SUBF : Operation is untested");
   ins.dest_reg = libskiff::bytecode::floating_point::to_uint64_t(
-  libskiff::bytecode::floating_point::from_uint64_t(ins.lhs_reg) -
-                 libskiff::bytecode::floating_point::from_uint64_t(ins.rhs_reg));
+      libskiff::bytecode::floating_point::from_uint64_t(ins.lhs_reg) -
+      libskiff::bytecode::floating_point::from_uint64_t(ins.rhs_reg));
   _ip++;
 }
 
@@ -217,8 +218,8 @@ void vm_c::accept(instruction_divf_c &ins)
     return;
   }
   ins.dest_reg = libskiff::bytecode::floating_point::to_uint64_t(
-  libskiff::bytecode::floating_point::from_uint64_t(ins.lhs_reg) /
-                 libskiff::bytecode::floating_point::from_uint64_t(ins.rhs_reg));
+      libskiff::bytecode::floating_point::from_uint64_t(ins.lhs_reg) /
+      libskiff::bytecode::floating_point::from_uint64_t(ins.rhs_reg));
   _ip++;
 }
 
@@ -226,8 +227,8 @@ void vm_c::accept(instruction_mulf_c &ins)
 {
   issue_forced_warning("MULF : Operation is untested");
   ins.dest_reg = libskiff::bytecode::floating_point::to_uint64_t(
-  libskiff::bytecode::floating_point::from_uint64_t(ins.lhs_reg) /
-                 libskiff::bytecode::floating_point::from_uint64_t(ins.rhs_reg));
+      libskiff::bytecode::floating_point::from_uint64_t(ins.lhs_reg) /
+      libskiff::bytecode::floating_point::from_uint64_t(ins.rhs_reg));
   _ip++;
 }
 
@@ -268,7 +269,7 @@ void vm_c::accept(instruction_not_c &ins)
 
 void vm_c::accept(instruction_bltf_c &ins)
 {
-  if (libskiff::bytecode::floating_point::from_uint64_t(ins.lhs_reg) < 
+  if (libskiff::bytecode::floating_point::from_uint64_t(ins.lhs_reg) <
       libskiff::bytecode::floating_point::from_uint64_t(ins.rhs_reg)) {
     _ip = ins.destination;
   }

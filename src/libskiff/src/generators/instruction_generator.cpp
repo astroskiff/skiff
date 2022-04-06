@@ -434,8 +434,8 @@ std::vector<uint8_t> instruction_generator_c::gen_not(const uint8_t dest,
 }
 
 std::vector<uint8_t> instruction_generator_c::gen_bltf(const uint8_t lhs,
-                                                      const uint8_t rhs,
-                                                      const uint32_t address)
+                                                       const uint8_t rhs,
+                                                       const uint32_t address)
 {
   uint32_t top = static_cast<uint32_t>(lhs) << 16;
   top |= static_cast<uint32_t>(rhs) << 8;
@@ -450,8 +450,8 @@ std::vector<uint8_t> instruction_generator_c::gen_bltf(const uint8_t lhs,
 }
 
 std::vector<uint8_t> instruction_generator_c::gen_bgtf(const uint8_t lhs,
-                                                      const uint8_t rhs,
-                                                      const uint32_t address)
+                                                       const uint8_t rhs,
+                                                       const uint32_t address)
 {
   uint32_t top = static_cast<uint32_t>(lhs) << 16;
   top |= static_cast<uint32_t>(rhs) << 8;
@@ -466,8 +466,8 @@ std::vector<uint8_t> instruction_generator_c::gen_bgtf(const uint8_t lhs,
 }
 
 std::vector<uint8_t> instruction_generator_c::gen_beqf(const uint8_t lhs,
-                                                      const uint8_t rhs,
-                                                      const uint32_t address)
+                                                       const uint8_t rhs,
+                                                       const uint32_t address)
 {
   uint32_t top = static_cast<uint32_t>(lhs) << 16;
   top |= static_cast<uint32_t>(rhs) << 8;

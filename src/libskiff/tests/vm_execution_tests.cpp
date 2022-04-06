@@ -4,16 +4,15 @@
   to ensure that the instruction by itsself is working as intended.
 */
 
-
 #include <libskiff/assembler/assemble.hpp>
 #include <libskiff/bytecode/executable.hpp>
 #include <libskiff/logging/aixlog.hpp>
 #include <libskiff/machine/vm.hpp>
 
 #include <fstream>
+#include <optional>
 #include <string>
 #include <vector>
-#include <optional>
 
 #include <CppUTest/TestHarness.h>
 
@@ -295,10 +294,7 @@ TEST(vm_execution_tests, basic_tests)
        "mov i0 @0\n"
        "not i0 i0\n"
        "exit\n",
-       1}
-
-
-  };
+       1}};
 
   for (auto &tc : programs) {
     {
