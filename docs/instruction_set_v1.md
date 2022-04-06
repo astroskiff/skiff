@@ -171,7 +171,7 @@ Indicates the start of 'code' space. No more directives shall follow this
 ```
 
 **Format:** `blt <register lhs> <register rhs> <label>`
-**Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs < rhs`
+**Description:** Compare two integer registers. Branch to given address iff `lhs < rhs`
 **Example:**	`blt i0 i1 label_name	; Branch to a label`
 **Note:** In the future this instruction should be updated to allow the
 currently empty byte to be a `variant` byte, and allow registers to be
@@ -189,7 +189,7 @@ used in the stead of labels. That way we can branch further than u32
 ```
 
 **Format:** `bgt <register lhs> <register rhs> <label>`
-**Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs > rhs`
+**Description:** Compare two integer registers. Branch to given address iff `lhs > rhs`
 **Example:**	`blt i0 i1 label_name	; Branch to a label`
 **Note:** In the future this instruction should be updated to allow the
 currently empty byte to be a `variant` byte, and allow registers to be
@@ -207,7 +207,7 @@ used in the stead of labels. That way we can branch further than u32
 ```
 
 **Format:** `beq <register lhs> <register rhs> <label>`
-**Description:** Compare two registers. These can be integer or float registers. Branch to given address iff `lhs = rhs`
+**Description:** Compare two integer registers. Branch to given address iff `lhs = rhs`
 **Example:**	`beq i0 i1 label_name	; Branch to a label`
 **Note:** In the future this instruction should be updated to allow the
 currently empty byte to be a `variant` byte, and allow registers to be
@@ -492,3 +492,57 @@ to be used in the stead of labels. That way we can branch further than u32
 **Example:**	`not i0 i0`
 **Description:** Logical NOT the value of a register.
 **Note:** Future expansion of this instruction is expected such that raw values could be encoded and a variant byte could be introduced to indicate that its not a register-only instruction. This would have potential execution speed ramifications. 
+
+## bltf
+**Opcode** 0x17
+**Instruction Layout:**
+```
+	[ Empty ]  [ LHS Reg ] [ RHS Reg ] [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0001 0111 
+	
+	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+
+**Format:** `bltf <register lhs> <register rhs> <label>`
+**Description:** Compare two float registers. Branch to given address iff `lhs < rhs`
+**Example:**	`bltf i0 i1 label_name	; Branch to a label`
+**Note:** In the future this instruction should be updated to allow the
+currently empty byte to be a `variant` byte, and allow registers to be
+used in the stead of labels. That way we can branch further than u32
+
+## bgtf
+**Opcode** 0x18
+**Instruction Layout:**
+```
+	[ Empty ]  [ LHS Reg ] [ RHS Reg ] [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0001 1000 
+	
+	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+
+**Format:** `bgt <register lhs> <register rhs> <label>`
+**Description:** Compare two float registers. Branch to given address iff `lhs > rhs`
+**Example:**	`blt i0 i1 label_name	; Branch to a label`
+**Note:** In the future this instruction should be updated to allow the
+currently empty byte to be a `variant` byte, and allow registers to be
+used in the stead of labels. That way we can branch further than u32
+
+## beqf
+**Opcode** 0x19
+**Instruction Layout:**
+```
+	[ Empty ]  [ LHS Reg ] [ RHS Reg ] [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0001 1001 
+	
+	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+
+**Format:** `beq <register lhs> <register rhs> <label>`
+**Description:** Compare two float registers. Branch to given address iff `lhs = rhs`
+**Example:**	`beq i0 i1 label_name	; Branch to a label`
+**Note:** In the future this instruction should be updated to allow the
+currently empty byte to be a `variant` byte, and allow registers to be
+used in the stead of labels. That way we can branch further than u32

@@ -433,5 +433,53 @@ std::vector<uint8_t> instruction_generator_c::gen_not(const uint8_t dest,
   return encoded_bytes;
 }
 
+std::vector<uint8_t> instruction_generator_c::gen_bltf(const uint8_t lhs,
+                                                      const uint8_t rhs,
+                                                      const uint32_t address)
+{
+  uint32_t top = static_cast<uint32_t>(lhs) << 16;
+  top |= static_cast<uint32_t>(rhs) << 8;
+  top |= static_cast<uint32_t>(bytecode::instructions::BLTF);
+
+  uint64_t ins = static_cast<uint64_t>(top) << 32;
+  ins |= static_cast<uint64_t>(address);
+
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_8(ins);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_bgtf(const uint8_t lhs,
+                                                      const uint8_t rhs,
+                                                      const uint32_t address)
+{
+  uint32_t top = static_cast<uint32_t>(lhs) << 16;
+  top |= static_cast<uint32_t>(rhs) << 8;
+  top |= static_cast<uint32_t>(bytecode::instructions::BGTF);
+
+  uint64_t ins = static_cast<uint64_t>(top) << 32;
+  ins |= static_cast<uint64_t>(address);
+
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_8(ins);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_beqf(const uint8_t lhs,
+                                                      const uint8_t rhs,
+                                                      const uint32_t address)
+{
+  uint32_t top = static_cast<uint32_t>(lhs) << 16;
+  top |= static_cast<uint32_t>(rhs) << 8;
+  top |= static_cast<uint32_t>(bytecode::instructions::BEQF);
+
+  uint64_t ins = static_cast<uint64_t>(top) << 32;
+  ins |= static_cast<uint64_t>(address);
+
+  auto encoded_bytes = libskiff::bytecode::helpers::pack_8(ins);
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
 } // namespace instructions
 } // namespace libskiff

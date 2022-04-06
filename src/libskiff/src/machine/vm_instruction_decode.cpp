@@ -166,10 +166,24 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
       break;
     }
     case libskiff::bytecode::instructions::MOV: {
+
+
+      /*
+      
+      
+        TODO: Need to make constructor for MOV that takes
+        a floating point reg, or perhaps, even better, we need to
+        make it so all float and ints store in the same underlying
+        register type and the floating point instructions
+        can be things that decode 64-bit b.s and make them into a float
+      
+      
+      */
+
       LOG(DEBUG) << TAG("vm") << "Decoded `MOV`\n";
       auto dest_reg = get_int_reg(instruction_top >> 8);
       if (!dest_reg) {
-        LOG(FATAL) << TAG("vm") << "Unable to decode LHS register`\n";
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
       _instructions.emplace_back(

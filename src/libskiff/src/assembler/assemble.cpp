@@ -148,6 +148,10 @@ private:
   bool build_or();
   bool build_xor();
   bool build_not();
+
+  bool build_bltf();
+  bool build_bgtf();
+  bool build_beqf();
 };
 
 inline std::vector<std::string> chunk_line(std::string line)
@@ -272,6 +276,12 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
               std::bind(&libskiff::assembler::assembler_c::build_xor, this)},
       match_t{std::regex("^not"),
               std::bind(&libskiff::assembler::assembler_c::build_not, this)},
+      match_t{std::regex("^bltf"),
+              std::bind(&libskiff::assembler::assembler_c::build_bltf, this)},
+      match_t{std::regex("^bgtf"),
+              std::bind(&libskiff::assembler::assembler_c::build_bgtf, this)},
+      match_t{std::regex("^beqf"),
+              std::bind(&libskiff::assembler::assembler_c::build_beqf, this)},
   };
 }
 
@@ -1517,6 +1527,98 @@ bool assembler_c::build_not()
   }
 
   add_instruction_bytes(_ins_gen.gen_not(*dest, *source));
+  return true;
+}
+
+bool assembler_c::build_bltf()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed bltf instruction");
+    return false;
+  }
+
+  auto address = get_label_address(_current_chunks[3]);
+  if (address == std::nullopt) {
+    add_error("Unknown label given to bltf instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[1]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_bltf(*lhs, *rhs, *address));
+  return true;
+}
+
+bool assembler_c::build_bgtf()
+{
+  add_trace(__func__);
+
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed bgtf instruction");
+    return false;
+  }
+
+  auto address = get_label_address(_current_chunks[3]);
+  if (address == std::nullopt) {
+    add_error("Unknown label given to bgtf instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[1]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_bgtf(*lhs, *rhs, *address));
+  return true;
+}
+
+bool assembler_c::build_beqf()
+{
+  add_trace(__func__);
+
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed beqf instruction");
+    return false;
+  }
+
+  auto address = get_label_address(_current_chunks[3]);
+  if (address == std::nullopt) {
+    add_error("Unknown label given to beqf instruction");
+    return false;
+  }
+
+  auto lhs = _ins_gen.get_register_value(_current_chunks[1]);
+  if (lhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto rhs = _ins_gen.get_register_value(_current_chunks[2]);
+  if (rhs == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_beqf(*lhs, *rhs, *address));
   return true;
 }
 

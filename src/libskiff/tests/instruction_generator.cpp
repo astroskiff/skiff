@@ -333,7 +333,10 @@ TEST(instruction_generator_tests, instruction_branch)
   // All branch instructions match the same encoding, so we test them all here
   for (auto &ins : {libskiff::bytecode::instructions::BLT,
                     libskiff::bytecode::instructions::BGT,
-                    libskiff::bytecode::instructions::BEQ}) {
+                    libskiff::bytecode::instructions::BEQ,
+                    libskiff::bytecode::instructions::BLTF,
+                    libskiff::bytecode::instructions::BGTF,
+                    libskiff::bytecode::instructions::BEQF}) {
 
     auto lhs_register =
         known_good_registers[libutil::generate::generate_random_c<uint8_t>()
@@ -362,6 +365,15 @@ TEST(instruction_generator_tests, instruction_branch)
       break;
     case libskiff::bytecode::instructions::BEQ:
       bytes = gen.gen_beq(lhs_register.value, rhs_register.value, address);
+      break;
+    case libskiff::bytecode::instructions::BLTF:
+      bytes = gen.gen_bltf(lhs_register.value, rhs_register.value, address);
+      break;
+    case libskiff::bytecode::instructions::BGTF:
+      bytes = gen.gen_bgtf(lhs_register.value, rhs_register.value, address);
+      break;
+    case libskiff::bytecode::instructions::BEQF:
+      bytes = gen.gen_beqf(lhs_register.value, rhs_register.value, address);
       break;
     default:
       FAIL("Default hit");
