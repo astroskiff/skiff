@@ -14,6 +14,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <optional>
+#include <functional>
 
 TEST_GROUP(vm_execution_tests){};
 
