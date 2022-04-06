@@ -4,7 +4,6 @@
   to ensure that the instruction by itsself is working as intended.
 */
 
-#include <CppUTest/TestHarness.h>
 
 #include <libskiff/assembler/assemble.hpp>
 #include <libskiff/bytecode/executable.hpp>
@@ -16,6 +15,8 @@
 #include <vector>
 #include <optional>
 #include <functional>
+
+#include <CppUTest/TestHarness.h>
 
 TEST_GROUP(vm_execution_tests){};
 
