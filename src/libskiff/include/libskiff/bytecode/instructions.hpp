@@ -34,6 +34,8 @@ constexpr uint8_t NOT = 0x16;
 constexpr uint8_t BLTF = 0x17;
 constexpr uint8_t BGTF = 0x18;
 constexpr uint8_t BEQF = 0x19;
+constexpr uint8_t ASEQ = 0x20;
+constexpr uint8_t ASNE = 0x21;
 
 } // namespace instructions
 } // namespace bytecode

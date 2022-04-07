@@ -96,6 +96,8 @@ private:
   virtual void accept(instruction_bltf_c &ins) override;
   virtual void accept(instruction_bgtf_c &ins) override;
   virtual void accept(instruction_beqf_c &ins) override;
+  virtual void accept(instruction_asne_c &ins) override;
+  virtual void accept(instruction_aseq_c &ins) override;
 };
 
 } // namespace machine

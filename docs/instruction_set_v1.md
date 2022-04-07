@@ -546,3 +546,33 @@ used in the stead of labels. That way we can branch further than u32
 **Note:** In the future this instruction should be updated to allow the
 currently empty byte to be a `variant` byte, and allow registers to be
 used in the stead of labels. That way we can branch further than u32
+
+## aseq 
+**Opcode** 0x20
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 1010
+	
+	[ Expected ] [  Actual  ] [ ------ Empty ----- ]
+ 	 0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `aseq <expected register> <actual register>`
+**Example:**	`aseq i0 i2`
+**Description:** Assert that the value in the `expected register` matches that of the value in the `actual register`. 
+Failure of this condition will lead the VM to exit with a code of `1`
+
+## asneq 
+**Opcode** 0x21
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0001 1011
+	
+	[ Expected ] [  Actual  ] [ ------ Empty ----- ]
+ 	 0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `asneq <expected register> <actual register>`
+**Example:**	`asneq i0 i2`
+**Description:** Assert that the value in the `expected register` does not match that of the value in the `actual register`. 
+Failure of this condition will lead the VM to exit with a code of `1`

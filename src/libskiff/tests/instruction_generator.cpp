@@ -645,3 +645,57 @@ TEST(instruction_generator_tests, instruction_not)
   CHECK_EQUAL_TEXT(0x00, bytes[6], "Expected empty byte");
   CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
 }
+
+TEST(instruction_generator_tests, instruction_aseq)
+{
+  auto expected_register =
+      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                               .get_range(0, known_good_registers.size() - 1)];
+
+  auto actual_register =
+      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                               .get_range(0, known_good_registers.size() - 1)];
+
+  libskiff::instructions::instruction_generator_c gen;
+  auto bytes = gen.gen_aseq(expected_register.value, actual_register.value);
+
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+
+  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
+  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::ASEQ, bytes[3],
+                   "Instruction opcode did not match expected value");
+
+  CHECK_EQUAL_TEXT(expected_register.value, bytes[4], "Expected empty byte");
+  CHECK_EQUAL_TEXT(actual_register.value, bytes[5], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[6], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
+}
+
+TEST(instruction_generator_tests, instruction_asne)
+{
+  auto expected_register =
+      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                               .get_range(0, known_good_registers.size() - 1)];
+
+  auto actual_register =
+      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                               .get_range(0, known_good_registers.size() - 1)];
+
+  libskiff::instructions::instruction_generator_c gen;
+  auto bytes = gen.gen_asne(expected_register.value, actual_register.value);
+
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+
+  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
+  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::ASNE, bytes[3],
+                   "Instruction opcode did not match expected value");
+
+  CHECK_EQUAL_TEXT(expected_register.value, bytes[4], "Expected empty byte");
+  CHECK_EQUAL_TEXT(actual_register.value, bytes[5], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[6], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
+}

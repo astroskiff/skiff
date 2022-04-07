@@ -300,5 +300,31 @@ void vm_c::accept(instruction_beqf_c &ins)
   }
 }
 
+void vm_c::accept(instruction_asne_c &ins)
+{
+  if (ins.expected_reg == ins.actual_reg) {
+    LOG(DEBUG) << TAG("vm") << TERM_COLOR_RED
+               << "Assertion `ASNE` failed! Expected [" << ins.expected_reg
+               << "] Actual [" << ins.actual_reg << "]"
+               << TERM_COLOR_END << "\n";
+    _integer_registers[0] = 1;
+    _is_alive = false;
+  }
+  _ip++;
+}
+
+void vm_c::accept(instruction_aseq_c &ins)
+{
+  if (ins.expected_reg != ins.actual_reg) {
+    LOG(DEBUG) << TAG("vm") << TERM_COLOR_RED
+               << "Assertion `ASEQ` failed! Expected [" << ins.expected_reg
+               << "] Actual [" << ins.actual_reg << "]"
+               << TERM_COLOR_END << "\n";
+    _integer_registers[0] = 1;
+    _is_alive = false;
+  }
+  _ip++;
+}
+
 } // namespace machine
 } // namespace libskiff

@@ -314,6 +314,28 @@ public:
   uint32_t destination;
 };
 
+class instruction_aseq_c : public instruction_c {
+public:
+  instruction_aseq_c(types::vm_register &expected, types::vm_register &actual)
+      : expected_reg(expected), actual_reg(actual)
+  {
+  }
+  virtual void visit(executor_if &e) override;
+  types::vm_register &expected_reg;
+  types::vm_register &actual_reg;
+};
+
+class instruction_asne_c : public instruction_c {
+public:
+  instruction_asne_c(types::vm_register &expected, types::vm_register &actual)
+      : expected_reg(expected), actual_reg(actual)
+  {
+  }
+  virtual void visit(executor_if &e) override;
+  types::vm_register &expected_reg;
+  types::vm_register &actual_reg;
+};
+
 //! \brief Executor of instructions interface
 class executor_if {
 public:
@@ -343,6 +365,8 @@ public:
   virtual void accept(instruction_bltf_c &ins) = 0;
   virtual void accept(instruction_bgtf_c &ins) = 0;
   virtual void accept(instruction_beqf_c &ins) = 0;
+  virtual void accept(instruction_aseq_c &ins) = 0;
+  virtual void accept(instruction_asne_c &ins) = 0;
 };
 
 } // namespace machine
