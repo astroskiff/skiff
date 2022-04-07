@@ -170,6 +170,12 @@ public:
   std::vector<uint8_t> gen_beqf(const uint8_t lhs, const uint8_t rhs,
                                 const uint32_t address);
 
+  //! \brief Generate asne instruction
+  std::vector<uint8_t> gen_asne(const uint8_t expected, const uint8_t actual);
+
+  //! \brief Generate aseq instruction
+  std::vector<uint8_t> gen_aseq(const uint8_t expected, const uint8_t actual);
+
 private:
   void update_meta(const uint64_t bytes_generated);
   uint64_t _instructions_generated{0};

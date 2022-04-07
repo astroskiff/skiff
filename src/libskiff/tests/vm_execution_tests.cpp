@@ -207,6 +207,40 @@ TEST(vm_execution_tests, basic_tests)
        "exit\n",
        99},
 
+      // Assertions
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @9\n"
+       "mov i1 @7\n"
+       "asne i0 i1\n"
+       "exit\n",
+       9},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @3\n"
+       "mov i1 @3\n"
+       "asne i0 i1\n"
+       "exit\n",
+       1},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @9\n"
+       "mov i1 @3\n"
+       "aseq i0 i1\n"
+       "exit\n",
+       1},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @3\n"
+       "mov i1 @3\n"
+       "aseq i0 i1\n"
+       "exit\n",
+       3},
+
       // Jmp
       {".init main\n"
        ".code\n"

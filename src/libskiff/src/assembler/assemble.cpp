@@ -132,7 +132,6 @@ private:
   bool build_jmp();
   bool build_call();
   bool build_ret();
-
   bool build_mov();
   bool build_add();
   bool build_sub();
@@ -148,10 +147,12 @@ private:
   bool build_or();
   bool build_xor();
   bool build_not();
-
   bool build_bltf();
   bool build_bgtf();
   bool build_beqf();
+
+  bool build_asne();
+  bool build_aseq();
 };
 
 inline std::vector<std::string> chunk_line(std::string line)
@@ -282,6 +283,10 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
               std::bind(&libskiff::assembler::assembler_c::build_bgtf, this)},
       match_t{std::regex("^beqf"),
               std::bind(&libskiff::assembler::assembler_c::build_beqf, this)},
+      match_t{std::regex("^asne"),
+              std::bind(&libskiff::assembler::assembler_c::build_asne, this)},
+      match_t{std::regex("^aseq"),
+              std::bind(&libskiff::assembler::assembler_c::build_aseq, this)},
   };
 }
 
@@ -1620,6 +1625,54 @@ bool assembler_c::build_beqf()
   }
 
   add_instruction_bytes(_ins_gen.gen_beqf(*lhs, *rhs, *address));
+  return true;
+}
+
+bool assembler_c::build_asne()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed asne instruction");
+    return false;
+  }
+
+  auto expected = _ins_gen.get_register_value(_current_chunks[1]);
+  if (expected == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto actual = _ins_gen.get_register_value(_current_chunks[2]);
+  if (actual == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_asne(*expected, *actual));
+  return true;
+}
+
+bool assembler_c::build_aseq()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed asne instruction");
+    return false;
+  }
+
+  auto expected = _ins_gen.get_register_value(_current_chunks[1]);
+  if (expected == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto actual = _ins_gen.get_register_value(_current_chunks[2]);
+  if (actual == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_aseq(*expected, *actual));
   return true;
 }
 

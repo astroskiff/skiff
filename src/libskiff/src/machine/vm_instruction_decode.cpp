@@ -531,6 +531,40 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
               instruction_bot, *lhs, *rhs));
       break;
     }
+    case libskiff::bytecode::instructions::ASNE: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `ASNE`\n";
+      auto expected_reg = get_register(instruction_bot >> 24);
+      if (!expected_reg) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode EXPECTED register`\n";
+        return false;
+      }
+      auto actual_reg = get_register(instruction_bot >> 16);
+      if (!actual_reg) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode ACTUAL register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_asne_c>(*expected_reg,
+                                                                  *actual_reg));
+      break;
+    }
+    case libskiff::bytecode::instructions::ASEQ: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `ASEQ`\n";
+      auto expected_reg = get_register(instruction_bot >> 24);
+      if (!expected_reg) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode EXPECTED register`\n";
+        return false;
+      }
+      auto actual_reg = get_register(instruction_bot >> 16);
+      if (!actual_reg) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode ACTUAL register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_aseq_c>(*expected_reg,
+                                                                  *actual_reg));
+      break;
+    }
     }
   }
 

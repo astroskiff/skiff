@@ -481,5 +481,25 @@ std::vector<uint8_t> instruction_generator_c::gen_beqf(const uint8_t lhs,
   return encoded_bytes;
 }
 
+std::vector<uint8_t> instruction_generator_c::gen_asne(const uint8_t expected,
+                                                       const uint8_t actual)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00,     0x00,   0x00, libskiff::bytecode::instructions::ASNE,
+      expected, actual, 0x00, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_aseq(const uint8_t expected,
+                                                       const uint8_t actual)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00,     0x00,   0x00, libskiff::bytecode::instructions::ASEQ,
+      expected, actual, 0x00, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
 } // namespace instructions
 } // namespace libskiff
