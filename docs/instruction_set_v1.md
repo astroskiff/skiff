@@ -29,6 +29,7 @@
 | f7 | 0x27 | Floating Point Register |
 | f8 | 0x28 | Floating Point Register |
 | f9 | 0x29 | Floating Point Register | 
+| op | 0xFF | Operation result        | 
 
 
 # ASM Directives

@@ -650,6 +650,9 @@ types::vm_register *vm_c::get_register(uint8_t id)
   case 0x29:
     return &_floating_point_registers[9];
     break;
+  case 0xFF:
+    return &_op_register;
+    break;
   default:
     return nullptr;
   }

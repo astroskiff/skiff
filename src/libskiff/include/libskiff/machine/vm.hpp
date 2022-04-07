@@ -3,7 +3,7 @@
 
 #include "libskiff/bytecode/executable.hpp"
 #include "libskiff/machine/execution_context.hpp"
-#include "libskiff/machine/memory.hpp"
+#include "libskiff/machine/stack.hpp"
 #include "libskiff/types.hpp"
 
 #include "libskiff/types.hpp"
@@ -57,13 +57,13 @@ private:
   types::vm_register _x1{1};
   types::vm_register _ip{0};
   types::vm_register _fp{0};
+  types::vm_register _op_register{0};
   execution_result_e _return_value{execution_result_e::OKAY};
 
   std::vector<std::unique_ptr<instruction_c>> _instructions;
   std::stack<uint64_t> _call_stack;
 
   std::optional<libskiff::types::runtime_error_cb> _runtime_error_cb;
-  memory_c _memory;
 
   types::vm_register *get_register(uint8_t id);
   void issue_forced_error(const std::string &err);

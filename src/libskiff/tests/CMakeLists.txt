@@ -13,6 +13,7 @@ add_executable(libskiff_unit_tests
         instruction_generator.cpp
         floating_point.cpp
         vm_execution_tests.cpp
+        stack.cpp
         main.cpp)
 
 

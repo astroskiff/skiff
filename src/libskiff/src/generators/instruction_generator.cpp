@@ -38,6 +38,7 @@ instruction_generator_c::instruction_generator_c()
   _string_to_register["f7"] = 0x27;
   _string_to_register["f8"] = 0x28;
   _string_to_register["f9"] = 0x29;
+  _string_to_register["op"] = 0xFF;
 }
 
 void instruction_generator_c::update_meta(const uint64_t bytes)
