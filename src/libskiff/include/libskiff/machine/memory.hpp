@@ -4,16 +4,13 @@
 #include <cstdint>
 #include <tuple>
 
-namespace libskiff
-{
-namespace machine
-{
+namespace libskiff {
+namespace machine {
 
 //! \brief A memory structure that contains up-to
-//!        the number of bytes passed in at 
+//!        the number of bytes passed in at
 //!        construction time
-class memory_c
-{
+class memory_c {
 public:
   //! \brief Create the memory
   memory_c(const uint64_t size);
@@ -62,7 +59,7 @@ private:
   uint8_t *_data;
 };
 
-}
-}
+} // namespace machine
+} // namespace libskiff
 
-#endif 
+#endif

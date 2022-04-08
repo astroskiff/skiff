@@ -1,11 +1,12 @@
 #ifndef LIBSKIFF_STACK_HPP
 #define LIBSKIFF_STACK_HPP
 
+#include "libskiff/types.hpp"
+#include "libskiff/machine/memory.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <tuple>
-#include "libskiff/machine/memory.hpp"
 
 namespace libskiff {
 namespace machine {
@@ -20,6 +21,11 @@ public:
 
   //! \brief Destroy the stack
   ~stack_c();
+
+  //! \brief Set the stack pointer
+  //! \post  If this is set, then the stack pointer register will
+  //!        be auto updated whenever the stack size changes
+  void set_sp(libskiff::types::vm_register &reg);
 
   //! \brief   Pop word
   //! \returns tuple containing boolean indicating if
@@ -89,9 +95,11 @@ public:
   //!          the operation was a success, and a value
   //!          from the stack.
   std::tuple<bool, uint64_t> load_qword(const uint64_t index);
+
 private:
   uint64_t _end;
   memory_c _mem;
+  libskiff::types::vm_register *_sp;
 };
 
 } // namespace machine

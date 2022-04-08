@@ -36,6 +36,14 @@ constexpr uint8_t BGTF = 0x18;
 constexpr uint8_t BEQF = 0x19;
 constexpr uint8_t ASEQ = 0x20;
 constexpr uint8_t ASNE = 0x21;
+constexpr uint8_t PUSH_W = 0x22;
+constexpr uint8_t PUSH_DW = 0x23;
+constexpr uint8_t PUSH_QW = 0x24;
+constexpr uint8_t POP_W = 0x25;
+constexpr uint8_t POP_DW = 0x26;
+constexpr uint8_t POP_QW = 0x27;
+
+
 
 } // namespace instructions
 } // namespace bytecode

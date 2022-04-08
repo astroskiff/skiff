@@ -565,6 +565,72 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
                                                                   *actual_reg));
       break;
     }
+    case libskiff::bytecode::instructions::PUSH_W: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `PUSH_W`\n";
+      auto source = get_register(instruction_bot >> 24);
+      if (!source) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode SOURCE register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_push_w_c>(*source));
+      break;
+    }
+    case libskiff::bytecode::instructions::PUSH_DW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `PUSH_DW`\n";
+      auto source = get_register(instruction_bot >> 24);
+      if (!source) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode SOURCE register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_push_dw_c>(*source));
+      break;
+    }
+    case libskiff::bytecode::instructions::PUSH_QW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `PUSH_QW`\n";
+      auto source = get_register(instruction_bot >> 24);
+      if (!source) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode SOURCE register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_push_qw_c>(*source));
+      break;
+    }
+    case libskiff::bytecode::instructions::POP_W: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `POP_W`\n";
+      auto dest = get_register(instruction_bot >> 24);
+      if (!dest) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode SOURCE register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_pop_w_c>(*dest));
+      break;
+    }
+    case libskiff::bytecode::instructions::POP_DW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `POP_DW`\n";
+      auto dest = get_register(instruction_bot >> 24);
+      if (!dest) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode SOURCE register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_pop_dw_c>(*dest));
+      break;
+    }
+    case libskiff::bytecode::instructions::POP_QW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `POP_QW`\n";
+      auto dest = get_register(instruction_bot >> 24);
+      if (!dest) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode SOURCE register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_pop_qw_c>(*dest));
+      break;
+    }
     }
   }
 

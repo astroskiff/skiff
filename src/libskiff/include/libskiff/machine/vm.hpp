@@ -57,11 +57,14 @@ private:
   types::vm_register _x1{1};
   types::vm_register _ip{0};
   types::vm_register _fp{0};
+  types::vm_register _sp{0};
   types::vm_register _op_register{0};
   execution_result_e _return_value{execution_result_e::OKAY};
 
   std::vector<std::unique_ptr<instruction_c>> _instructions;
   std::stack<uint64_t> _call_stack;
+  stack_c _stack;
+  
 
   std::optional<libskiff::types::runtime_error_cb> _runtime_error_cb;
 
@@ -98,6 +101,12 @@ private:
   virtual void accept(instruction_beqf_c &ins) override;
   virtual void accept(instruction_asne_c &ins) override;
   virtual void accept(instruction_aseq_c &ins) override;
+  virtual void accept(instruction_push_w_c &ins) override;
+  virtual void accept(instruction_push_dw_c &ins) override;
+  virtual void accept(instruction_push_qw_c &ins) override;
+  virtual void accept(instruction_pop_w_c &ins) override;
+  virtual void accept(instruction_pop_dw_c &ins) override;
+  virtual void accept(instruction_pop_qw_c &ins) override;
 };
 
 } // namespace machine

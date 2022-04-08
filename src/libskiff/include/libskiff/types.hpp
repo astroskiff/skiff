@@ -35,7 +35,9 @@ enum class runtime_error_e {
   RETURN_WITH_EMPTY_CALLSTACK,
   DIVIDE_BY_ZERO,
   ILLEGAL_INSTRUCTION,
-  INSTRUCTION_PTR_OUT_OF_RANGE
+  INSTRUCTION_PTR_OUT_OF_RANGE,
+  STACK_PUSH_ERROR,
+  STACK_POP_ERROR
 };
 
 //! \brief Callback that will receive runtime errors

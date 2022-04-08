@@ -176,6 +176,24 @@ public:
   //! \brief Generate aseq instruction
   std::vector<uint8_t> gen_aseq(const uint8_t expected, const uint8_t actual);
 
+  //! \brief Generate push word instruction
+  std::vector<uint8_t> gen_push_w(const uint8_t source);
+
+  //! \brief Generate push double word instruction
+  std::vector<uint8_t> gen_push_dw(const uint8_t source);
+
+  //! \brief Generate push quad word instruction
+  std::vector<uint8_t> gen_push_qw(const uint8_t source);
+
+  //! \brief Generate pop word instruction
+  std::vector<uint8_t> gen_pop_w(const uint8_t dest);
+
+  //! \brief Generate pop double word instruction
+  std::vector<uint8_t> gen_pop_dw(const uint8_t dest);
+
+  //! \brief Generate pop quad word instruction
+  std::vector<uint8_t> gen_pop_qw(const uint8_t dest);
+
 private:
   void update_meta(const uint64_t bytes_generated);
   uint64_t _instructions_generated{0};

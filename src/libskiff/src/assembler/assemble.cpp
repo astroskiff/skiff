@@ -150,9 +150,15 @@ private:
   bool build_bltf();
   bool build_bgtf();
   bool build_beqf();
-
   bool build_asne();
   bool build_aseq();
+
+  bool build_push_w();
+  bool build_push_dw();
+  bool build_push_qw();
+  bool build_pop_w();
+  bool build_pop_dw();
+  bool build_pop_qw();
 };
 
 inline std::vector<std::string> chunk_line(std::string line)
@@ -287,6 +293,18 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
               std::bind(&libskiff::assembler::assembler_c::build_asne, this)},
       match_t{std::regex("^aseq"),
               std::bind(&libskiff::assembler::assembler_c::build_aseq, this)},
+      match_t{std::regex("^push_w"),
+              std::bind(&libskiff::assembler::assembler_c::build_push_w, this)},
+      match_t{std::regex("^push_dw"),
+              std::bind(&libskiff::assembler::assembler_c::build_push_dw, this)},
+      match_t{std::regex("^push_qw"),
+              std::bind(&libskiff::assembler::assembler_c::build_push_qw, this)},
+      match_t{std::regex("^pop_w"),
+              std::bind(&libskiff::assembler::assembler_c::build_pop_w, this)},
+      match_t{std::regex("^pop_dw"),
+              std::bind(&libskiff::assembler::assembler_c::build_pop_dw, this)},
+      match_t{std::regex("^pop_qw"),
+              std::bind(&libskiff::assembler::assembler_c::build_pop_qw, this)},
   };
 }
 
@@ -1675,6 +1693,135 @@ bool assembler_c::build_aseq()
   add_instruction_bytes(_ins_gen.gen_aseq(*expected, *actual));
   return true;
 }
+
+bool assembler_c::build_push_w()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 2) {
+    add_error("Malformed push_w instruction");
+    return false;
+  }
+
+  auto reg = _ins_gen.get_register_value(_current_chunks[1]);
+  if (reg == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_push_w(*reg));
+  return true;
+}
+
+bool assembler_c::build_push_dw()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 2) {
+    add_error("Malformed push_dw instruction");
+    return false;
+  }
+
+  auto reg = _ins_gen.get_register_value(_current_chunks[1]);
+  if (reg == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_push_dw(*reg));
+  return true;
+}
+
+bool assembler_c::build_push_qw()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 2) {
+    add_error("Malformed push_qw instruction");
+    return false;
+  }
+
+  auto reg = _ins_gen.get_register_value(_current_chunks[1]);
+  if (reg == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_push_qw(*reg));
+  return true;
+}
+
+bool assembler_c::build_pop_w()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 2) {
+    add_error("Malformed pop_w instruction");
+    return false;
+  }
+
+  auto reg = _ins_gen.get_register_value(_current_chunks[1]);
+  if (reg == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_pop_w(*reg));
+  return true;
+}
+
+bool assembler_c::build_pop_dw()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 2) {
+    add_error("Malformed pop_dw instruction");
+    return false;
+  }
+
+  auto reg = _ins_gen.get_register_value(_current_chunks[1]);
+  if (reg == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_pop_dw(*reg));
+  return true;
+}
+
+bool assembler_c::build_pop_qw()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 2) {
+    add_error("Malformed pop_qw instruction");
+    return false;
+  }
+
+  auto reg = _ins_gen.get_register_value(_current_chunks[1]);
+  if (reg == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_pop_qw(*reg));
+  return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 } // namespace assembler
 } // namespace libskiff

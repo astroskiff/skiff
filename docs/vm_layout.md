@@ -4,51 +4,7 @@
 
 Exit code will be loaded from `i0` 
 
-# Memory
 
-NOTE: This section is IDEA only
-
-## Stack
-
-```
-  _________________________________
-  |                                |
-  |     Program Stack              |
-  |                                |
-  |________________________________|
-          /|\
-            |________ Grows and shrinks as-per instructed
-
-```
-
-Standard push / pop instructions
-```
-push_w  i0
-push_dw i1
-push_qw i2
-```
-```
-pop_w  i0
-pop_dw i1
-pop_qw i2
-```
-
-### Storing / Loading from specfic regions in the stack
-
-If one of the following failes `op` register will contain a `0`, and `1` if it works
-
-Stack store
-```
-ss_w   <dest> <source>
-ss_dw  <dest> <source>
-ss_qw  <dest> <source>
-```
-Stack load
-```
-sl_w   <dest> <source>
-sl_dw  <dest> <source>
-sl_qw  <dest> <source>
-```
 
 ## Heap
 
