@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <tuple>
-#include <vector>
+#include "libskiff/machine/memory.hpp"
 
 namespace libskiff {
 namespace machine {
@@ -54,9 +54,44 @@ public:
   //! \returns true iff the operation was a success
   bool push_qword(const uint64_t qword);
 
+  //! \brief Store word
+  //! \param destination The location in the stack to store the word
+  //! \param value The value to store in memory at the location
+  bool store_word(const uint64_t destination, const uint16_t value);
+
+  //! \brief Store double word
+  //! \param destination The location in the stack to store the word
+  //! \param value The value to store in memory at the location
+  bool store_dword(const uint64_t destination, const uint32_t value);
+
+  //! \brief Store quad word
+  //! \param destination The location in the stack to store the word
+  //! \param value The value to store in memory at the location
+  bool store_qword(const uint64_t destination, const uint64_t value);
+
+  //! \brief Load word
+  //! \param index The location to read the word from
+  //! \returns tuple containing boolean indicating if
+  //!          the operation was a success, and a value
+  //!          from the stack.
+  std::tuple<bool, uint16_t> load_word(const uint64_t index);
+
+  //! \brief Load double word
+  //! \param index The location to read the word from
+  //! \returns tuple containing boolean indicating if
+  //!          the operation was a success, and a value
+  //!          from the stack.
+  std::tuple<bool, uint32_t> load_dword(const uint64_t index);
+
+  //! \brief Load quad word
+  //! \param index The location to read the word from
+  //! \returns tuple containing boolean indicating if
+  //!          the operation was a success, and a value
+  //!          from the stack.
+  std::tuple<bool, uint64_t> load_qword(const uint64_t index);
 private:
   uint64_t _end;
-  uint8_t *_data;
+  memory_c _mem;
 };
 
 } // namespace machine

@@ -14,6 +14,7 @@ add_executable(libskiff_unit_tests
         floating_point.cpp
         vm_execution_tests.cpp
         stack.cpp
+        memory.cpp
         main.cpp)
 
 
