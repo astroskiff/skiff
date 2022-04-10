@@ -64,7 +64,6 @@ private:
   std::vector<std::unique_ptr<instruction_c>> _instructions;
   std::stack<uint64_t> _call_stack;
   memory::stack_c _stack;
-  
 
   std::optional<libskiff::types::runtime_error_cb> _runtime_error_cb;
 

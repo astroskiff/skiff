@@ -40,7 +40,8 @@ TEST(memory_stack, words)
   for (auto &tc : test_case) {
     expected_sp += libskiff::system::word_size_bytes;
     CHECK_TRUE_TEXT(skiff_stack.push_word(tc), "Unable to push word");
-    CHECK_EQUAL_TEXT(expected_sp, stack_pointer, "Stack pointer was not updated");
+    CHECK_EQUAL_TEXT(expected_sp, stack_pointer,
+                     "Stack pointer was not updated");
   }
 
   for (auto i = test_case.rbegin(); i != test_case.rend(); i++) {
@@ -48,7 +49,8 @@ TEST(memory_stack, words)
     expected_sp -= libskiff::system::word_size_bytes;
     CHECK_TRUE_TEXT(okay, "No success popping stack");
     CHECK_EQUAL_TEXT((*i), value, "Value did not meet expectations");
-    CHECK_EQUAL_TEXT(expected_sp, stack_pointer, "Stack pointer was not updated");
+    CHECK_EQUAL_TEXT(expected_sp, stack_pointer,
+                     "Stack pointer was not updated");
   }
 }
 
@@ -63,7 +65,8 @@ TEST(memory_stack, d_words)
   for (auto &tc : test_case) {
     expected_sp += libskiff::system::d_word_size_bytes;
     CHECK_TRUE_TEXT(skiff_stack.push_dword(tc), "Unable to push dword");
-    CHECK_EQUAL_TEXT(expected_sp, stack_pointer, "Stack pointer was not updated");
+    CHECK_EQUAL_TEXT(expected_sp, stack_pointer,
+                     "Stack pointer was not updated");
   }
 
   for (auto i = test_case.rbegin(); i != test_case.rend(); i++) {
@@ -71,7 +74,8 @@ TEST(memory_stack, d_words)
     expected_sp -= libskiff::system::d_word_size_bytes;
     CHECK_TRUE_TEXT(okay, "No success popping stack");
     CHECK_EQUAL_TEXT((*i), value, "Value did not meet expectations");
-    CHECK_EQUAL_TEXT(expected_sp, stack_pointer, "Stack pointer was not updated");
+    CHECK_EQUAL_TEXT(expected_sp, stack_pointer,
+                     "Stack pointer was not updated");
   }
 }
 
@@ -86,7 +90,8 @@ TEST(memory_stack, q_words)
   for (auto &tc : test_case) {
     expected_sp += libskiff::system::q_word_size_bytes;
     CHECK_TRUE_TEXT(skiff_stack.push_qword(tc), "Unable to push qword");
-    CHECK_EQUAL_TEXT(expected_sp, stack_pointer, "Stack pointer was not updated");
+    CHECK_EQUAL_TEXT(expected_sp, stack_pointer,
+                     "Stack pointer was not updated");
   }
 
   for (auto i = test_case.rbegin(); i != test_case.rend(); i++) {
@@ -94,7 +99,8 @@ TEST(memory_stack, q_words)
     expected_sp -= libskiff::system::q_word_size_bytes;
     CHECK_TRUE_TEXT(okay, "No success popping stack");
     CHECK_EQUAL_TEXT((*i), value, "Value did not meet expectations");
-    CHECK_EQUAL_TEXT(expected_sp, stack_pointer, "Stack pointer was not updated");
+    CHECK_EQUAL_TEXT(expected_sp, stack_pointer,
+                     "Stack pointer was not updated");
   }
 }
 
@@ -144,7 +150,8 @@ TEST(memory_stack, mem_words)
     idx += libskiff::system::word_size_bytes;
   }
 
-  CHECK_EQUAL_TEXT(0, stack_pointer, "Stack pointer updated on non push-pop operation");
+  CHECK_EQUAL_TEXT(0, stack_pointer,
+                   "Stack pointer updated on non push-pop operation");
 
   idx = 0;
   for (auto &tc : test_case) {
@@ -168,7 +175,8 @@ TEST(memory_stack, mem_dwords)
     idx += libskiff::system::d_word_size_bytes;
   }
 
-  CHECK_EQUAL_TEXT(0, stack_pointer, "Stack pointer updated on non push-pop operation");
+  CHECK_EQUAL_TEXT(0, stack_pointer,
+                   "Stack pointer updated on non push-pop operation");
 
   idx = 0;
   for (auto &tc : test_case) {
@@ -192,7 +200,8 @@ TEST(memory_stack, mem_qwords)
     idx += libskiff::system::q_word_size_bytes;
   }
 
-  CHECK_EQUAL_TEXT(0, stack_pointer, "Stack pointer updated on non push-pop operation");
+  CHECK_EQUAL_TEXT(0, stack_pointer,
+                   "Stack pointer updated on non push-pop operation");
 
   idx = 0;
   for (auto &tc : test_case) {
@@ -263,17 +272,20 @@ TEST(memory_stack, chonker)
     case type_t::WORD:
       CHECK_TRUE(skiff_stack.push_word(static_cast<uint16_t>(i.value)));
       expected_sp += libskiff::system::word_size_bytes;
-      CHECK_EQUAL_TEXT(expected_sp, stack_pointer, "Stack pointer was not updated");
+      CHECK_EQUAL_TEXT(expected_sp, stack_pointer,
+                       "Stack pointer was not updated");
       break;
     case type_t::DWORD:
       CHECK_TRUE(skiff_stack.push_dword(static_cast<uint32_t>(i.value)));
       expected_sp += libskiff::system::d_word_size_bytes;
-      CHECK_EQUAL_TEXT(expected_sp, stack_pointer, "Stack pointer was not updated");
+      CHECK_EQUAL_TEXT(expected_sp, stack_pointer,
+                       "Stack pointer was not updated");
       break;
     case type_t::QWORD:
       CHECK_TRUE(skiff_stack.push_qword(i.value));
       expected_sp += libskiff::system::q_word_size_bytes;
-      CHECK_EQUAL_TEXT(expected_sp, stack_pointer, "Stack pointer was not updated");
+      CHECK_EQUAL_TEXT(expected_sp, stack_pointer,
+                       "Stack pointer was not updated");
       break;
     default:
       FAIL("Random number gen broke the freakin tests");
@@ -288,21 +300,24 @@ TEST(memory_stack, chonker)
       CHECK_TRUE(okay);
       CHECK_EQUAL((*i).value, static_cast<uint64_t>(value));
       expected_sp -= libskiff::system::word_size_bytes;
-      CHECK_EQUAL_TEXT(expected_sp, stack_pointer, "Stack pointer was not updated");
+      CHECK_EQUAL_TEXT(expected_sp, stack_pointer,
+                       "Stack pointer was not updated");
     } break;
     case type_t::DWORD: {
       auto [okay, value] = skiff_stack.pop_dword();
       CHECK_TRUE(okay);
       CHECK_EQUAL((*i).value, static_cast<uint64_t>(value));
       expected_sp -= libskiff::system::d_word_size_bytes;
-      CHECK_EQUAL_TEXT(expected_sp, stack_pointer, "Stack pointer was not updated");
+      CHECK_EQUAL_TEXT(expected_sp, stack_pointer,
+                       "Stack pointer was not updated");
     } break;
     case type_t::QWORD: {
       auto [okay, value] = skiff_stack.pop_qword();
       CHECK_TRUE(okay);
       CHECK_EQUAL((*i).value, value);
       expected_sp -= libskiff::system::q_word_size_bytes;
-      CHECK_EQUAL_TEXT(expected_sp, stack_pointer, "Stack pointer was not updated");
+      CHECK_EQUAL_TEXT(expected_sp, stack_pointer,
+                       "Stack pointer was not updated");
     } break;
     default:
       FAIL("Random number gen broke the freakin tests");

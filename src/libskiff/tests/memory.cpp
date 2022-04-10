@@ -29,8 +29,8 @@ TEST_GROUP(memory_c){};
 
 TEST(memory_c, mem_words)
 {
-  libskiff::machine::memory::memory_c skiff_memory(libskiff::system::word_size_bytes *
-                                           num_tests_per_type * 2);
+  libskiff::machine::memory::memory_c skiff_memory(
+      libskiff::system::word_size_bytes * num_tests_per_type * 2);
   auto test_case = generate_tc<uint16_t>();
   uint64_t idx = 0;
   for (auto &tc : test_case) {
@@ -49,8 +49,8 @@ TEST(memory_c, mem_words)
 
 TEST(memory_c, mem_dwords)
 {
-  libskiff::machine::memory::memory_c skiff_memory(libskiff::system::d_word_size_bytes *
-                                           num_tests_per_type * 2);
+  libskiff::machine::memory::memory_c skiff_memory(
+      libskiff::system::d_word_size_bytes * num_tests_per_type * 2);
   auto test_case = generate_tc<uint32_t>();
   uint64_t idx = 0;
   for (auto &tc : test_case) {
@@ -69,8 +69,8 @@ TEST(memory_c, mem_dwords)
 
 TEST(memory_c, mem_qwords)
 {
-  libskiff::machine::memory::memory_c skiff_memory(libskiff::system::q_word_size_bytes *
-                                           num_tests_per_type * 2);
+  libskiff::machine::memory::memory_c skiff_memory(
+      libskiff::system::q_word_size_bytes * num_tests_per_type * 2);
   auto test_case = generate_tc<uint64_t>();
   uint64_t idx = 0;
   for (auto &tc : test_case) {

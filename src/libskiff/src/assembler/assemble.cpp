@@ -295,10 +295,12 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
               std::bind(&libskiff::assembler::assembler_c::build_aseq, this)},
       match_t{std::regex("^push_w"),
               std::bind(&libskiff::assembler::assembler_c::build_push_w, this)},
-      match_t{std::regex("^push_dw"),
-              std::bind(&libskiff::assembler::assembler_c::build_push_dw, this)},
-      match_t{std::regex("^push_qw"),
-              std::bind(&libskiff::assembler::assembler_c::build_push_qw, this)},
+      match_t{
+          std::regex("^push_dw"),
+          std::bind(&libskiff::assembler::assembler_c::build_push_dw, this)},
+      match_t{
+          std::regex("^push_qw"),
+          std::bind(&libskiff::assembler::assembler_c::build_push_qw, this)},
       match_t{std::regex("^pop_w"),
               std::bind(&libskiff::assembler::assembler_c::build_pop_w, this)},
       match_t{std::regex("^pop_dw"),
@@ -1801,27 +1803,6 @@ bool assembler_c::build_pop_qw()
   add_instruction_bytes(_ins_gen.gen_pop_qw(*reg));
   return true;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 } // namespace assembler
 } // namespace libskiff

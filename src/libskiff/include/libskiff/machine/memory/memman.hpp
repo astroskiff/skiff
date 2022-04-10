@@ -1,23 +1,20 @@
 #ifndef LIBSKIFF_MEMMAN_HPP
 #define LIBSKIFF_MEMMAN_HPP
 
-#include <tuple>
-#include <optional>
+#include "libskiff/machine/memory/memory.hpp"
 #include <cstdint>
+#include <optional>
 #include <queue>
+#include <tuple>
 #include <vector>
-#include "libskiff/machine/memory.hpp"
 
-namespace libskiff
-{
-namespace machine
-{
+namespace libskiff {
+namespace machine {
 namespace memory {
 
-//! \brief Memory manager class that allows the creation and 
+//! \brief Memory manager class that allows the creation and
 //!        retrieval of memory slots that can be used to hold information
-class memman_c
-{
+class memman_c {
 public:
   //! \brief Construct the memory manager
   memman_c();
@@ -31,23 +28,23 @@ public:
   //!          and a uint64_t that can be used to retrieve the slot later
   std::tuple<bool, uint64_t> alloc(const uint64_t size);
 
-  //! \brief Free a slot 
+  //! \brief Free a slot
   //! \param id The id of the slot to free
   //! \returns true iff the slot existed and could be freed
   bool free(const uint64_t id);
 
   //! \brief Retrieve a slot
-  //! \param id The id of the slot to retrive 
+  //! \param id The id of the slot to retrive
   //! \returns Memory slot iff the id was valid, nullptr otherwise
-  libskiff::machine::memory_c * get_slot(const uint64_t id) const;
+  libskiff::machine::memory::memory_c *get_slot(const uint64_t id) const;
 
 private:
-  std::vector<libskiff::machine::memory_c*> _slots;
+  std::vector<libskiff::machine::memory::memory_c *> _slots;
   std::queue<std::size_t> _available_ids;
 };
 
-}
-}
-}
+} // namespace memory
+} // namespace machine
+} // namespace libskiff
 
 #endif

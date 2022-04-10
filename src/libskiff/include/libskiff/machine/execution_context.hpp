@@ -336,63 +336,42 @@ public:
   types::vm_register &actual_reg;
 };
 
-
-
-
 class instruction_push_w_c : public instruction_c {
 public:
-  instruction_push_w_c(types::vm_register &source)
-      : source(source)
-  {
-  }
+  instruction_push_w_c(types::vm_register &source) : source(source) {}
   virtual void visit(executor_if &e) override;
   types::vm_register &source;
 };
 class instruction_push_dw_c : public instruction_c {
 public:
-  instruction_push_dw_c(types::vm_register &source)
-      : source(source)
-  {
-  }
+  instruction_push_dw_c(types::vm_register &source) : source(source) {}
   virtual void visit(executor_if &e) override;
   types::vm_register &source;
 };
 class instruction_push_qw_c : public instruction_c {
 public:
-  instruction_push_qw_c(types::vm_register &source)
-      : source(source)
-  {
-  }
+  instruction_push_qw_c(types::vm_register &source) : source(source) {}
   virtual void visit(executor_if &e) override;
   types::vm_register &source;
 };
 
 class instruction_pop_w_c : public instruction_c {
 public:
-  instruction_pop_w_c(types::vm_register &dest)
-      : dest(dest)
-  {
-  }
+  instruction_pop_w_c(types::vm_register &dest) : dest(dest) {}
   virtual void visit(executor_if &e) override;
   types::vm_register &dest;
 };
 
 class instruction_pop_dw_c : public instruction_c {
 public:
-  instruction_pop_dw_c(types::vm_register &dest)
-      : dest(dest)
-  {
-  }
+  instruction_pop_dw_c(types::vm_register &dest) : dest(dest) {}
   virtual void visit(executor_if &e) override;
   types::vm_register &dest;
 };
 
 class instruction_pop_qw_c : public instruction_c {
 public:
-  instruction_pop_qw_c(types::vm_register &dest)
-      : dest(dest)
-  {
-  }
+  instruction_pop_qw_c(types::vm_register &dest) : dest(dest) {}
   virtual void visit(executor_if &e) override;
   types::vm_register &dest;
 };

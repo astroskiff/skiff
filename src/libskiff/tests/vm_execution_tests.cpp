@@ -299,23 +299,23 @@ TEST(vm_execution_tests, basic_tests)
 
       // Simple stack test
       {".init main\n"
-      ".code\n"
-      "main:\n"
-      "mov i0 @20\n"
-      "mov i1 @30\n"
-      "mov i2 @50\n"
-      "push_w i0\n"
-      "push_dw i1\n"
-      "push_qw i2\n"
-      "pop_qw i3 \n"
-      "aseq i2 i3 \n"
-      "pop_dw i3 \n"
-      "aseq i1 i3 \n"
-      "pop_w i3 \n"
-      "aseq i0 i3 \n"
-      "mov i0 @100\n"
-      "exit\n",
-      100},
+       ".code\n"
+       "main:\n"
+       "mov i0 @20\n"
+       "mov i1 @30\n"
+       "mov i2 @50\n"
+       "push_w i0\n"
+       "push_dw i1\n"
+       "push_qw i2\n"
+       "pop_qw i3 \n"
+       "aseq i2 i3 \n"
+       "pop_dw i3 \n"
+       "aseq i1 i3 \n"
+       "pop_w i3 \n"
+       "aseq i0 i3 \n"
+       "mov i0 @100\n"
+       "exit\n",
+       100},
 
       // Bitwise
       {".init main\n"

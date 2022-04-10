@@ -1,8 +1,8 @@
 #ifndef LIBSKIFF_STACK_HPP
 #define LIBSKIFF_STACK_HPP
 
-#include "libskiff/types.hpp"
 #include "libskiff/machine/memory/memory.hpp"
+#include "libskiff/types.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -11,7 +11,6 @@
 namespace libskiff {
 namespace machine {
 namespace memory {
-
 
 //! \brief A stack structure that contains up-to
 //!        the number of bytes described by

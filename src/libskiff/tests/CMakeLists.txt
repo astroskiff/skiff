@@ -15,6 +15,7 @@ add_executable(libskiff_unit_tests
         vm_execution_tests.cpp
         stack.cpp
         memory.cpp
+        memman.cpp
         main.cpp)
 
 

@@ -19,8 +19,8 @@ static inline void force_debug(const std::string &msg)
 } // namespace
 
 vm_c::vm_c()
-{ 
-  LOG(TRACE) << TAG("func") << __func__ << "\n"; 
+{
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
   _stack.set_sp(_sp);
 }
 
@@ -61,8 +61,8 @@ std::pair<vm_c::execution_result_e, int> vm_c::execute()
     }
 
     // Update registers
-    _x0 = 0;  // Constant 0
-    _x1 = 1;  // Constant 1
+    _x0 = 0; // Constant 0
+    _x1 = 1; // Constant 1
 
     // Execute the instruction
     _instructions[_ip]->visit(*this);
@@ -336,27 +336,27 @@ void vm_c::accept(instruction_aseq_c &ins)
 
 void vm_c::accept(instruction_push_w_c &ins)
 {
-  if(!_stack.push_word(ins.source)) {
-    kill_with_error(libskiff::types::runtime_error_e::STACK_PUSH_ERROR, 
-    "Unable to push data to stack. Out of memory?");
+  if (!_stack.push_word(ins.source)) {
+    kill_with_error(libskiff::types::runtime_error_e::STACK_PUSH_ERROR,
+                    "Unable to push data to stack. Out of memory?");
   }
   _ip++;
 }
 
 void vm_c::accept(instruction_push_dw_c &ins)
 {
-  if(!_stack.push_dword(ins.source)) {
-    kill_with_error(libskiff::types::runtime_error_e::STACK_PUSH_ERROR, 
-    "Unable to push data to stack. Out of memory?");
+  if (!_stack.push_dword(ins.source)) {
+    kill_with_error(libskiff::types::runtime_error_e::STACK_PUSH_ERROR,
+                    "Unable to push data to stack. Out of memory?");
   }
   _ip++;
 }
 
 void vm_c::accept(instruction_push_qw_c &ins)
 {
-  if(!_stack.push_qword(ins.source)) {
-    kill_with_error(libskiff::types::runtime_error_e::STACK_PUSH_ERROR, 
-    "Unable to push data to stack. Out of memory?");
+  if (!_stack.push_qword(ins.source)) {
+    kill_with_error(libskiff::types::runtime_error_e::STACK_PUSH_ERROR,
+                    "Unable to push data to stack. Out of memory?");
   }
   _ip++;
 }
@@ -364,9 +364,9 @@ void vm_c::accept(instruction_push_qw_c &ins)
 void vm_c::accept(instruction_pop_w_c &ins)
 {
   auto [okay, value] = _stack.pop_word();
-  if(!okay) {
-    kill_with_error(libskiff::types::runtime_error_e::STACK_POP_ERROR, 
-    "Unable to pop data from stack. Stack empty?");
+  if (!okay) {
+    kill_with_error(libskiff::types::runtime_error_e::STACK_POP_ERROR,
+                    "Unable to pop data from stack. Stack empty?");
   }
   ins.dest = value;
   _ip++;
@@ -375,9 +375,9 @@ void vm_c::accept(instruction_pop_w_c &ins)
 void vm_c::accept(instruction_pop_dw_c &ins)
 {
   auto [okay, value] = _stack.pop_dword();
-  if(!okay) {
-    kill_with_error(libskiff::types::runtime_error_e::STACK_POP_ERROR, 
-    "Unable to pop data from stack. Stack empty?");
+  if (!okay) {
+    kill_with_error(libskiff::types::runtime_error_e::STACK_POP_ERROR,
+                    "Unable to pop data from stack. Stack empty?");
   }
   ins.dest = value;
   _ip++;
@@ -386,9 +386,9 @@ void vm_c::accept(instruction_pop_dw_c &ins)
 void vm_c::accept(instruction_pop_qw_c &ins)
 {
   auto [okay, value] = _stack.pop_qword();
-  if(!okay) {
-    kill_with_error(libskiff::types::runtime_error_e::STACK_POP_ERROR, 
-    "Unable to pop data from stack. Stack empty?");
+  if (!okay) {
+    kill_with_error(libskiff::types::runtime_error_e::STACK_POP_ERROR,
+                    "Unable to pop data from stack. Stack empty?");
   }
   ins.dest = value;
   _ip++;

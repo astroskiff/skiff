@@ -43,8 +43,6 @@ constexpr uint8_t POP_W = 0x25;
 constexpr uint8_t POP_DW = 0x26;
 constexpr uint8_t POP_QW = 0x27;
 
-
-
 } // namespace instructions
 } // namespace bytecode
 } // namespace libskiff
