@@ -1,10 +1,11 @@
-#include "libskiff/machine/stack.hpp"
+#include "libskiff/machine/memory/stack.hpp"
 
 #include "libskiff/types.hpp"
 #include "libskiff/system.hpp"
 
 namespace libskiff {
 namespace machine {
+namespace memory {
 
 stack_c::stack_c() : _end{0}, _mem(libskiff::system::stack_size_bytes), _sp{nullptr} {}
 
@@ -111,5 +112,6 @@ std::tuple<bool, uint64_t> stack_c::load_qword(const uint64_t index)
   return _mem.get_qword(index);
 }
 
+} // namespace memory
 } // namespace machine
 } // namespace libskiff

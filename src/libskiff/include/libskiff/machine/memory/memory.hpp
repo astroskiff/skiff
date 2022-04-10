@@ -6,6 +6,7 @@
 
 namespace libskiff {
 namespace machine {
+namespace memory {
 
 //! \brief A memory structure that contains up-to
 //!        the number of bytes passed in at
@@ -59,6 +60,7 @@ private:
   uint8_t *_data;
 };
 
+} // namespace memory
 } // namespace machine
 } // namespace libskiff
 

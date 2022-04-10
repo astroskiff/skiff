@@ -2,7 +2,7 @@
 #define LIBSKIFF_STACK_HPP
 
 #include "libskiff/types.hpp"
-#include "libskiff/machine/memory.hpp"
+#include "libskiff/machine/memory/memory.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -10,6 +10,8 @@
 
 namespace libskiff {
 namespace machine {
+namespace memory {
+
 
 //! \brief A stack structure that contains up-to
 //!        the number of bytes described by
@@ -102,6 +104,7 @@ private:
   libskiff::types::vm_register *_sp;
 };
 
+} // namespace memory
 } // namespace machine
 } // namespace libskiff
 

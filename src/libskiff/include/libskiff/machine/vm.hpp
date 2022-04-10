@@ -3,7 +3,7 @@
 
 #include "libskiff/bytecode/executable.hpp"
 #include "libskiff/machine/execution_context.hpp"
-#include "libskiff/machine/stack.hpp"
+#include "libskiff/machine/memory/stack.hpp"
 #include "libskiff/types.hpp"
 
 #include "libskiff/types.hpp"
@@ -63,7 +63,7 @@ private:
 
   std::vector<std::unique_ptr<instruction_c>> _instructions;
   std::stack<uint64_t> _call_stack;
-  stack_c _stack;
+  memory::stack_c _stack;
   
 
   std::optional<libskiff::types::runtime_error_cb> _runtime_error_cb;

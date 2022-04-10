@@ -1,8 +1,9 @@
-#include "libskiff/machine/memory.hpp"
+#include "libskiff/machine/memory/memory.hpp"
 #include "libskiff/system.hpp"
 
 namespace libskiff {
 namespace machine {
+namespace memory {
 
 memory_c::memory_c(const uint64_t size) : _size(size), _data{nullptr}
 {
@@ -89,5 +90,6 @@ std::tuple<bool, uint64_t> memory_c::get_qword(const uint64_t index)
   return {true, d};
 }
 
+} // namespace memory
 } // namespace machine
 } // namespace libskiff
