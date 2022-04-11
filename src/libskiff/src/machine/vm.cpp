@@ -394,5 +394,52 @@ void vm_c::accept(instruction_pop_qw_c &ins)
   _ip++;
 }
 
+void vm_c::accept(instruction_alloc_c &ins) 
+{ 
+  _ip++;
+}
+
+void vm_c::accept(instruction_free_c &ins) 
+{ 
+  _ip++;
+}
+
+void vm_c::accept(instruction_store_word_c &ins) 
+{ 
+  _ip++;
+}
+
+void vm_c::accept(instruction_store_dword_c &ins) 
+{ 
+  _ip++;
+}
+
+void vm_c::accept(instruction_store_qword_c &ins) 
+{ 
+  _ip++;
+}
+
+void vm_c::accept(instruction_load_word_c &ins) 
+{ 
+  _ip++;
+}
+
+void vm_c::accept(instruction_load_dword_c &ins) 
+{ 
+  _ip++;
+}
+
+void vm_c::accept(instruction_load_qword_c &ins) 
+{ 
+  _ip++;
+}
+
+
+
+
+
+
+
+
 } // namespace machine
 } // namespace libskiff

@@ -106,6 +106,14 @@ private:
   virtual void accept(instruction_pop_w_c &ins) override;
   virtual void accept(instruction_pop_dw_c &ins) override;
   virtual void accept(instruction_pop_qw_c &ins) override;
+  virtual void accept(instruction_alloc_c &ins) override;
+  virtual void accept(instruction_free_c &ins) override;
+  virtual void accept(instruction_store_word_c &ins) override;
+  virtual void accept(instruction_store_dword_c &ins) override;
+  virtual void accept(instruction_store_qword_c &ins) override;
+  virtual void accept(instruction_load_word_c &ins) override;
+  virtual void accept(instruction_load_dword_c &ins) override;
+  virtual void accept(instruction_load_qword_c &ins) override;
 };
 
 } // namespace machine

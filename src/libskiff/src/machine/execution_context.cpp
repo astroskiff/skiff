@@ -40,6 +40,14 @@ void instruction_push_qw_c::visit(executor_if &e) { e.accept(*this); }
 void instruction_pop_w_c::visit(executor_if &e) { e.accept(*this); }
 void instruction_pop_dw_c::visit(executor_if &e) { e.accept(*this); }
 void instruction_pop_qw_c::visit(executor_if &e) { e.accept(*this); }
+void instruction_alloc_c::visit(executor_if &e) { e.accept(*this); }
+void instruction_free_c::visit(executor_if &e) { e.accept(*this); }
+void instruction_store_word_c::visit(executor_if &e) { e.accept(*this); }
+void instruction_store_dword_c::visit(executor_if &e) { e.accept(*this); }
+void instruction_store_qword_c::visit(executor_if &e) { e.accept(*this); }
+void instruction_load_word_c::visit(executor_if &e) { e.accept(*this); }
+void instruction_load_dword_c::visit(executor_if &e) { e.accept(*this); }
+void instruction_load_qword_c::visit(executor_if &e) { e.accept(*this); }
 
 } // namespace machine
 } // namespace libskiff

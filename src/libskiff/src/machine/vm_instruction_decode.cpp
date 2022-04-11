@@ -602,7 +602,7 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
       LOG(DEBUG) << TAG("vm") << "Decoded `POP_W`\n";
       auto dest = get_register(instruction_bot >> 24);
       if (!dest) {
-        LOG(FATAL) << TAG("vm") << "Unable to decode SOURCE register`\n";
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
       _instructions.emplace_back(
@@ -613,7 +613,7 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
       LOG(DEBUG) << TAG("vm") << "Decoded `POP_DW`\n";
       auto dest = get_register(instruction_bot >> 24);
       if (!dest) {
-        LOG(FATAL) << TAG("vm") << "Unable to decode SOURCE register`\n";
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
       _instructions.emplace_back(
@@ -624,11 +624,172 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
       LOG(DEBUG) << TAG("vm") << "Decoded `POP_QW`\n";
       auto dest = get_register(instruction_bot >> 24);
       if (!dest) {
-        LOG(FATAL) << TAG("vm") << "Unable to decode SOURCE register`\n";
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
         return false;
       }
       _instructions.emplace_back(
           std::make_unique<libskiff::machine::instruction_pop_qw_c>(*dest));
+      break;
+    }
+    case libskiff::bytecode::instructions::ALLOC: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `ALLOC`\n";
+      auto dest = get_register(instruction_bot >> 24);
+      if (!dest) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
+        return false;
+      }
+      auto source = get_register(instruction_bot >> 16);
+      if (!dest) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode SOURCE register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_alloc_c>(*dest, *source));
+      break;
+    }
+
+    case libskiff::bytecode::instructions::FREE: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `FREE`\n";
+      auto idx = get_register(instruction_bot >> 24);
+      if (!idx) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode IDX register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_free_c>(*idx));
+      break;
+    }
+
+    case libskiff::bytecode::instructions::SW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `SW`\n";
+      auto idx = get_register(instruction_bot >> 24);
+      if (!idx) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode IDX register`\n";
+        return false;
+      }
+      auto offset = get_register(instruction_bot >> 16);
+      if (!offset) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode OFFSET register`\n";
+        return false;
+      }
+      auto data = get_register(instruction_bot >> 8);
+      if (!data) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode DATA register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_store_word_c>(*idx,
+                                                                 *offset, *data));
+      break;
+    }
+    case libskiff::bytecode::instructions::SDW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `SDW`\n";
+      auto idx = get_register(instruction_bot >> 24);
+      if (!idx) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode IDX register`\n";
+        return false;
+      }
+      auto offset = get_register(instruction_bot >> 16);
+      if (!offset) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode OFFSET register`\n";
+        return false;
+      }
+      auto data = get_register(instruction_bot >> 8);
+      if (!data) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode DATA register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_store_dword_c>(*idx,
+                                                                 *offset, *data));
+      break;
+    }
+    case libskiff::bytecode::instructions::SQW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `SQW`\n";
+      auto idx = get_register(instruction_bot >> 24);
+      if (!idx) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode IDX register`\n";
+        return false;
+      }
+      auto offset = get_register(instruction_bot >> 16);
+      if (!offset) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode OFFSET register`\n";
+        return false;
+      }
+      auto data = get_register(instruction_bot >> 8);
+      if (!data) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode DATA register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_store_qword_c>(*idx,
+                                                                 *offset, *data));
+      break;
+    }
+    case libskiff::bytecode::instructions::LW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `LW`\n";
+      auto idx = get_register(instruction_bot >> 24);
+      if (!idx) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode IDX register`\n";
+        return false;
+      }
+      auto offset = get_register(instruction_bot >> 16);
+      if (!offset) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode OFFSET register`\n";
+        return false;
+      }
+      auto dest = get_register(instruction_bot >> 8);
+      if (!dest) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_load_word_c>(*idx,
+                                                                 *offset, *dest));
+      break;
+    }
+    case libskiff::bytecode::instructions::LDW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `LDW`\n";
+      auto idx = get_register(instruction_bot >> 24);
+      if (!idx) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode IDX register`\n";
+        return false;
+      }
+      auto offset = get_register(instruction_bot >> 16);
+      if (!offset) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode OFFSET register`\n";
+        return false;
+      }
+      auto dest = get_register(instruction_bot >> 8);
+      if (!dest) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_load_dword_c>(*idx,
+                                                                 *offset, *dest));
+      break;
+    }
+    case libskiff::bytecode::instructions::LQW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `LQW`\n";
+      auto idx = get_register(instruction_bot >> 24);
+      if (!idx) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode IDX register`\n";
+        return false;
+      }
+      auto offset = get_register(instruction_bot >> 16);
+      if (!offset) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode OFFSET register`\n";
+        return false;
+      }
+      auto dest = get_register(instruction_bot >> 8);
+      if (!dest) {
+        LOG(FATAL) << TAG("vm") << "Unable to decode DEST register`\n";
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_load_qword_c>(*idx,
+                                                                 *offset, *dest));
       break;
     }
     }
