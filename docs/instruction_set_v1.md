@@ -549,7 +549,7 @@ currently empty byte to be a `variant` byte, and allow registers to be
 used in the stead of labels. That way we can branch further than u32
 
 ## aseq 
-**Opcode** 0x20
+**Opcode** 0x1A
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
@@ -564,7 +564,7 @@ used in the stead of labels. That way we can branch further than u32
 Failure of this condition will lead the VM to exit with a code of `1`
 
 ## asneq 
-**Opcode** 0x21
+**Opcode** 0x1B
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
@@ -579,7 +579,7 @@ Failure of this condition will lead the VM to exit with a code of `1`
 Failure of this condition will lead the VM to exit with a code of `1`
 
 ## push_w
-**Opcode** 0x22
+**Opcode** 0x1C
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
@@ -596,7 +596,7 @@ to reflect the size of the stack.
 Failure to push data to stack will result in runtime error.
 
 ## push_dw
-**Opcode** 0x23
+**Opcode** 0x1D
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
@@ -613,7 +613,7 @@ to reflect the size of the stack
 Failure to push data to stack will result in runtime error.
 
 ## push_qw
-**Opcode** 0x24
+**Opcode** 0x1E
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
@@ -630,7 +630,7 @@ to reflect the size of the stack
 Failure to push data to stack will result in runtime error.
 
 ## pop_w
-**Opcode** 0x25
+**Opcode** 0x1F
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
@@ -646,7 +646,7 @@ After this operation, the stack pointer will be updated
 to reflect the size of the stack
 
 ## pop_dw
-**Opcode** 0x26
+**Opcode** 0x20
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
@@ -662,7 +662,7 @@ After this operation, the stack pointer will be updated
 to reflect the size of the stack
 
 ## pop_qw
-**Opcode** 0x27
+**Opcode** 0x21
 **Instruction Layout:**
 ```
 	[ ------------- Empty ----------- ] [ Opcode ]
@@ -676,3 +676,118 @@ to reflect the size of the stack
 **Description:** Pop a quad-word from the stack.
 After this operation, the stack pointer will be updated
 to reflect the size of the stack
+
+## alloc
+**Opcode** 0x22
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	
+	[ Dest Reg ] [ Source] [ ------ Empty ----- ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `alloc <dest register> <source register>`
+**Example:**	`alloc i0 i8`
+**Description:** Allocate n-bytes from source register and retrieve a memory index for new space in dest register. If the
+allocation fails, the `op` register will be set to `1`, and `0` otherwise. 
+
+## free
+**Opcode** 0x23
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+ 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	
+	[  Index ] [ ------------ Empty ---------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `free <index register>`
+**Example:**	`free i0`
+**Description:** Frees the memory index allocated by alloc in its entirety.  If the
+free fails, the `op` register will be set to `1`, and `0` otherwise. 
+
+## sw
+**Opcode** 0x24
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	
+	[ Idx Reg ] [ Offst Reg ] [ Data Reg ] [ Empty ]
+	0000 0000   | 0000 0000  | 0000 0000 | 0000 0000 
+```
+**Format:** `sw <index register> <offset register> <data register>`
+**Example:**	`sw i0 i2 i3`
+**Description:** Stores a word in a memory index, at an offset with data from data reg.
+
+## sdw
+**Opcode** 0x25
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	
+	[ Idx Reg ] [ Offst Reg ] [ Data Reg ] [ Empty ]
+	0000 0000   | 0000 0000  | 0000 0000 | 0000 0000 
+```
+**Format:** `sdw <index register> <offset register> <data register>`
+**Example:**	`sdw i0 i2 i3`
+**Description:** Stores a double word in a memory index, at an offset with data from data reg.
+
+## sqw
+**Opcode** 0x26
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	
+	[ Idx Reg ] [ Offst Reg ] [ Data Reg ] [ Empty ]
+	0000 0000   | 0000 0000  | 0000 0000 | 0000 0000 
+```
+**Format:** `sqw <index register> <offset register> <data register>`
+**Example:**	`sqw i0 i2 i3`
+**Description:** Stores a quad word in a memory index, at an offset with data from data reg.
+
+## lw
+**Opcode** 0x27
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	
+	[ Idx Reg ] [ Offst Reg ] [ Dest Reg ] [ Empty ]
+	0000 0000   | 0000 0000  | 0000 0000 | 0000 0000 
+```
+**Format:** `lw <index register> <offset register> <dest register>`
+**Example:**	`lw i0 i2 i3`
+**Description:** Loads a word from a memory index, at an offset into the dest register.
+
+## ldw
+**Opcode** 0x28
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	
+	[ Idx Reg ] [ Offst Reg ] [ Dest Reg ] [ Empty ]
+	0000 0000   | 0000 0000  | 0000 0000 | 0000 0000 
+```
+**Format:** `ldw <index register> <offset register> <dest register>`
+**Example:**	`ldw i0 i2 i3`
+**Description:** Loads a double word from a memory index, at an offset into the dest register.
+
+## lqw
+**Opcode** 0x29
+**Instruction Layout:**
+```
+	[ ------------- Empty ----------- ] [ Opcode ]
+	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	
+	[ Idx Reg ] [ Offst Reg ] [ Dest Reg ] [ Empty ]
+	0000 0000   | 0000 0000  | 0000 0000 | 0000 0000 
+```
+**Format:** `lqw <index register> <offset register> <dest register>`
+**Example:**	`lqw i0 i2 i3`
+**Description:** Loads a quad word from a memory index, at an offset into the dest register.
+

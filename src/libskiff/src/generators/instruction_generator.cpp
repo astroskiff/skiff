@@ -556,5 +556,88 @@ std::vector<uint8_t> instruction_generator_c::gen_pop_qw(const uint8_t dest)
   return encoded_bytes;
 }
 
+std::vector<uint8_t> instruction_generator_c::gen_alloc(const uint8_t dest,
+                                                        const uint8_t source)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::ALLOC,
+      dest, source, 0x00, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_free(const uint8_t index)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00,  0x00, 0x00, libskiff::bytecode::instructions::FREE,
+      index, 0x00, 0x00, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_store_word(const uint8_t idx,
+                                                          const uint8_t offset,
+                                                          const uint8_t data)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::SW,
+      idx,  offset, data, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_store_dword(
+    const uint8_t idx, const uint8_t offset, const uint8_t data)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::SDW,
+      idx,  offset, data, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_store_qword(
+    const uint8_t idx, const uint8_t offset, const uint8_t data)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::SQW,
+      idx,  offset, data, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_load_word(const uint8_t idx,
+                                                         const uint8_t offset,
+                                                         const uint8_t dest)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::LW,
+      idx,  offset, dest, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t>
+instruction_generator_c::gen_load_dword(const uint8_t idx, const uint8_t offset,
+                                        const uint8_t dest)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::LDW,
+      idx,  offset, dest, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t>
+instruction_generator_c::gen_load_qword(const uint8_t idx, const uint8_t offset,
+                                        const uint8_t dest)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::LQW,
+      idx,  offset, dest, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
 } // namespace instructions
 } // namespace libskiff
