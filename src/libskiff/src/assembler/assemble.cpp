@@ -152,13 +152,20 @@ private:
   bool build_beqf();
   bool build_asne();
   bool build_aseq();
-
   bool build_push_w();
   bool build_push_dw();
   bool build_push_qw();
   bool build_pop_w();
   bool build_pop_dw();
   bool build_pop_qw();
+  bool build_alloc();
+  bool build_free();
+  bool build_store_w();
+  bool build_store_dw();
+  bool build_store_qw();
+  bool build_load_w();
+  bool build_load_dw();
+  bool build_load_qw();
 };
 
 inline std::vector<std::string> chunk_line(std::string line)
@@ -307,6 +314,27 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
               std::bind(&libskiff::assembler::assembler_c::build_pop_dw, this)},
       match_t{std::regex("^pop_qw"),
               std::bind(&libskiff::assembler::assembler_c::build_pop_qw, this)},
+      match_t{std::regex("^alloc"),
+              std::bind(&libskiff::assembler::assembler_c::build_alloc, this)},
+      match_t{std::regex("^free"),
+              std::bind(&libskiff::assembler::assembler_c::build_free, this)},
+      match_t{
+          std::regex("^sw"),
+          std::bind(&libskiff::assembler::assembler_c::build_store_w, this)},
+      match_t{
+          std::regex("^sdw"),
+          std::bind(&libskiff::assembler::assembler_c::build_store_dw, this)},
+      match_t{
+          std::regex("^sqw"),
+          std::bind(&libskiff::assembler::assembler_c::build_store_qw, this)},
+      match_t{std::regex("^lw"),
+              std::bind(&libskiff::assembler::assembler_c::build_load_w, this)},
+      match_t{
+          std::regex("^ldw"),
+          std::bind(&libskiff::assembler::assembler_c::build_load_dw, this)},
+      match_t{
+          std::regex("^lqw"),
+          std::bind(&libskiff::assembler::assembler_c::build_load_qw, this)},
   };
 }
 
@@ -440,9 +468,7 @@ void assembler_c::pre_scan()
 void assembler_c::parse(const std::vector<match_t> &function_match)
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
-  if (_current_chunks.empty()) {
-    return;
-  }
+  bool found{false};
   for (auto &match : function_match) {
     if (std::regex_match(_current_chunks[0], match.reg)) {
       if (!match.call()) {
@@ -1801,6 +1827,228 @@ bool assembler_c::build_pop_qw()
   }
 
   add_instruction_bytes(_ins_gen.gen_pop_qw(*reg));
+  return true;
+}
+
+bool assembler_c::build_alloc()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 3) {
+    add_error("Malformed alloc instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[1]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto source = _ins_gen.get_register_value(_current_chunks[2]);
+  if (source == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_alloc(*dest, *source));
+  return true;
+}
+
+bool assembler_c::build_free()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 2) {
+    add_error("Malformed alloc instruction");
+    return false;
+  }
+
+  auto index = _ins_gen.get_register_value(_current_chunks[1]);
+  if (index == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_free(*index));
+  return true;
+}
+
+bool assembler_c::build_store_w()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed store word instruction");
+    return false;
+  }
+
+  auto idx = _ins_gen.get_register_value(_current_chunks[1]);
+  if (idx == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto offset = _ins_gen.get_register_value(_current_chunks[2]);
+  if (offset == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto data = _ins_gen.get_register_value(_current_chunks[3]);
+  if (data == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_store_word(*idx, *offset, *data));
+  return true;
+}
+
+bool assembler_c::build_store_dw()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed store double word instruction");
+    return false;
+  }
+
+  auto idx = _ins_gen.get_register_value(_current_chunks[1]);
+  if (idx == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto offset = _ins_gen.get_register_value(_current_chunks[2]);
+  if (offset == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto data = _ins_gen.get_register_value(_current_chunks[3]);
+  if (data == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_store_dword(*idx, *offset, *data));
+  return true;
+}
+
+bool assembler_c::build_store_qw()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed store quad word instruction");
+    return false;
+  }
+
+  auto idx = _ins_gen.get_register_value(_current_chunks[1]);
+  if (idx == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto offset = _ins_gen.get_register_value(_current_chunks[2]);
+  if (offset == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto data = _ins_gen.get_register_value(_current_chunks[3]);
+  if (data == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_store_qword(*idx, *offset, *data));
+  return true;
+}
+
+bool assembler_c::build_load_w()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed load word instruction");
+    return false;
+  }
+
+  auto idx = _ins_gen.get_register_value(_current_chunks[1]);
+  if (idx == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto offset = _ins_gen.get_register_value(_current_chunks[2]);
+  if (offset == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[3]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_load_word(*idx, *offset, *dest));
+  return true;
+}
+
+bool assembler_c::build_load_dw()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed load double word instruction");
+    return false;
+  }
+
+  auto idx = _ins_gen.get_register_value(_current_chunks[1]);
+  if (idx == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto offset = _ins_gen.get_register_value(_current_chunks[2]);
+  if (offset == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[3]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_load_dword(*idx, *offset, *dest));
+  return true;
+}
+
+bool assembler_c::build_load_qw()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 4) {
+    add_error("Malformed load quad word instruction");
+    return false;
+  }
+
+  auto idx = _ins_gen.get_register_value(_current_chunks[1]);
+  if (idx == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto offset = _ins_gen.get_register_value(_current_chunks[2]);
+  if (offset == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  auto dest = _ins_gen.get_register_value(_current_chunks[3]);
+  if (dest == std::nullopt) {
+    add_error("Invalid register given to instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_load_qword(*idx, *offset, *dest));
   return true;
 }
 

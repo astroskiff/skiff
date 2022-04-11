@@ -348,7 +348,75 @@ TEST(vm_execution_tests, basic_tests)
        "mov i0 @0\n"
        "not i0 i0\n"
        "exit\n",
-       1}};
+       1},
+
+      // alloc free
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @1024\n"
+       "alloc i2 i0\n"
+       "aseq x1 op\n"
+       "free i2\n"
+       "aseq x1 op\n"
+       "mov i0 @0\n"
+       "exit\n",
+       0},
+
+      // alloc free
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @1024\n"
+       "alloc i2 i0\n"
+       "aseq x1 op\n"
+       "free i2\n"
+       "aseq x1 op\n"
+       "mov i0 @0\n"
+       "exit\n",
+       0},
+
+      // Load /stores
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i8 @33\n"
+       "mov i9 @0\n"
+       "mov i2 @1024\n"
+       "alloc i3 i2\n"
+       "aseq x1 op\n"
+       "sw i3 i9 i8\n"
+       "lw i3 i9 i6\n"
+       "aseq i6 i8\n"
+       "exit\n",
+       0},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i8 @33\n"
+       "mov i9 @0\n"
+       "mov i2 @1024\n"
+       "alloc i3 i2\n"
+       "aseq x1 op\n"
+       "sdw i3 i9 i8\n"
+       "ldw i3 i9 i6\n"
+       "aseq i6 i8\n"
+       "exit\n",
+       0},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i8 @33\n"
+       "mov i9 @0\n"
+       "mov i2 @1024\n"
+       "alloc i3 i2\n"
+       "aseq x1 op\n"
+       "sqw i3 i9 i8\n"
+       "lqw i3 i9 i6\n"
+       "aseq i6 i8\n"
+       "exit\n",
+       0}
+  };
 
   for (auto &tc : programs) {
     {

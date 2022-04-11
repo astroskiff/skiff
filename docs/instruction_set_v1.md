@@ -690,7 +690,7 @@ to reflect the size of the stack
 **Format:** `alloc <dest register> <source register>`
 **Example:**	`alloc i0 i8`
 **Description:** Allocate n-bytes from source register and retrieve a memory index for new space in dest register. If the
-allocation fails, the `op` register will be set to `1`, and `0` otherwise. 
+allocation fails, the `op` register will be set to `0`, and `1` otherwise. 
 
 ## free
 **Opcode** 0x23
@@ -705,7 +705,7 @@ allocation fails, the `op` register will be set to `1`, and `0` otherwise.
 **Format:** `free <index register>`
 **Example:**	`free i0`
 **Description:** Frees the memory index allocated by alloc in its entirety.  If the
-free fails, the `op` register will be set to `1`, and `0` otherwise. 
+free fails, the `op` register will be set to `0`, and `1` otherwise. 
 
 ## sw
 **Opcode** 0x24

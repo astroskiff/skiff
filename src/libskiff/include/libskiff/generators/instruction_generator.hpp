@@ -202,33 +202,27 @@ public:
 
   //! \brief Generate sw instruction
   std::vector<uint8_t> gen_store_word(const uint8_t idx, const uint8_t offset,
-                               const uint8_t data);
+                                      const uint8_t data);
 
   //! \brief Generate sdw instruction
   std::vector<uint8_t> gen_store_dword(const uint8_t idx, const uint8_t offset,
-                               const uint8_t data);
+                                       const uint8_t data);
 
   //! \brief Generate sqw instruction
   std::vector<uint8_t> gen_store_qword(const uint8_t idx, const uint8_t offset,
-                               const uint8_t data);
+                                       const uint8_t data);
 
   //! \brief Generate lw instruction
   std::vector<uint8_t> gen_load_word(const uint8_t idx, const uint8_t offset,
-                               const uint8_t dest);
+                                     const uint8_t dest);
 
   //! \brief Generate ldw instruction
   std::vector<uint8_t> gen_load_dword(const uint8_t idx, const uint8_t offset,
-                               const uint8_t dest);
+                                      const uint8_t dest);
 
   //! \brief Generate lqw instruction
   std::vector<uint8_t> gen_load_qword(const uint8_t idx, const uint8_t offset,
-                               const uint8_t dest);
-
-
-
-
-
-
+                                      const uint8_t dest);
 
 private:
   void update_meta(const uint64_t bytes_generated);

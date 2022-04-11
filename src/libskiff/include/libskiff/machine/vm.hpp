@@ -3,6 +3,7 @@
 
 #include "libskiff/bytecode/executable.hpp"
 #include "libskiff/machine/execution_context.hpp"
+#include "libskiff/machine/memory/memman.hpp"
 #include "libskiff/machine/memory/stack.hpp"
 #include "libskiff/types.hpp"
 
@@ -64,6 +65,7 @@ private:
   std::vector<std::unique_ptr<instruction_c>> _instructions;
   std::stack<uint64_t> _call_stack;
   memory::stack_c _stack;
+  memory::memman_c _memman;
 
   std::optional<libskiff::types::runtime_error_cb> _runtime_error_cb;
 

@@ -43,8 +43,6 @@ constexpr uint8_t POP_W = 0x1F;
 constexpr uint8_t POP_DW = 0x20;
 constexpr uint8_t POP_QW = 0x21;
 
-
-
 constexpr uint8_t ALLOC = 0x22;
 constexpr uint8_t FREE = 0x23;
 constexpr uint8_t SW = 0x24;

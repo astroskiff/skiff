@@ -575,9 +575,9 @@ std::vector<uint8_t> instruction_generator_c::gen_free(const uint8_t index)
   return encoded_bytes;
 }
 
-std::vector<uint8_t> instruction_generator_c::gen_store_word(const uint8_t idx,
-                                                          const uint8_t offset,
-                                                          const uint8_t data)
+std::vector<uint8_t>
+instruction_generator_c::gen_store_word(const uint8_t idx, const uint8_t offset,
+                                        const uint8_t data)
 {
   std::vector<uint8_t> encoded_bytes = {
       0x00, 0x00,   0x00, libskiff::bytecode::instructions::SW,
@@ -606,9 +606,9 @@ std::vector<uint8_t> instruction_generator_c::gen_store_qword(
   return encoded_bytes;
 }
 
-std::vector<uint8_t> instruction_generator_c::gen_load_word(const uint8_t idx,
-                                                         const uint8_t offset,
-                                                         const uint8_t dest)
+std::vector<uint8_t>
+instruction_generator_c::gen_load_word(const uint8_t idx, const uint8_t offset,
+                                       const uint8_t dest)
 {
   std::vector<uint8_t> encoded_bytes = {
       0x00, 0x00,   0x00, libskiff::bytecode::instructions::LW,

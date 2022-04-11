@@ -10,7 +10,12 @@ memory_c::memory_c(const uint64_t size) : _size(size), _data{nullptr}
   _data = new uint8_t[_size];
 }
 
-memory_c::~memory_c() { delete[] _data; }
+memory_c::~memory_c()
+{
+  if (_data) {
+    delete[] _data;
+  }
+}
 
 bool memory_c::put_word(const uint64_t index, const uint16_t data)
 {

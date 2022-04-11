@@ -39,6 +39,7 @@ bool memman_c::free(const uint64_t id)
     return false;
   }
   delete _slots.at(id);
+  _slots.at(id) = nullptr;
   _available_ids.push(id);
   return true;
 }

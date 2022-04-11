@@ -394,52 +394,140 @@ void vm_c::accept(instruction_pop_qw_c &ins)
   _ip++;
 }
 
-void vm_c::accept(instruction_alloc_c &ins) 
-{ 
+void vm_c::accept(instruction_alloc_c &ins)
+{
+  auto [okay, value] = _memman.alloc(ins.size);
+  if (!okay) {
+    _op_register = 0;
+  }
+  else {
+    ins.dest = value;
+    _op_register = 1;
+  }
   _ip++;
 }
 
-void vm_c::accept(instruction_free_c &ins) 
-{ 
+void vm_c::accept(instruction_free_c &ins)
+{
+  if (!_memman.free(ins.idx)) {
+    _op_register = 0;
+  }
+  else {
+    _op_register = 1;
+  }
   _ip++;
 }
 
-void vm_c::accept(instruction_store_word_c &ins) 
-{ 
+void vm_c::accept(instruction_store_word_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
   _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  if (!slot->put_word(ins.offset, ins.data)) {
+    _op_register = 0;
+    return;
+  }
+
+  _op_register = 1;
 }
 
-void vm_c::accept(instruction_store_dword_c &ins) 
-{ 
+void vm_c::accept(instruction_store_dword_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
   _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  if (!slot->put_dword(ins.offset, ins.data)) {
+    _op_register = 0;
+    return;
+  }
+
+  _op_register = 1;
 }
 
-void vm_c::accept(instruction_store_qword_c &ins) 
-{ 
+void vm_c::accept(instruction_store_qword_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
   _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  if (!slot->put_qword(ins.offset, ins.data)) {
+    _op_register = 0;
+    return;
+  }
+
+  _op_register = 1;
 }
 
-void vm_c::accept(instruction_load_word_c &ins) 
-{ 
+void vm_c::accept(instruction_load_word_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
   _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  auto [okay, value] = slot->get_word(ins.offset);
+  if (!okay) {
+    _op_register = 0;
+    return;
+  }
+  _op_register = 1;
+  ins.dest = value;
 }
 
-void vm_c::accept(instruction_load_dword_c &ins) 
-{ 
+void vm_c::accept(instruction_load_dword_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
   _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  auto [okay, value] = slot->get_dword(ins.offset);
+  if (!okay) {
+    _op_register = 0;
+    return;
+  }
+  _op_register = 1;
+  ins.dest = value;
 }
 
-void vm_c::accept(instruction_load_qword_c &ins) 
-{ 
+void vm_c::accept(instruction_load_qword_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
   _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  auto [okay, value] = slot->get_qword(ins.offset);
+  if (!okay) {
+    _op_register = 0;
+    return;
+  }
+  _op_register = 1;
+  ins.dest = value;
 }
-
-
-
-
-
-
-
 
 } // namespace machine
 } // namespace libskiff

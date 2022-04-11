@@ -376,31 +376,31 @@ public:
   types::vm_register &dest;
 };
 
-
-
-
-
 class instruction_alloc_c : public instruction_c {
 public:
-  instruction_alloc_c(types::vm_register &dest, types::vm_register &source) : dest(dest), source(source) {}
+  instruction_alloc_c(types::vm_register &dest, types::vm_register &size)
+      : dest(dest), size(size)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_register &dest;
-  types::vm_register &source;
+  types::vm_register &size;
 };
 
 class instruction_free_c : public instruction_c {
 public:
-  instruction_free_c(types::vm_register &source) : source(source) {}
+  instruction_free_c(types::vm_register &idx) : idx(idx) {}
   virtual void visit(executor_if &e) override;
-  types::vm_register &source;
+  types::vm_register &idx;
 };
-
 
 class instruction_store_word_c : public instruction_c {
 public:
-  instruction_store_word_c(types::vm_register &idx, 
-                           types::vm_register &offset, 
-                           types::vm_register &data) : idx(idx), offset(offset), data(data) {}
+  instruction_store_word_c(types::vm_register &idx, types::vm_register &offset,
+                           types::vm_register &data)
+      : idx(idx), offset(offset), data(data)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_register &idx;
   types::vm_register &offset;
@@ -409,9 +409,11 @@ public:
 
 class instruction_store_dword_c : public instruction_c {
 public:
-  instruction_store_dword_c(types::vm_register &idx, 
-                           types::vm_register &offset, 
-                           types::vm_register &data) : idx(idx), offset(offset), data(data) {}
+  instruction_store_dword_c(types::vm_register &idx, types::vm_register &offset,
+                            types::vm_register &data)
+      : idx(idx), offset(offset), data(data)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_register &idx;
   types::vm_register &offset;
@@ -420,9 +422,11 @@ public:
 
 class instruction_store_qword_c : public instruction_c {
 public:
-  instruction_store_qword_c(types::vm_register &idx, 
-                           types::vm_register &offset, 
-                           types::vm_register &data) : idx(idx), offset(offset), data(data) {}
+  instruction_store_qword_c(types::vm_register &idx, types::vm_register &offset,
+                            types::vm_register &data)
+      : idx(idx), offset(offset), data(data)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_register &idx;
   types::vm_register &offset;
@@ -431,9 +435,11 @@ public:
 
 class instruction_load_word_c : public instruction_c {
 public:
-  instruction_load_word_c(types::vm_register &idx, 
-                           types::vm_register &offset, 
-                           types::vm_register &dest) : idx(idx), offset(offset), dest(dest) {}
+  instruction_load_word_c(types::vm_register &idx, types::vm_register &offset,
+                          types::vm_register &dest)
+      : idx(idx), offset(offset), dest(dest)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_register &idx;
   types::vm_register &offset;
@@ -442,9 +448,11 @@ public:
 
 class instruction_load_dword_c : public instruction_c {
 public:
-  instruction_load_dword_c(types::vm_register &idx, 
-                           types::vm_register &offset, 
-                           types::vm_register &dest) : idx(idx), offset(offset), dest(dest) {}
+  instruction_load_dword_c(types::vm_register &idx, types::vm_register &offset,
+                           types::vm_register &dest)
+      : idx(idx), offset(offset), dest(dest)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_register &idx;
   types::vm_register &offset;
@@ -453,19 +461,16 @@ public:
 
 class instruction_load_qword_c : public instruction_c {
 public:
-  instruction_load_qword_c(types::vm_register &idx, 
-                           types::vm_register &offset, 
-                           types::vm_register &dest) : idx(idx), offset(offset), dest(dest) {}
+  instruction_load_qword_c(types::vm_register &idx, types::vm_register &offset,
+                           types::vm_register &dest)
+      : idx(idx), offset(offset), dest(dest)
+  {
+  }
   virtual void visit(executor_if &e) override;
   types::vm_register &idx;
   types::vm_register &offset;
   types::vm_register &dest;
 };
-
-
-
-
-
 
 //! \brief Executor of instructions interface
 class executor_if {
