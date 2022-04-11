@@ -18,6 +18,12 @@ static inline void force_debug(const std::string &msg)
 }
 } // namespace
 
+vm_c::vm_c()
+{
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+  _stack.set_sp(_sp);
+}
+
 // Force warning to screen and logger
 void vm_c::issue_forced_warning(const std::string &warn)
 {
@@ -32,8 +38,6 @@ void vm_c::issue_forced_error(const std::string &err)
             << std::endl;
   LOG(WARNING) << TAG("vm") << err << "\n";
 }
-
-vm_c::vm_c() { LOG(TRACE) << TAG("func") << __func__ << "\n"; }
 
 void vm_c::set_runtime_callback(libskiff::types::runtime_error_cb cb)
 {
@@ -55,6 +59,10 @@ std::pair<vm_c::execution_result_e, int> vm_c::execute()
           libskiff::types::runtime_error_e::INSTRUCTION_PTR_OUT_OF_RANGE, msg);
       continue;
     }
+
+    // Update registers
+    _x0 = 0; // Constant 0
+    _x1 = 1; // Constant 1
 
     // Execute the instruction
     _instructions[_ip]->visit(*this);
@@ -305,8 +313,8 @@ void vm_c::accept(instruction_asne_c &ins)
   if (ins.expected_reg == ins.actual_reg) {
     LOG(DEBUG) << TAG("vm") << TERM_COLOR_RED
                << "Assertion `ASNE` failed! Expected [" << ins.expected_reg
-               << "] Actual [" << ins.actual_reg << "]"
-               << TERM_COLOR_END << "\n";
+               << "] Actual [" << ins.actual_reg << "]" << TERM_COLOR_END
+               << "\n";
     _integer_registers[0] = 1;
     _is_alive = false;
   }
@@ -318,12 +326,207 @@ void vm_c::accept(instruction_aseq_c &ins)
   if (ins.expected_reg != ins.actual_reg) {
     LOG(DEBUG) << TAG("vm") << TERM_COLOR_RED
                << "Assertion `ASEQ` failed! Expected [" << ins.expected_reg
-               << "] Actual [" << ins.actual_reg << "]"
-               << TERM_COLOR_END << "\n";
+               << "] Actual [" << ins.actual_reg << "]" << TERM_COLOR_END
+               << "\n";
     _integer_registers[0] = 1;
     _is_alive = false;
   }
   _ip++;
+}
+
+void vm_c::accept(instruction_push_w_c &ins)
+{
+  if (!_stack.push_word(ins.source)) {
+    kill_with_error(libskiff::types::runtime_error_e::STACK_PUSH_ERROR,
+                    "Unable to push data to stack. Out of memory?");
+  }
+  _ip++;
+}
+
+void vm_c::accept(instruction_push_dw_c &ins)
+{
+  if (!_stack.push_dword(ins.source)) {
+    kill_with_error(libskiff::types::runtime_error_e::STACK_PUSH_ERROR,
+                    "Unable to push data to stack. Out of memory?");
+  }
+  _ip++;
+}
+
+void vm_c::accept(instruction_push_qw_c &ins)
+{
+  if (!_stack.push_qword(ins.source)) {
+    kill_with_error(libskiff::types::runtime_error_e::STACK_PUSH_ERROR,
+                    "Unable to push data to stack. Out of memory?");
+  }
+  _ip++;
+}
+
+void vm_c::accept(instruction_pop_w_c &ins)
+{
+  auto [okay, value] = _stack.pop_word();
+  if (!okay) {
+    kill_with_error(libskiff::types::runtime_error_e::STACK_POP_ERROR,
+                    "Unable to pop data from stack. Stack empty?");
+  }
+  ins.dest = value;
+  _ip++;
+}
+
+void vm_c::accept(instruction_pop_dw_c &ins)
+{
+  auto [okay, value] = _stack.pop_dword();
+  if (!okay) {
+    kill_with_error(libskiff::types::runtime_error_e::STACK_POP_ERROR,
+                    "Unable to pop data from stack. Stack empty?");
+  }
+  ins.dest = value;
+  _ip++;
+}
+
+void vm_c::accept(instruction_pop_qw_c &ins)
+{
+  auto [okay, value] = _stack.pop_qword();
+  if (!okay) {
+    kill_with_error(libskiff::types::runtime_error_e::STACK_POP_ERROR,
+                    "Unable to pop data from stack. Stack empty?");
+  }
+  ins.dest = value;
+  _ip++;
+}
+
+void vm_c::accept(instruction_alloc_c &ins)
+{
+  auto [okay, value] = _memman.alloc(ins.size);
+  if (!okay) {
+    _op_register = 0;
+  }
+  else {
+    ins.dest = value;
+    _op_register = 1;
+  }
+  _ip++;
+}
+
+void vm_c::accept(instruction_free_c &ins)
+{
+  if (!_memman.free(ins.idx)) {
+    _op_register = 0;
+  }
+  else {
+    _op_register = 1;
+  }
+  _ip++;
+}
+
+void vm_c::accept(instruction_store_word_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
+  _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  if (!slot->put_word(ins.offset, ins.data)) {
+    _op_register = 0;
+    return;
+  }
+
+  _op_register = 1;
+}
+
+void vm_c::accept(instruction_store_dword_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
+  _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  if (!slot->put_dword(ins.offset, ins.data)) {
+    _op_register = 0;
+    return;
+  }
+
+  _op_register = 1;
+}
+
+void vm_c::accept(instruction_store_qword_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
+  _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  if (!slot->put_qword(ins.offset, ins.data)) {
+    _op_register = 0;
+    return;
+  }
+
+  _op_register = 1;
+}
+
+void vm_c::accept(instruction_load_word_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
+  _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  auto [okay, value] = slot->get_word(ins.offset);
+  if (!okay) {
+    _op_register = 0;
+    return;
+  }
+  _op_register = 1;
+  ins.dest = value;
+}
+
+void vm_c::accept(instruction_load_dword_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
+  _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  auto [okay, value] = slot->get_dword(ins.offset);
+  if (!okay) {
+    _op_register = 0;
+    return;
+  }
+  _op_register = 1;
+  ins.dest = value;
+}
+
+void vm_c::accept(instruction_load_qword_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
+  _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  auto [okay, value] = slot->get_qword(ins.offset);
+  if (!okay) {
+    _op_register = 0;
+    return;
+  }
+  _op_register = 1;
+  ins.dest = value;
 }
 
 } // namespace machine

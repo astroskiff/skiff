@@ -297,6 +297,26 @@ TEST(vm_execution_tests, basic_tests)
        "exit\n",
        2},
 
+      // Simple stack test
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @20\n"
+       "mov i1 @30\n"
+       "mov i2 @50\n"
+       "push_w i0\n"
+       "push_dw i1\n"
+       "push_qw i2\n"
+       "pop_qw i3 \n"
+       "aseq i2 i3 \n"
+       "pop_dw i3 \n"
+       "aseq i1 i3 \n"
+       "pop_w i3 \n"
+       "aseq i0 i3 \n"
+       "mov i0 @100\n"
+       "exit\n",
+       100},
+
       // Bitwise
       {".init main\n"
        ".code\n"
@@ -328,7 +348,75 @@ TEST(vm_execution_tests, basic_tests)
        "mov i0 @0\n"
        "not i0 i0\n"
        "exit\n",
-       1}};
+       1},
+
+      // alloc free
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @1024\n"
+       "alloc i2 i0\n"
+       "aseq x1 op\n"
+       "free i2\n"
+       "aseq x1 op\n"
+       "mov i0 @0\n"
+       "exit\n",
+       0},
+
+      // alloc free
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i0 @1024\n"
+       "alloc i2 i0\n"
+       "aseq x1 op\n"
+       "free i2\n"
+       "aseq x1 op\n"
+       "mov i0 @0\n"
+       "exit\n",
+       0},
+
+      // Load /stores
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i8 @33\n"
+       "mov i9 @0\n"
+       "mov i2 @1024\n"
+       "alloc i3 i2\n"
+       "aseq x1 op\n"
+       "sw i3 i9 i8\n"
+       "lw i3 i9 i6\n"
+       "aseq i6 i8\n"
+       "exit\n",
+       0},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i8 @33\n"
+       "mov i9 @0\n"
+       "mov i2 @1024\n"
+       "alloc i3 i2\n"
+       "aseq x1 op\n"
+       "sdw i3 i9 i8\n"
+       "ldw i3 i9 i6\n"
+       "aseq i6 i8\n"
+       "exit\n",
+       0},
+      {".init main\n"
+       ".code\n"
+       "main:\n"
+       "mov i8 @33\n"
+       "mov i9 @0\n"
+       "mov i2 @1024\n"
+       "alloc i3 i2\n"
+       "aseq x1 op\n"
+       "sqw i3 i9 i8\n"
+       "lqw i3 i9 i6\n"
+       "aseq i6 i8\n"
+       "exit\n",
+       0}
+  };
 
   for (auto &tc : programs) {
     {

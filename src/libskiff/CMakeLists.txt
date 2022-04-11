@@ -9,7 +9,9 @@ add_library(${PROJECT_NAME}
   src/generators/binary_generator.cpp
   src/generators/instruction_generator.cpp
   src/machine/execution_context.cpp
-  src/machine/memory.cpp
+  src/machine/memory/memory.cpp
+  src/machine/memory/memman.cpp
+  src/machine/memory/stack.cpp
   src/machine/vm_instruction_decode.cpp
   src/machine/vm.cpp)
 

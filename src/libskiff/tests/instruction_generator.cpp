@@ -16,15 +16,14 @@ struct tc_register_t {
 };
 
 std::vector<tc_register_t> known_good_registers = {
-    {"x0", 0x00}, {"x1", 0x01}, {"ip", 0x02}, {"fp", 0x03}, {"i0", 0x10},
+    {"x0", 0x00}, {"x1", 0x01}, {"ip", 0x02}, {"sp", 0x03}, {"i0", 0x10},
     {"i1", 0x11}, {"i2", 0x12}, {"i3", 0x13}, {"i4", 0x14}, {"i5", 0x15},
     {"i6", 0x16}, {"i7", 0x17}, {"i8", 0x18}, {"i9", 0x19}, {"f0", 0x20},
     {"f1", 0x21}, {"f2", 0x22}, {"f3", 0x23}, {"f4", 0x24}, {"f5", 0x25},
-    {"f6", 0x26}, {"f7", 0x27}, {"f8", 0x28}, {"f9", 0x29},
-};
+    {"f6", 0x26}, {"f7", 0x27}, {"f8", 0x28}, {"f9", 0x29}, {"op", 0xFF}};
 
 std::vector<tc_register_t> bad_values = {
-    {"x0", 0x40}, {"x1", 0x41}, {"ip", 0x42}, {"fp", 0x43}, {"i0", 0x40},
+    {"x0", 0x40}, {"x1", 0x41}, {"ip", 0x42}, {"sp", 0x43}, {"i0", 0x40},
     {"i1", 0x41}, {"i2", 0x42}, {"i3", 0x43}, {"i4", 0x44}, {"i5", 0x45},
     {"i6", 0x46}, {"i7", 0x47}, {"i8", 0x48}, {"i9", 0x40}, {"f0", 0x40},
     {"f1", 0x41}, {"f2", 0x42}, {"f3", 0x43}, {"f4", 0x44}, {"f5", 0x45},
@@ -698,4 +697,168 @@ TEST(instruction_generator_tests, instruction_asne)
   CHECK_EQUAL_TEXT(actual_register.value, bytes[5], "Expected empty byte");
   CHECK_EQUAL_TEXT(0x00, bytes[6], "Expected empty byte");
   CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
+}
+
+TEST(instruction_generator_tests, instruction_stack_pushpop)
+{
+  for (auto &item : {
+           libskiff::bytecode::instructions::PUSH_W,
+           libskiff::bytecode::instructions::PUSH_DW,
+           libskiff::bytecode::instructions::PUSH_QW,
+           libskiff::bytecode::instructions::POP_W,
+           libskiff::bytecode::instructions::POP_DW,
+           libskiff::bytecode::instructions::POP_QW,
+
+       }) {
+    auto reg =
+        known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                                 .get_range(0,
+                                            known_good_registers.size() - 1)];
+
+    libskiff::instructions::instruction_generator_c gen;
+
+    std::vector<uint8_t> bytes;
+    switch (item) {
+    case libskiff::bytecode::instructions::PUSH_W:
+      bytes = gen.gen_push_w(reg.value);
+      break;
+    case libskiff::bytecode::instructions::PUSH_DW:
+      bytes = gen.gen_push_dw(reg.value);
+      break;
+    case libskiff::bytecode::instructions::PUSH_QW:
+      bytes = gen.gen_push_qw(reg.value);
+      break;
+    case libskiff::bytecode::instructions::POP_W:
+      bytes = gen.gen_pop_w(reg.value);
+      break;
+    case libskiff::bytecode::instructions::POP_DW:
+      bytes = gen.gen_pop_dw(reg.value);
+      break;
+    case libskiff::bytecode::instructions::POP_QW:
+      bytes = gen.gen_pop_qw(reg.value);
+      break;
+    };
+
+    CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+    CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
+    CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
+    CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
+    CHECK_EQUAL_TEXT(item, bytes[3],
+                     "Instruction opcode did not match expected value");
+    CHECK_EQUAL_TEXT(reg.value, bytes[4], "Unexpected byte");
+    CHECK_EQUAL_TEXT(0x00, bytes[5], "Expected empty byte");
+    CHECK_EQUAL_TEXT(0x00, bytes[6], "Expected empty byte");
+    CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
+  }
+}
+
+TEST(instruction_generator_tests, instruction_alloc)
+{
+  auto dest_register =
+      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                               .get_range(0, known_good_registers.size() - 1)];
+
+  auto source_register =
+      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                               .get_range(0, known_good_registers.size() - 1)];
+
+  libskiff::instructions::instruction_generator_c gen;
+  auto bytes = gen.gen_alloc(dest_register.value, source_register.value);
+
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+
+  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
+  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::ALLOC, bytes[3],
+                   "Instruction opcode did not match expected value");
+
+  CHECK_EQUAL_TEXT(dest_register.value, bytes[4], "Expected dest byte");
+  CHECK_EQUAL_TEXT(source_register.value, bytes[5], "Expected source byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[6], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
+}
+
+TEST(instruction_generator_tests, instruction_free)
+{
+  auto index_register =
+      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                               .get_range(0, known_good_registers.size() - 1)];
+
+  libskiff::instructions::instruction_generator_c gen;
+  auto bytes = gen.gen_free(index_register.value);
+
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+
+  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
+  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::FREE, bytes[3],
+                   "Instruction opcode did not match expected value");
+
+  CHECK_EQUAL_TEXT(index_register.value, bytes[4], "Expected index byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[5], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[6], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
+}
+
+TEST(instruction_generator_tests, instructions_load_store)
+{
+  for (auto &item : {
+           libskiff::bytecode::instructions::SW,
+           libskiff::bytecode::instructions::SDW,
+           libskiff::bytecode::instructions::SQW,
+           libskiff::bytecode::instructions::LW,
+           libskiff::bytecode::instructions::LDW,
+           libskiff::bytecode::instructions::LQW,
+
+       }) {
+    auto idx =
+        known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                                 .get_range(0,
+                                            known_good_registers.size() - 1)];
+    auto offset =
+        known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                                 .get_range(0,
+                                            known_good_registers.size() - 1)];
+    auto data =
+        known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                                 .get_range(0,
+                                            known_good_registers.size() - 1)];
+
+    libskiff::instructions::instruction_generator_c gen;
+
+    std::vector<uint8_t> bytes;
+    switch (item) {
+    case libskiff::bytecode::instructions::SW:
+      bytes = gen.gen_store_word(idx.value, offset.value, data.value);
+      break;
+    case libskiff::bytecode::instructions::SDW:
+      bytes = gen.gen_store_dword(idx.value, offset.value, data.value);
+      break;
+    case libskiff::bytecode::instructions::SQW:
+      bytes = gen.gen_store_qword(idx.value, offset.value, data.value);
+      break;
+    case libskiff::bytecode::instructions::LW:
+      bytes = gen.gen_load_word(idx.value, offset.value, data.value);
+      break;
+    case libskiff::bytecode::instructions::LDW:
+      bytes = gen.gen_load_dword(idx.value, offset.value, data.value);
+      break;
+    case libskiff::bytecode::instructions::LQW:
+      bytes = gen.gen_load_qword(idx.value, offset.value, data.value);
+      break;
+    };
+
+    CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+    CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
+    CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
+    CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
+    CHECK_EQUAL_TEXT(item, bytes[3],
+                     "Instruction opcode did not match expected value");
+    CHECK_EQUAL_TEXT(idx.value, bytes[4], "Unexpected byte");
+    CHECK_EQUAL_TEXT(offset.value, bytes[5], "Unexpected byte");
+    CHECK_EQUAL_TEXT(data.value, bytes[6], "Unexpected byte");
+    CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
+  }
 }

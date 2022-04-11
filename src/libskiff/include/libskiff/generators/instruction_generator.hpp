@@ -176,6 +176,54 @@ public:
   //! \brief Generate aseq instruction
   std::vector<uint8_t> gen_aseq(const uint8_t expected, const uint8_t actual);
 
+  //! \brief Generate push word instruction
+  std::vector<uint8_t> gen_push_w(const uint8_t source);
+
+  //! \brief Generate push double word instruction
+  std::vector<uint8_t> gen_push_dw(const uint8_t source);
+
+  //! \brief Generate push quad word instruction
+  std::vector<uint8_t> gen_push_qw(const uint8_t source);
+
+  //! \brief Generate pop word instruction
+  std::vector<uint8_t> gen_pop_w(const uint8_t dest);
+
+  //! \brief Generate pop double word instruction
+  std::vector<uint8_t> gen_pop_dw(const uint8_t dest);
+
+  //! \brief Generate pop quad word instruction
+  std::vector<uint8_t> gen_pop_qw(const uint8_t dest);
+
+  //! \brief Generate alloc instruction
+  std::vector<uint8_t> gen_alloc(const uint8_t dest, const uint8_t source);
+
+  //! \brief Generate free instruction
+  std::vector<uint8_t> gen_free(const uint8_t index);
+
+  //! \brief Generate sw instruction
+  std::vector<uint8_t> gen_store_word(const uint8_t idx, const uint8_t offset,
+                                      const uint8_t data);
+
+  //! \brief Generate sdw instruction
+  std::vector<uint8_t> gen_store_dword(const uint8_t idx, const uint8_t offset,
+                                       const uint8_t data);
+
+  //! \brief Generate sqw instruction
+  std::vector<uint8_t> gen_store_qword(const uint8_t idx, const uint8_t offset,
+                                       const uint8_t data);
+
+  //! \brief Generate lw instruction
+  std::vector<uint8_t> gen_load_word(const uint8_t idx, const uint8_t offset,
+                                     const uint8_t dest);
+
+  //! \brief Generate ldw instruction
+  std::vector<uint8_t> gen_load_dword(const uint8_t idx, const uint8_t offset,
+                                      const uint8_t dest);
+
+  //! \brief Generate lqw instruction
+  std::vector<uint8_t> gen_load_qword(const uint8_t idx, const uint8_t offset,
+                                      const uint8_t dest);
+
 private:
   void update_meta(const uint64_t bytes_generated);
   uint64_t _instructions_generated{0};

@@ -3,7 +3,8 @@
 
 #include "libskiff/bytecode/executable.hpp"
 #include "libskiff/machine/execution_context.hpp"
-#include "libskiff/machine/memory.hpp"
+#include "libskiff/machine/memory/memman.hpp"
+#include "libskiff/machine/memory/stack.hpp"
 #include "libskiff/types.hpp"
 
 #include "libskiff/types.hpp"
@@ -57,13 +58,16 @@ private:
   types::vm_register _x1{1};
   types::vm_register _ip{0};
   types::vm_register _fp{0};
+  types::vm_register _sp{0};
+  types::vm_register _op_register{0};
   execution_result_e _return_value{execution_result_e::OKAY};
 
   std::vector<std::unique_ptr<instruction_c>> _instructions;
   std::stack<uint64_t> _call_stack;
+  memory::stack_c _stack;
+  memory::memman_c _memman;
 
   std::optional<libskiff::types::runtime_error_cb> _runtime_error_cb;
-  memory_c _memory;
 
   types::vm_register *get_register(uint8_t id);
   void issue_forced_error(const std::string &err);
@@ -98,6 +102,20 @@ private:
   virtual void accept(instruction_beqf_c &ins) override;
   virtual void accept(instruction_asne_c &ins) override;
   virtual void accept(instruction_aseq_c &ins) override;
+  virtual void accept(instruction_push_w_c &ins) override;
+  virtual void accept(instruction_push_dw_c &ins) override;
+  virtual void accept(instruction_push_qw_c &ins) override;
+  virtual void accept(instruction_pop_w_c &ins) override;
+  virtual void accept(instruction_pop_dw_c &ins) override;
+  virtual void accept(instruction_pop_qw_c &ins) override;
+  virtual void accept(instruction_alloc_c &ins) override;
+  virtual void accept(instruction_free_c &ins) override;
+  virtual void accept(instruction_store_word_c &ins) override;
+  virtual void accept(instruction_store_dword_c &ins) override;
+  virtual void accept(instruction_store_qword_c &ins) override;
+  virtual void accept(instruction_load_word_c &ins) override;
+  virtual void accept(instruction_load_dword_c &ins) override;
+  virtual void accept(instruction_load_qword_c &ins) override;
 };
 
 } // namespace machine

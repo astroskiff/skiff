@@ -17,7 +17,7 @@ instruction_generator_c::instruction_generator_c()
   _string_to_register["x0"] = 0x00;
   _string_to_register["x1"] = 0x01;
   _string_to_register["ip"] = 0x02;
-  _string_to_register["fp"] = 0x03;
+  _string_to_register["sp"] = 0x03;
   _string_to_register["i0"] = 0x10;
   _string_to_register["i1"] = 0x11;
   _string_to_register["i2"] = 0x12;
@@ -38,6 +38,7 @@ instruction_generator_c::instruction_generator_c()
   _string_to_register["f7"] = 0x27;
   _string_to_register["f8"] = 0x28;
   _string_to_register["f9"] = 0x29;
+  _string_to_register["op"] = 0xFF;
 }
 
 void instruction_generator_c::update_meta(const uint64_t bytes)
@@ -497,6 +498,143 @@ std::vector<uint8_t> instruction_generator_c::gen_aseq(const uint8_t expected,
   std::vector<uint8_t> encoded_bytes = {
       0x00,     0x00,   0x00, libskiff::bytecode::instructions::ASEQ,
       expected, actual, 0x00, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_push_w(const uint8_t source)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00,   0x00, 0x00, libskiff::bytecode::instructions::PUSH_W,
+      source, 0x00, 0x00, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_push_dw(const uint8_t source)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00,   0x00, 0x00, libskiff::bytecode::instructions::PUSH_DW,
+      source, 0x00, 0x00, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_push_qw(const uint8_t source)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00,   0x00, 0x00, libskiff::bytecode::instructions::PUSH_QW,
+      source, 0x00, 0x00, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_pop_w(const uint8_t dest)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00, 0x00, libskiff::bytecode::instructions::POP_W,
+      dest, 0x00, 0x00, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_pop_dw(const uint8_t dest)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00, 0x00, libskiff::bytecode::instructions::POP_DW,
+      dest, 0x00, 0x00, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_pop_qw(const uint8_t dest)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00, 0x00, libskiff::bytecode::instructions::POP_QW,
+      dest, 0x00, 0x00, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_alloc(const uint8_t dest,
+                                                        const uint8_t source)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::ALLOC,
+      dest, source, 0x00, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_free(const uint8_t index)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00,  0x00, 0x00, libskiff::bytecode::instructions::FREE,
+      index, 0x00, 0x00, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t>
+instruction_generator_c::gen_store_word(const uint8_t idx, const uint8_t offset,
+                                        const uint8_t data)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::SW,
+      idx,  offset, data, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_store_dword(
+    const uint8_t idx, const uint8_t offset, const uint8_t data)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::SDW,
+      idx,  offset, data, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t> instruction_generator_c::gen_store_qword(
+    const uint8_t idx, const uint8_t offset, const uint8_t data)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::SQW,
+      idx,  offset, data, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t>
+instruction_generator_c::gen_load_word(const uint8_t idx, const uint8_t offset,
+                                       const uint8_t dest)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::LW,
+      idx,  offset, dest, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t>
+instruction_generator_c::gen_load_dword(const uint8_t idx, const uint8_t offset,
+                                        const uint8_t dest)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::LDW,
+      idx,  offset, dest, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t>
+instruction_generator_c::gen_load_qword(const uint8_t idx, const uint8_t offset,
+                                        const uint8_t dest)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00,   0x00, libskiff::bytecode::instructions::LQW,
+      idx,  offset, dest, 0x00};
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
