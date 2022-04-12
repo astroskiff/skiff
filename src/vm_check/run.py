@@ -51,13 +51,10 @@ def display_result(result_item):
       out += "\t---- output ----\n"
       out += result_item["assemble_result"]["output"]
       out += "\t----------------\n"
+      print(out)
+      exit(1)
     else:
       out += "[PASSED] after " + time_to_ms_str(result_item["assemble_result"]["time"]) + "\n"
-
-    if not result_item["assemble_result"]["success"]:
-      exit(1)
-
-    out += "Execution : "
 
     if not result_item["execution_result"]["success"]:
       out += "[FAILED] after " + time_to_ms_str(result_item["execution_result"]["time"])  + "\n"
@@ -65,6 +62,7 @@ def display_result(result_item):
       out += "\t---- output ----\n"
       out += result_item["execution_result"]["output"]
       out += "\t----------------\n"
+      print(out)
       exit(1)
     else:
       out += "[PASSED] after " + time_to_ms_str(result_item["execution_result"]["time"]) + "\n"
@@ -171,3 +169,5 @@ else:
   linear_run()
   run_time_end = time.time()
   print("<< Checks complete after ", round(run_time_end - run_time_start, 4), " seconds")
+
+exit(0)
