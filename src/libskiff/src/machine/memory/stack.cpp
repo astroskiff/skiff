@@ -58,7 +58,9 @@ bool stack_c::push_word(const uint16_t word)
       libskiff::system::stack_size_bytes) {
     return false;
   }
-  _mem.put_word(_end, word);
+  if (!_mem.put_word(_end, word)) {
+    return false;
+  }
   _end += libskiff::system::word_size_bytes;
   if (_sp) {
     (*_sp) = _end;
@@ -72,7 +74,9 @@ bool stack_c::push_dword(const uint32_t dword)
       libskiff::system::stack_size_bytes) {
     return false;
   }
-  _mem.put_dword(_end, dword);
+  if (!_mem.put_dword(_end, dword)) {
+    return false;
+  }
   _end += libskiff::system::d_word_size_bytes;
   if (_sp) {
     (*_sp) = _end;
@@ -86,7 +90,9 @@ bool stack_c::push_qword(const uint64_t qword)
       libskiff::system::stack_size_bytes) {
     return false;
   }
-  _mem.put_qword(_end, qword);
+  if (!_mem.put_qword(_end, qword)) {
+    return false;
+  }
   _end += libskiff::system::q_word_size_bytes;
   if (_sp) {
     (*_sp) = _end;

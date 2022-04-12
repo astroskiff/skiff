@@ -46,8 +46,10 @@ TEST(instruction_generator_tests, constants)
         std::numeric_limits<uint8_t>::max());
 
     auto data = gen.generate_u8_constant(value);
-    CHECK_TRUE(data.size() == 1);
-    CHECK_EQUAL(value, data[0]);
+    CHECK_TRUE(data.size() == 2);
+    uint16_t x = static_cast<uint16_t>(data[0]) << 8;
+    x |= static_cast<uint16_t>(data[1]);
+    CHECK_EQUAL(value, x);
   }
 
   //  .u16
@@ -110,8 +112,10 @@ TEST(instruction_generator_tests, constants)
         std::numeric_limits<int8_t>::min(), std::numeric_limits<int8_t>::max());
 
     auto data = gen.generate_i8_constant(value);
-    CHECK_TRUE(data.size() == 1);
-    CHECK_EQUAL(value, static_cast<int8_t>(data[0]));
+    CHECK_TRUE(data.size() == 2);
+    int16_t x = static_cast<int16_t>(data[0]) << 8;
+    x |= static_cast<int16_t>(data[1]);
+    CHECK_EQUAL(value, static_cast<int8_t>(x));
   }
 
   //  .i16
@@ -195,6 +199,11 @@ TEST(instruction_generator_tests, constants)
     std::string s = libutil::generate::random_string_c().generate_string(
         libutil::generate::generate_random_c<uint8_t>().get_range(10, 20));
 
+    // Word align the string
+    if (s.size() % 2 != 0) {
+      s += static_cast<char>(0x00);
+    }
+
     auto data = gen.gen_string_constant(s);
 
     CHECK_TRUE(data != std::nullopt);
@@ -228,6 +237,11 @@ TEST(instruction_generator_tests, lib_sections)
   for (uint8_t i = 0; i < 10; i++) {
     std::string s = libutil::generate::random_string_c().generate_string(
         libutil::generate::generate_random_c<uint8_t>().get_range(10, 20));
+
+    // Word align the string
+    if (s.size() % 2 != 0) {
+      s += static_cast<char>(0x00);
+    }
 
     uint64_t address =
         libutil::generate::generate_random_c<uint64_t>().get_range(

@@ -50,22 +50,30 @@ void instruction_generator_c::update_meta(const uint64_t bytes)
 std::optional<std::vector<uint8_t>>
 instruction_generator_c::gen_string_constant(const std::string_view str)
 {
-  if (str.size() > std::numeric_limits<uint16_t>::max()) {
+  bool padded{false};
+  std::size_t len = str.size();
+  if (len % 2 != 0) {
+    len += 1;
+    padded = true;
+  }
+  if (len > std::numeric_limits<uint16_t>::max()) {
     return std::nullopt;
   }
 
   // This encode function assumes the strings chars can be encoded within 1 byte
   // each
   std::vector<uint8_t> encoded_bytes;
-  encoded_bytes.reserve(
-      8 + str.size()); // eight byte length encoding + string length
+  encoded_bytes.reserve(8 + len); // eight byte length encoding + string length
   auto encoded_size =
-      libskiff::bytecode::helpers::pack_8(static_cast<uint64_t>(str.size()));
+      libskiff::bytecode::helpers::pack_8(static_cast<uint64_t>(len));
   encoded_bytes.insert(encoded_bytes.end(), encoded_size.begin(),
                        encoded_size.end());
 
   for (auto &c : str) {
     encoded_bytes.push_back(static_cast<uint8_t>(c));
+  }
+  if (padded) {
+    encoded_bytes.push_back(0x00);
   }
   update_meta(encoded_bytes.size());
   return encoded_bytes;
@@ -94,8 +102,7 @@ instruction_generator_c::gen_lib_section(const uint64_t address,
 std::vector<uint8_t>
 instruction_generator_c::generate_u8_constant(const uint8_t value)
 {
-  std::vector<uint8_t> encoded_bytes;
-  encoded_bytes.push_back(value);
+  std::vector<uint8_t> encoded_bytes = {0x00, value};
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }
@@ -127,8 +134,7 @@ instruction_generator_c::generate_u64_constant(const uint64_t value)
 std::vector<uint8_t>
 instruction_generator_c::generate_i8_constant(const int8_t value)
 {
-  std::vector<uint8_t> encoded_bytes;
-  encoded_bytes.push_back(static_cast<uint8_t>(value));
+  std::vector<uint8_t> encoded_bytes = {0x00, static_cast<uint8_t>(value)};
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }

@@ -81,7 +81,9 @@ Encoded strings in the data section take the form:
 ## .i8 .. .i64, .u8 .. u64 
 
 **Description:**
-Defines a specifically sized integer
+Defines a specifically sized integer. The memory of constants at runtime are word aligned 
+so the minimum size of a constant is 2 bytes. This means that constants such as i8 and u8
+are 2 bytes, and strings may have a trailing byte.
 
 **Example:**
 ```
@@ -105,6 +107,12 @@ Defines a floating point number
 ```
   .float pi 3.14159
 ```
+
+### Note about data directives
+Upon init of the binary the data directives are loaded into memory slot 0 in a word aligned manner. 
+See the section regarding memory access and data storage / retrieval.
+
+
 
 ## .code
 

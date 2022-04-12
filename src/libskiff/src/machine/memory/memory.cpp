@@ -1,5 +1,6 @@
 #include "libskiff/machine/memory/memory.hpp"
 #include "libskiff/system.hpp"
+#include <cstring>
 
 namespace libskiff {
 namespace machine {
@@ -7,6 +8,10 @@ namespace memory {
 
 memory_c::memory_c(const uint64_t size) : _size(size), _data{nullptr}
 {
+  // Ensure that the memory is divisible by words (2 bytes)
+  if (_size % 2 != 0) {
+    _size++;
+  }
   _data = new uint8_t[_size];
 }
 
@@ -57,7 +62,7 @@ bool memory_c::put_qword(const uint64_t index, const uint64_t data)
 
 std::tuple<bool, uint16_t> memory_c::get_word(const uint64_t index)
 {
-  if (index + libskiff::system::word_size_bytes >= _size) {
+  if (index + libskiff::system::word_size_bytes > _size) {
     return {false, 0};
   }
   uint16_t d = static_cast<uint16_t>(_data[index]) << 8;
@@ -67,7 +72,7 @@ std::tuple<bool, uint16_t> memory_c::get_word(const uint64_t index)
 
 std::tuple<bool, uint32_t> memory_c::get_dword(const uint64_t index)
 {
-  if (index + libskiff::system::d_word_size_bytes >= _size) {
+  if (index + libskiff::system::d_word_size_bytes > _size) {
     return {false, 0};
   }
 
@@ -80,7 +85,7 @@ std::tuple<bool, uint32_t> memory_c::get_dword(const uint64_t index)
 
 std::tuple<bool, uint64_t> memory_c::get_qword(const uint64_t index)
 {
-  if (index + libskiff::system::q_word_size_bytes >= _size) {
+  if (index + libskiff::system::q_word_size_bytes > _size) {
     return {false, 0};
   }
 
@@ -93,6 +98,15 @@ std::tuple<bool, uint64_t> memory_c::get_qword(const uint64_t index)
   d |= static_cast<uint64_t>(_data[index + 6]) << 8;
   d |= static_cast<uint64_t>(_data[index + 7]);
   return {true, d};
+}
+
+bool memory_c::import(const std::vector<uint8_t> &data)
+{
+  if (data.size() > _size) {
+    return false;
+  }
+  std::memcpy(_data, &data[0], _size);
+  return true;
 }
 
 } // namespace memory
