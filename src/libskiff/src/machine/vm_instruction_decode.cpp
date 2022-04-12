@@ -62,25 +62,27 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
   // Load constants
   {
     auto constant_bytes = executable->get_constants();
-    auto [okay, id] = _memman.alloc(constant_bytes.size());
-    if (!okay) {
-      std::string msg = "Unable to allocate [" +
-                        std::to_string(constant_bytes.size()) +
-                        "] bytes for constants";
-      issue_forced_error(msg);
-      return false;
-    }
-    auto memory_slot = _memman.get_slot(id);
-    if (!memory_slot) {
-      std::string msg = "Unable to retrieve memory id [" + std::to_string(id) +
-                        "] bytes for constants";
-      issue_forced_error(msg);
-      return false;
-    }
+    if (!constant_bytes.empty()) {
+      auto [okay, id] = _memman.alloc(constant_bytes.size());
+      if (!okay) {
+        std::string msg = "Unable to allocate [" +
+                          std::to_string(constant_bytes.size()) +
+                          "] bytes for constants";
+        issue_forced_error(msg);
+        return false;
+      }
+      auto memory_slot = _memman.get_slot(id);
+      if (!memory_slot) {
+        std::string msg = "Unable to retrieve memory id [" +
+                          std::to_string(id) + "] bytes for constants";
+        issue_forced_error(msg);
+        return false;
+      }
 
-    if (!memory_slot->import(constant_bytes)) {
-      issue_forced_error("Unable to import constants into memory slot");
-      return false;
+      if (!memory_slot->import(constant_bytes)) {
+        issue_forced_error("Unable to import constants into memory slot");
+        return false;
+      }
     }
   }
 
