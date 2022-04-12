@@ -11,7 +11,7 @@ jobs:
           command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
       - run:
           name: Installing Build Tools
-          command: 'sudo apt-get update && apt-get install -y gcc-9 g++-9 wget pkg-config build-essential cmake'
+          command: 'sudo apt-get update && apt-get install -y gcc-9 g++-9 wget pkg-config build-essential cmake python3'
       - run:
           name: Upgrade
           command: 'sudo apt-get upgrade -y'
@@ -30,3 +30,6 @@ jobs:
       - run:
           name: ASAN Build
           command: 'cd build-asan && cmake ../src -DCMAKE_BUILD_TYPE=Release -DWITH_ASAN=ON && make -j5'
+      - run:
+          name: VM Check
+          command: 'cd src/vm_check && python3 run.py ../build/skiff'

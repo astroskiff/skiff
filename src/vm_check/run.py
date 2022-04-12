@@ -55,7 +55,7 @@ def display_result(result_item):
       out += "[PASSED] after " + time_to_ms_str(result_item["assemble_result"]["time"]) + "\n"
 
     if not result_item["assemble_result"]["success"]:
-      return
+      exit(1)
 
     out += "Execution : "
 
@@ -65,6 +65,7 @@ def display_result(result_item):
       out += "\t---- output ----\n"
       out += result_item["execution_result"]["output"]
       out += "\t----------------\n"
+      exit(1)
     else:
       out += "[PASSED] after " + time_to_ms_str(result_item["execution_result"]["time"]) + "\n"
 
