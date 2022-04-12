@@ -319,10 +319,6 @@ void vm_c::accept(instruction_asne_c &ins)
 
 void vm_c::accept(instruction_aseq_c &ins)
 {
-
-  std::cout << "ASEQ : " << ins.expected_reg << " AND " << ins.actual_reg
-            << std::endl;
-
   if (ins.expected_reg != ins.actual_reg) {
     LOG(DEBUG) << TAG("vm") << TERM_COLOR_RED
                << "Assertion `ASEQ` failed! Expected [" << ins.expected_reg
