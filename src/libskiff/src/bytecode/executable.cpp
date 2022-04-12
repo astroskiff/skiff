@@ -141,16 +141,12 @@ load_binary(const std::string &file)
       }
 
       switch (static_cast<libskiff::types::constant_type_e>(id[0])) {
+
+      // Constants are word aligned so U8 and I8 are actually 2 bytes
       case libskiff::types::constant_type_e::U8:
         [[fallthrough]];
-      case libskiff::types::constant_type_e::I8: {
-        auto value = read(is, 1);
-        if (value.empty()) {
-          LOG(FATAL) << TAG("loader") << "Unable to read const (u|i)8 value\n";
-        }
-        constants.push_back(value[0]);
-        break;
-      }
+      case libskiff::types::constant_type_e::I8:
+        [[fallthrough]];
       case libskiff::types::constant_type_e::U16:
         [[fallthrough]];
       case libskiff::types::constant_type_e::I16: {

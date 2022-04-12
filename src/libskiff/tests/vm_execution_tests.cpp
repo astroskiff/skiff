@@ -415,8 +415,27 @@ TEST(vm_execution_tests, basic_tests)
        "lqw i3 i9 i6\n"
        "aseq i6 i8\n"
        "exit\n",
-       0}
-  };
+       0},
+
+      // Load and check word aligned constants
+      {".init main\n"
+       ".i8  a 44\n"
+       ".i16 b 99\n"
+       ".code\n"
+       "main:\n"
+       "mov i9 @44\n"
+       "mov i0 &a\n"
+       "mov i1 @0\n"
+       "lw i1 i0 i7\n"
+       "aseq i9 i7\n"
+       "mov i9 @99\n"
+       "mov i9 @99\n"
+       "mov i0 &b\n"
+       "lw i1 i0 i7\n"
+       "aseq i9 i7\n"
+       "mov i0 @0\n"
+       "exit\n",
+       0}};
 
   for (auto &tc : programs) {
     {
