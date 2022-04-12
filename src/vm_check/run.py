@@ -40,10 +40,9 @@ def time_to_ms_str(t):
 
 def display_result(result_item):
     out = "-" * 10
-    out += "\n"
-    out += result_item["name"] + "\n"
-
-    out += "Assembler : "
+    out += "\n\n"
+    out += "Test File    : " + result_item["name"] + "\n"
+    out += "Assembler    : "
 
     if not result_item["assemble_result"]["success"]:
       out += "[FAILED] after " + time_to_ms_str(result_item["assemble_result"]["time"]) + "\n"
@@ -55,6 +54,8 @@ def display_result(result_item):
       exit(1)
     else:
       out += "[PASSED] after " + time_to_ms_str(result_item["assemble_result"]["time"]) + "\n"
+
+    out += "VM Execution : "
 
     if not result_item["execution_result"]["success"]:
       out += "[FAILED] after " + time_to_ms_str(result_item["execution_result"]["time"])  + "\n"
@@ -157,17 +158,20 @@ def linear_run():
   for item in exec_list:
     task(item)
 
+run_time_start = 0
+run_time_end = 0
 if parallel:
   print("\n<< PARALLEL >>\n")
   run_time_start = time.time()
   parallel_run()
   run_time_end = time.time()
-  print("<< Checks complete after ", round(run_time_end - run_time_start, 4), " seconds")
 else:
   print("\n<< LINEAR >>\n")
   run_time_start = time.time()
   linear_run()
   run_time_end = time.time()
-  print("<< Checks complete after ", round(run_time_end - run_time_start, 4), " seconds")
+
+print("-" * 10)
+print("\nChecks complete after ", round(run_time_end - run_time_start, 4), " seconds\n")
 
 exit(0)
