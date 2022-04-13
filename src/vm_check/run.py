@@ -29,8 +29,8 @@ test_directories = [
   check_directory + "/movs",
   check_directory + "/asserts",
   check_directory + "/branching",
-  check_directory + "/arithmetic",
   check_directory + "/memory",
+  check_directory + "/arithmetic",
 ]
 
 def time_to_ms_str(t):
