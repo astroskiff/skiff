@@ -12,7 +12,6 @@ add_executable(libskiff_unit_tests
         assembler.cpp
         instruction_generator.cpp
         floating_point.cpp
-        vm_execution_tests.cpp
         stack.cpp
         memory.cpp
         memman.cpp

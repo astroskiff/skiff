@@ -57,7 +57,6 @@ private:
   types::vm_register _x0{0};
   types::vm_register _x1{1};
   types::vm_register _ip{0};
-  types::vm_register _fp{0};
   types::vm_register _sp{0};
   types::vm_register _op_register{0};
   execution_result_e _return_value{execution_result_e::OKAY};
