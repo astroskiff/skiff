@@ -3,9 +3,6 @@
 # This script compiles and executes all files within the directory
 # and ensure that they have the expected return code
 
-# First argument to the script must be a path to the skiff program
-# second optional argument is `parallel` which will run the tests in parallel 
-
 import re
 import glob
 import sys
@@ -21,18 +18,19 @@ if len(sys.argv) < 2:
 parallel = False
 skiff = sys.argv[1]
 
-if len(sys.argv) == 3:
-  if sys.argv[2] == "parallel":
-    parallel = True
-
 print("\n<< VM CHECKS >>\n")
 check_directory = os.getcwd()
 print("CWD : ", check_directory)
 
 # Directories with checks
+# - They are placed in this order as reliance begins to build on
+#   previous checks working
 test_directories = [
+  check_directory + "/movs",
+  check_directory + "/asserts",
+  check_directory + "/branching",
   check_directory + "/arithmetic",
-  check_directory + "/memory"
+  check_directory + "/memory",
 ]
 
 def time_to_ms_str(t):
@@ -70,15 +68,18 @@ def display_result(result_item):
 
     print(out)
 
-def test_item(expected_result, item):
+def test_item(id, expected_result, item):
   results = {}
 
+  bin_name = "task_" + str(id) + "_test.bin"
+
   assemble_start = time.time()
-  assemble_result = subprocess.run([skiff, "-a", item, "-o", "test.bin", "-l", "trace"], stdout=subprocess.PIPE)
+  assemble_result = subprocess.run([skiff, "-a", item, "-o", bin_name, "-l", "trace"], stdout=subprocess.PIPE)
   assemble_end = time.time()
   assemble_status = True
 
-  if "No resulting binary." in assemble_result.stdout.decode("utf-8"):
+  decoded = assemble_result.stdout.decode("utf-8")
+  if "No resulting binary." in decoded or "Error (line:" in decoded:
     assemble_status = False
 
   results["name"] = item
@@ -86,15 +87,13 @@ def test_item(expected_result, item):
   results["assemble_result"] = {
     "time": assemble_end - assemble_start,
     "success": assemble_status,
-    "output": assemble_result.stdout.decode("utf-8")
+    "output": decoded
   }
-  #print("ASSEMBLED >>>>> ", assemble_result.stdout.decode("utf-8"))
-
   if not assemble_status:
     return results
 
   execute_start = time.time()
-  execute_result = subprocess.run([skiff, "test.bin", "-l", "trace"], stdout=subprocess.PIPE)
+  execute_result = subprocess.run([skiff, bin_name, "-l", "trace"], stdout=subprocess.PIPE)
   execute_end = time.time()
 
   results["execution_result"] = {
@@ -104,7 +103,6 @@ def test_item(expected_result, item):
     "success": execute_result.returncode == int(expected_result),
     "output": execute_result.stdout.decode("utf-8")
   }
-  #print("EXECUTED >>>>> ", execute_result.stdout.decode("utf-8"))
 
   return results
 
@@ -127,49 +125,24 @@ def build_exec_list(dirs):
   print("")
   return exec_list
 
-def task(jobs):
+def task(id, jobs):
   results = []
   for item in jobs:
-    results.append(test_item(item["expected_code"], item["path"]))
+    results.append(test_item(id, item["expected_code"], item["path"]))
   for item in results:
     display_result(item)
-
-def parallel_run():
-  exec_lists = []
-  for dir in test_directories:
-    d = []
-    d.append(dir)
-    exec_lists.append(build_exec_list(d))
-
-  os.chdir(check_directory)
-  threads = []
-  for item_list in exec_lists:
-    for item in item_list:
-      process = threading.Thread(target=task, args=[item])
-      process.start()
-      threads.append(process)
-
-  for process in threads:
-    process.join()
 
 def linear_run():
   exec_list = build_exec_list(test_directories)
   os.chdir(check_directory)
   for item in exec_list:
-    task(item)
+    task(0, item)
 
-run_time_start = 0
-run_time_end = 0
-if parallel:
-  print("\n<< PARALLEL >>\n")
-  run_time_start = time.time()
-  parallel_run()
-  run_time_end = time.time()
-else:
-  print("\n<< LINEAR >>\n")
-  run_time_start = time.time()
-  linear_run()
-  run_time_end = time.time()
+
+print("\n<< LINEAR >>\n")
+run_time_start = time.time()
+linear_run()
+run_time_end = time.time()
 
 print("-" * 10)
 print("\nChecks complete after ", round(run_time_end - run_time_start, 4), " seconds\n")

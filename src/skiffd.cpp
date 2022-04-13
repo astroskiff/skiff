@@ -41,6 +41,7 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
     for (auto &err : *assembled.errors) {
       std::cout << err << std::endl;
     }
+    exit(1);
   }
 
   if (display_stats && assembled.bin != std::nullopt) {

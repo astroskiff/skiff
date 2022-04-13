@@ -1,6 +1,5 @@
 .init main
 .debug 3
-
 .code
 main:
   mov i0 @15            ; LHS
