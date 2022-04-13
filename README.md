@@ -6,3 +6,4 @@
 
 Development Tracking : https://skiffvm.youtrack.cloud/
 
+Source for the Skiff-VM icon: <a target="_blank" href="https://icons8.com/icon/VLNrBkECYkdq/paper-ship">Paper Ship</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
