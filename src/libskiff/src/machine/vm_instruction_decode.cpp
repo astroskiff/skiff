@@ -830,8 +830,8 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
 types::vm_register *vm_c::get_register(uint8_t id)
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
-  LOG(DEBUG) << TAG("vm") << "Request for register : " << static_cast<int>(id)
-             << "\n";
+  LOG(DEBUG) << TAG("vm") << "Request for register : " << std::hex << static_cast<int>(id)
+             << std::dec << "\n";
   switch (id) {
   case 0x00:
     return &_x0;
@@ -843,7 +843,7 @@ types::vm_register *vm_c::get_register(uint8_t id)
     return &_ip;
     break;
   case 0x03:
-    return &_fp;
+    return &_sp;
     break;
   case 0x10:
     return &_integer_registers[0];

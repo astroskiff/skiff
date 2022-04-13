@@ -504,7 +504,7 @@ void assembler_c::assemble()
 
   for (auto &line : _file_data) {
     _current_line_number++;
-    if (line.empty() || current.find_first_not_of(' ') != std::string::npos) {
+    if (line.empty() || std::all_of(line.begin(), line.end(),isspace)) {
       continue;
     }
     _current_processed_line_number++;
