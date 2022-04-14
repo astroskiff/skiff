@@ -7,7 +7,6 @@
 #include "libskiff/machine/memory/stack.hpp"
 #include "libskiff/types.hpp"
 
-#include "libskiff/types.hpp"
 #include <array>
 #include <memory>
 #include <optional>
@@ -17,12 +16,24 @@
 
 namespace libskiff {
 namespace machine {
+namespace system {
+class call_if; // FWD for call interface
+}
 
 //! \brief Virtual machine
 class vm_c : public executor_if {
 public:
   static constexpr uint8_t num_integer_registers = 10;
   static constexpr uint8_t num_floating_point_registers = 10;
+
+  //! \brief Information type passed to system functions
+  struct view_t {
+    std::array<types::vm_register, num_integer_registers> &integer_registers;
+    std::array<types::vm_register, num_floating_point_registers>
+        &float_registers;
+    memory::memman_c &memory_manager;
+    types::vm_register &op_register;
+  };
 
   //! \brief Result status of execution
   enum class execution_result_e {
@@ -32,6 +43,9 @@ public:
 
   //! \brief Construct the VM
   vm_c();
+
+  //! \brief Destruct the VM
+  ~vm_c();
 
   //! \brief Load the VM with an executable
   //! \returns True iff the VM can run the executable
@@ -67,6 +81,7 @@ private:
   memory::memman_c _memman;
 
   std::optional<libskiff::types::runtime_error_cb> _runtime_error_cb;
+  std::vector<system::call_if *> _system_callables;
 
   types::vm_register *get_register(uint8_t id);
   void issue_forced_error(const std::string &err);

@@ -3,6 +3,8 @@
 #include "libskiff/bytecode/instructions.hpp"
 #include "libskiff/defines.hpp"
 #include "libskiff/logging/aixlog.hpp"
+#include "libskiff/machine/system/call.hpp"
+#include "libskiff/machine/system/print.hpp"
 #include "libskiff/types.hpp"
 #include "libskiff/version.hpp"
 #include <iostream>
@@ -22,6 +24,23 @@ vm_c::vm_c()
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
   _stack.set_sp(_sp);
+
+  //  Setup system calls
+  //  - Order here matters as their index will determine what
+  //    system call number they are so we don't need to register them and
+  //    go through a slow map
+  _system_callables = {
+      new system::print_c(), // 0
+  };
+}
+
+vm_c::~vm_c()
+{
+  for (auto c : _system_callables) {
+    if (c) {
+      delete c;
+    }
+  }
 }
 
 // Force warning to screen and logger

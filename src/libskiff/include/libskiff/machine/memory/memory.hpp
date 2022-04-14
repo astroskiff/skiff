@@ -60,6 +60,10 @@ public:
   //! \param data The data to import
   [[nodiscard]] bool import(const std::vector<uint8_t> &data);
 
+  //! \brief Retrieve the size of the data
+  //! \returns Allocated size
+  [[nodiscard]] uint64_t size() const { return _size; };
+
 private:
   uint64_t _size;
   uint8_t *_data;

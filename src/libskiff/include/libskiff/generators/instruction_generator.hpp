@@ -60,12 +60,16 @@ public:
   std::optional<uint8_t> get_register_value(const std::string &value);
 
   //! \brief Generate an encoded string constant
+  //! \param str The string to encode
+  //! \param with_char_padding Makes each char 2 bytes to fullfill
+  //!                          word-aligned data requirement
   //! \returns Vector of bytes containing length as first 8 bytes with encoded
   //! string
   //!          data following. Returns std::nullopt iff length of string can be
   //!          held within a 64-bit integer
   std::optional<std::vector<uint8_t>>
-  gen_string_constant(const std::string_view str);
+  gen_string_constant(const std::string_view str,
+                      bool with_char_padding = true);
 
   //! \brief Generate encoded library section
   //! \note  Returns std::nullopt iff length of string can be

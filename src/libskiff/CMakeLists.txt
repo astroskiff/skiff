@@ -13,7 +13,8 @@ add_library(${PROJECT_NAME}
   src/machine/memory/memman.cpp
   src/machine/memory/stack.cpp
   src/machine/vm_instruction_decode.cpp
-  src/machine/vm.cpp)
+  src/machine/vm.cpp
+  src/machine/system/print.cpp)
 
 add_library(skiff::libskiff ALIAS ${PROJECT_NAME})
 
