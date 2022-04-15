@@ -18,6 +18,7 @@ public:
   //!                0 - i8,  1 - u8,  2 - u16,  3 - i16
   //!                4 - u32, 5 - i32, 6 - u64,  7 - i64
   //!                8 - float, 9 - ASCII
+  //! vm_param: i4 - If 0 is not present in i4, a new line will print
   //! vm_retval: Failure to print will result in the op register
   //!            being set to a value of `0` and `1` on success
   //! \note The vm_param in i2 is used to ensure there is no data

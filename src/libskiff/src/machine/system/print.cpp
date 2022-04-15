@@ -23,6 +23,13 @@ enum class data_t {
 
 void print_c::execute(libskiff::machine::vm_c::view_t &view)
 {
+  std::cout << 
+    "slot   : " << view.integer_registers[0] << "\n" <<
+    "offset : " << view.integer_registers[1] << "\n" <<
+    "length : " << view.integer_registers[2] << "\n" << 
+    "type   : " << view.integer_registers[3] << "\n";
+
+
   // Assume failure
   view.op_register = 0;
 
@@ -33,18 +40,23 @@ void print_c::execute(libskiff::machine::vm_c::view_t &view)
     return;
   }
 
+  std::cout << 
+    "size   : " << slot->size() << "\n";
+    
   // Ensure length wont overrun it
   auto data_offset = view.integer_registers[1];
   auto data_length = view.integer_registers[2];
 
   // Size returns byts, we need to calculate it using words,
   // so multiply data_length by 2
-  if (slot->size() < data_offset + (data_length * 2)) {
+  if (slot->size() < data_offset + data_length) {
+    std::cout << "Bad size\n";
     return;
   }
 
   switch (static_cast<data_t>(view.integer_registers[3])) {
   case data_t::U8: {
+    std::cout << "U8\n";
     auto [okay, data] = slot->get_word(data_offset);
     if (!okay) {
       return;
@@ -120,9 +132,9 @@ void print_c::execute(libskiff::machine::vm_c::view_t &view)
     std::string out;
     decltype(data_length) idx = 0;
     while (idx != data_length) {
-      auto [okay, c_word] = slot->get_word(idx++);
+      auto [okay, c_word] = slot->get_word(idx+=2);
       if (!okay) {
-        return;
+        break;
       }
       out += static_cast<char>(c_word);
     }
@@ -132,6 +144,11 @@ void print_c::execute(libskiff::machine::vm_c::view_t &view)
   default:
     return;
   };
+
+  // Check for newline out
+  if (view.integer_registers[4] != 0) {
+    std::cout << std::endl;
+  }
 
   // Indicate success
   view.op_register = 1;

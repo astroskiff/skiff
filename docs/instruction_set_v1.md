@@ -164,9 +164,9 @@ Indicates the start of 'code' space. No more directives shall follow this
 	[ ------------------ Empty ----------------- ]
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
-**Format:** `exit <signed 64-bit number>`
-**Description:** Exit execution with a return code
-**Example:**	`exit 1`
+**Format:** `exit`
+**Description:** Exit execution 
+**Example:**	`exit`
 
 ## blt
 **Opcode** 0x02
@@ -286,10 +286,10 @@ to be used in the stead of labels. That way we can branch further than u32
 
 **Example:**	
 ```
-	mov i0 &my_int	; Address of constant
-	mov i0 &label	; Label address
-	mov i0 #my_int	; Length of constant
-	mov i0 @33		; Move raw value into i0
+	mov i0 &my_int		; Address of constant
+	mov i0 &label			; Label address
+	mov i0 #my_int		; Length of constant (in words)
+	mov i0 @33				; Move raw value into i0
 ```
 
 ## add
@@ -799,3 +799,16 @@ free fails, the `op` register will be set to `0`, and `1` otherwise.
 **Example:**	`lqw i0 i2 i3`
 **Description:** Loads a quad word from a memory index, at an offset into the dest register.
 
+## syscall
+**Opcode** 0x2A
+**Instruction Layout:**
+```
+	[ ------------- Empty ---------- ]  [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+
+	[ ------------ Callee Address ------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `syscall <unsigned 32-bit number>`
+**Description:** Execute a specific system call with the given ID.
+**Example:**	`syscall 0` 

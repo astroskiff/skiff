@@ -544,5 +544,28 @@ void vm_c::accept(instruction_load_qword_c &ins)
   ins.dest = value;
 }
 
+void vm_c::accept(instruction_syscall_c &ins)
+{
+  std::cout << "Syscall to : " << ins.address << std::endl;
+  _ip++;
+
+  // Ensure that the requested item is within range of callables
+  if(ins.address >= _system_callables.size()) {
+    _op_register = 0;
+    return;
+  }
+
+  // Construct the view into the vm
+  view_t view = {
+    .integer_registers = _integer_registers,
+    .float_registers = _floating_point_registers,
+    .memory_manager = _memman,
+    .op_register = _op_register
+  };
+
+  // Call the item
+  _system_callables[ins.address]->execute(view);
+}
+
 } // namespace machine
 } // namespace libskiff

@@ -166,6 +166,7 @@ private:
   bool build_load_w();
   bool build_load_dw();
   bool build_load_qw();
+  bool build_syscall();
 };
 
 inline std::vector<std::string> chunk_line(std::string line)
@@ -335,6 +336,9 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
       match_t{
           std::regex("^lqw"),
           std::bind(&libskiff::assembler::assembler_c::build_load_qw, this)},
+      match_t{
+          std::regex("^syscall"),
+          std::bind(&libskiff::assembler::assembler_c::build_syscall, this)},
   };
 }
 
@@ -974,16 +978,15 @@ std::optional<uint32_t> assembler_c::get_value(const std::string item)
   if (item.starts_with('#')) {
     std::string s = item.substr(1, item.length());
 
-    // Check labels
-    auto label_address = get_label_address(s);
-    if (label_address != std::nullopt) {
-      return 8; // An address is 8 bytes, and all labels are an address
-    }
-
     // Check constants
     if (_constant_name_to_value.find(s) != _constant_name_to_value.end()) {
       auto constant = _constant_name_to_value[s];
+
       auto length = static_cast<uint32_t>(constant.data.size());
+      if(constant.type == libskiff::types::constant_type_e::STRING) {
+        length -= 8;  // Remove the length encoding
+      }
+
       if (length > std::numeric_limits<uint32_t>::max()) {
         add_error("Requested mov of constant whose length exceeds that "
                   "able to be stored in a uint32_t");
@@ -2049,6 +2052,25 @@ bool assembler_c::build_load_qw()
   }
 
   add_instruction_bytes(_ins_gen.gen_load_qword(*idx, *offset, *dest));
+  return true;
+}
+
+bool assembler_c::build_syscall()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 2) {
+    add_error("Malformed syscall instruction");
+    return false;
+  }
+
+  auto value = get_number<uint32_t>(_current_chunks[1]);
+
+  if (value == std::nullopt) {
+    add_error("Invalid value given to syscall : " + _current_chunks[1]);
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_syscall(*value));
   return true;
 }
 

@@ -654,5 +654,17 @@ instruction_generator_c::gen_load_qword(const uint8_t idx, const uint8_t offset,
   return encoded_bytes;
 }
 
+std::vector<uint8_t>
+instruction_generator_c::gen_syscall(const uint32_t address)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00, 0x00, libskiff::bytecode::instructions::SYSCALL};
+  auto encoded_address = libskiff::bytecode::helpers::pack_4(address);
+  encoded_bytes.insert(encoded_bytes.end(), encoded_address.begin(),
+                       encoded_address.end());
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
 } // namespace instructions
 } // namespace libskiff

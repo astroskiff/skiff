@@ -915,3 +915,29 @@ TEST(instruction_generator_tests, instructions_load_store)
     CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
   }
 }
+
+TEST(instruction_generator_tests, instruction_syscall)
+{
+  auto address = libutil::generate::generate_random_c<uint32_t>().get_range(
+      std::numeric_limits<uint32_t>::min(),
+      std::numeric_limits<uint32_t>::max());
+
+  libskiff::instructions::instruction_generator_c gen;
+  auto bytes = gen.gen_syscall(address);
+
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+
+  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
+  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::SYSCALL, bytes[3],
+                   "Instruction opcode did not match expected value");
+
+  uint32_t decoded_address = 0;
+  uint8_t shift = 24;
+  for (auto i = 4; i < bytes.size(); i++) {
+    decoded_address |= (static_cast<uint32_t>(bytes[i]) << shift);
+    shift -= 8;
+  }
+  CHECK_EQUAL_TEXT(address, decoded_address, "Incorrect address encoded");
+}
