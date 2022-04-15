@@ -4,11 +4,11 @@ The assembler is baked into libskiff for handling asm code.
 
 ```
 
-+-----------------+          +-------------+-------------+
-|                 |          |             |             |
-|                 |          |  Lib        |  Bin        |
-|  Instruction    |          |  Generator  |  Generator  |
-|                 |          |             |             |
++-----------------+
+|                 |
+|                 |
+|  Instruction    |
+|                 |
 |  Generator      |          +-------------+-------------+
 |                 |          |                           |
 |                 |          |  Binary Generators        |
@@ -31,8 +31,13 @@ The assembler is baked into libskiff for handling asm code.
    |          |
 +--+----------v--+
 |                |
-|    Caller      |
-|                |
-+----------------+
+|    Caller      +------------> output.bin
+|   (skiffd)     |
++-----^----------+
+      |
+      |
+   input.asm
+
+
 
 ```
