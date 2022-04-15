@@ -48,13 +48,18 @@ void instruction_generator_c::update_meta(const uint64_t bytes)
 }
 
 std::optional<std::vector<uint8_t>>
-instruction_generator_c::gen_string_constant(const std::string_view str)
+instruction_generator_c::gen_string_constant(const std::string_view str,
+                                             bool with_char_padding)
 {
   bool padded{false};
   std::size_t len = str.size();
+
   if (len % 2 != 0) {
     len += 1;
     padded = true;
+  }
+  if (with_char_padding) {
+    len += len;
   }
   if (len > std::numeric_limits<uint16_t>::max()) {
     return std::nullopt;
@@ -70,6 +75,9 @@ instruction_generator_c::gen_string_constant(const std::string_view str)
                        encoded_size.end());
 
   for (auto &c : str) {
+    if (with_char_padding) {
+      encoded_bytes.push_back(0x00);
+    }
     encoded_bytes.push_back(static_cast<uint8_t>(c));
   }
   if (padded) {
@@ -85,7 +93,8 @@ instruction_generator_c::gen_lib_section(const uint64_t address,
 {
   std::vector<uint8_t> encoded_bytes;
   auto encoded_address = libskiff::bytecode::helpers::pack_8(address);
-  auto encoded_section = gen_string_constant(section_name); // Same encoding
+  auto encoded_section =
+      gen_string_constant(section_name, false); // Same encoding
 
   if (encoded_section == std::nullopt) {
     return std::nullopt;
@@ -641,6 +650,18 @@ instruction_generator_c::gen_load_qword(const uint8_t idx, const uint8_t offset,
   std::vector<uint8_t> encoded_bytes = {
       0x00, 0x00,   0x00, libskiff::bytecode::instructions::LQW,
       idx,  offset, dest, 0x00};
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
+std::vector<uint8_t>
+instruction_generator_c::gen_syscall(const uint32_t address)
+{
+  std::vector<uint8_t> encoded_bytes = {
+      0x00, 0x00, 0x00, libskiff::bytecode::instructions::SYSCALL};
+  auto encoded_address = libskiff::bytecode::helpers::pack_4(address);
+  encoded_bytes.insert(encoded_bytes.end(), encoded_address.begin(),
+                       encoded_address.end());
   update_meta(encoded_bytes.size());
   return encoded_bytes;
 }

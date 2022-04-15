@@ -2,12 +2,13 @@
 #define SKIFF_VM_HPP
 
 #include "libskiff/bytecode/executable.hpp"
+#include "libskiff/config.hpp"
 #include "libskiff/machine/execution_context.hpp"
 #include "libskiff/machine/memory/memman.hpp"
 #include "libskiff/machine/memory/stack.hpp"
+#include "libskiff/machine/system/callable.hpp"
 #include "libskiff/types.hpp"
 
-#include "libskiff/types.hpp"
 #include <array>
 #include <memory>
 #include <optional>
@@ -21,9 +22,6 @@ namespace machine {
 //! \brief Virtual machine
 class vm_c : public executor_if {
 public:
-  static constexpr uint8_t num_integer_registers = 10;
-  static constexpr uint8_t num_floating_point_registers = 10;
-
   //! \brief Result status of execution
   enum class execution_result_e {
     OKAY, //! Execution finished with no errors
@@ -33,9 +31,12 @@ public:
   //! \brief Construct the VM
   vm_c();
 
+  //! \brief Destruct the VM
+  ~vm_c();
+
   //! \brief Load the VM with an executable
   //! \returns True iff the VM can run the executable
-  bool load(std::unique_ptr<libskiff::binary::executable_c> executable);
+  bool load(std::unique_ptr<libskiff::bytecode::executable_c> executable);
 
   //! \brief Set a callback to receive runtime errors
   //! \param cb The runtime callback
@@ -51,8 +52,9 @@ public:
 private:
   bool _is_alive{true};
   types::exec_debug_level_e _debug_level{types::exec_debug_level_e::NONE};
-  std::array<types::vm_register, num_integer_registers> _integer_registers{};
-  std::array<types::vm_register, num_floating_point_registers>
+  std::array<types::vm_register, config::num_integer_registers>
+      _integer_registers{};
+  std::array<types::vm_register, config::num_floating_point_registers>
       _floating_point_registers{};
   types::vm_register _x0{0};
   types::vm_register _x1{1};
@@ -67,6 +69,7 @@ private:
   memory::memman_c _memman;
 
   std::optional<libskiff::types::runtime_error_cb> _runtime_error_cb;
+  std::vector<std::unique_ptr<system::callable_if>> _system_callables;
 
   types::vm_register *get_register(uint8_t id);
   void issue_forced_error(const std::string &err);
@@ -115,6 +118,7 @@ private:
   virtual void accept(instruction_load_word_c &ins) override;
   virtual void accept(instruction_load_dword_c &ins) override;
   virtual void accept(instruction_load_qword_c &ins) override;
+  virtual void accept(instruction_syscall_c &ins) override;
 };
 
 } // namespace machine

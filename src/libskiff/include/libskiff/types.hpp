@@ -1,6 +1,9 @@
 #ifndef LIBSKIFF_TYPES_HPP
 #define LIBSKIFF_TYPES_HPP
 
+#include "libskiff/config.hpp"
+#include "libskiff/machine/memory/memman.hpp"
+#include <array>
 #include <cstdint>
 #include <functional>
 #include <string>
@@ -60,6 +63,16 @@ static std::string semver_to_string(const semver_t &s)
   return std::to_string(s.major) + "." + std::to_string(s.minor) + "." +
          std::to_string(s.patch);
 }
+
+//! \brief Information type passed to system functions
+struct view_t {
+  std::array<types::vm_register, config::num_integer_registers>
+      &integer_registers;
+  std::array<types::vm_register, config::num_floating_point_registers>
+      &float_registers;
+  libskiff::machine::memory::memman_c &memory_manager;
+  types::vm_register &op_register;
+};
 
 } // namespace types
 } // namespace libskiff

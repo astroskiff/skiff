@@ -472,6 +472,13 @@ public:
   types::vm_register &dest;
 };
 
+class instruction_syscall_c : public instruction_c {
+public:
+  instruction_syscall_c(const uint32_t &address) : address(address) {}
+  virtual void visit(executor_if &e) override;
+  uint32_t address;
+};
+
 //! \brief Executor of instructions interface
 class executor_if {
 public:
@@ -517,6 +524,7 @@ public:
   virtual void accept(instruction_load_word_c &ins) = 0;
   virtual void accept(instruction_load_dword_c &ins) = 0;
   virtual void accept(instruction_load_qword_c &ins) = 0;
+  virtual void accept(instruction_syscall_c &ins) = 0;
 };
 
 } // namespace machine

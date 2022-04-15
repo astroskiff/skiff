@@ -1,5 +1,5 @@
+#include <libskiff/config.hpp>
 #include <libskiff/machine/memory/memory.hpp>
-#include <libskiff/system.hpp>
 #include <libutil/generate_random.hpp>
 
 #include <cstdint>
@@ -30,12 +30,12 @@ TEST_GROUP(memory_c){};
 TEST(memory_c, mem_words)
 {
   libskiff::machine::memory::memory_c skiff_memory(
-      libskiff::system::word_size_bytes * num_tests_per_type * 2);
+      libskiff::config::word_size_bytes * num_tests_per_type * 2);
   auto test_case = generate_tc<uint16_t>();
   uint64_t idx = 0;
   for (auto &tc : test_case) {
     CHECK_TRUE_TEXT(skiff_memory.put_word(idx, tc), "Unable to put word");
-    idx += libskiff::system::word_size_bytes;
+    idx += libskiff::config::word_size_bytes;
   }
 
   idx = 0;
@@ -43,19 +43,19 @@ TEST(memory_c, mem_words)
     auto [okay, value] = skiff_memory.get_word(idx);
     CHECK_TRUE_TEXT(okay, "No success getting word");
     CHECK_EQUAL_TEXT(tc, value, "Value did not meet expectations");
-    idx += libskiff::system::word_size_bytes;
+    idx += libskiff::config::word_size_bytes;
   }
 }
 
 TEST(memory_c, mem_dwords)
 {
   libskiff::machine::memory::memory_c skiff_memory(
-      libskiff::system::d_word_size_bytes * num_tests_per_type * 2);
+      libskiff::config::d_word_size_bytes * num_tests_per_type * 2);
   auto test_case = generate_tc<uint32_t>();
   uint64_t idx = 0;
   for (auto &tc : test_case) {
     CHECK_TRUE_TEXT(skiff_memory.put_dword(idx, tc), "Unable to put dword");
-    idx += libskiff::system::d_word_size_bytes;
+    idx += libskiff::config::d_word_size_bytes;
   }
 
   idx = 0;
@@ -63,19 +63,19 @@ TEST(memory_c, mem_dwords)
     auto [okay, value] = skiff_memory.get_dword(idx);
     CHECK_TRUE_TEXT(okay, "No success getting dword");
     CHECK_EQUAL_TEXT(tc, value, "Value did not meet expectations");
-    idx += libskiff::system::d_word_size_bytes;
+    idx += libskiff::config::d_word_size_bytes;
   }
 }
 
 TEST(memory_c, mem_qwords)
 {
   libskiff::machine::memory::memory_c skiff_memory(
-      libskiff::system::q_word_size_bytes * num_tests_per_type * 2);
+      libskiff::config::q_word_size_bytes * num_tests_per_type * 2);
   auto test_case = generate_tc<uint64_t>();
   uint64_t idx = 0;
   for (auto &tc : test_case) {
     CHECK_TRUE_TEXT(skiff_memory.put_qword(idx, tc), "Unable to put qword");
-    idx += libskiff::system::q_word_size_bytes;
+    idx += libskiff::config::q_word_size_bytes;
   }
 
   idx = 0;
@@ -83,7 +83,7 @@ TEST(memory_c, mem_qwords)
     auto [okay, value] = skiff_memory.get_qword(idx);
     CHECK_TRUE_TEXT(okay, "No success getting qword");
     CHECK_EQUAL_TEXT(tc, value, "Value did not meet expectations");
-    idx += libskiff::system::q_word_size_bytes;
+    idx += libskiff::config::q_word_size_bytes;
   }
 }
 
@@ -137,7 +137,7 @@ TEST(memory_c, chonker)
   }
 
   libskiff::machine::memory::memory_c skiff_memory(
-      num_tests_per_type * libskiff::system::q_word_size_bytes * 3);
+      num_tests_per_type * libskiff::config::q_word_size_bytes * 3);
 
   // Insert all cases
   uint64_t idx = 0;
@@ -145,15 +145,15 @@ TEST(memory_c, chonker)
     switch (i.type) {
     case type_t::WORD:
       CHECK_TRUE(skiff_memory.put_word(idx, static_cast<uint16_t>(i.value)));
-      idx += libskiff::system::word_size_bytes;
+      idx += libskiff::config::word_size_bytes;
       break;
     case type_t::DWORD:
       CHECK_TRUE(skiff_memory.put_dword(idx, static_cast<uint32_t>(i.value)));
-      idx += libskiff::system::d_word_size_bytes;
+      idx += libskiff::config::d_word_size_bytes;
       break;
     case type_t::QWORD:
       CHECK_TRUE(skiff_memory.put_qword(idx, i.value));
-      idx += libskiff::system::q_word_size_bytes;
+      idx += libskiff::config::q_word_size_bytes;
       break;
     default:
       FAIL("Random number gen broke the freakin tests");
@@ -168,19 +168,19 @@ TEST(memory_c, chonker)
       auto [okay, value] = skiff_memory.get_word(idx);
       CHECK_TRUE(okay);
       CHECK_EQUAL(i.value, static_cast<uint64_t>(value));
-      idx += libskiff::system::word_size_bytes;
+      idx += libskiff::config::word_size_bytes;
     } break;
     case type_t::DWORD: {
       auto [okay, value] = skiff_memory.get_dword(idx);
       CHECK_TRUE(okay);
       CHECK_EQUAL(i.value, static_cast<uint64_t>(value));
-      idx += libskiff::system::d_word_size_bytes;
+      idx += libskiff::config::d_word_size_bytes;
     } break;
     case type_t::QWORD: {
       auto [okay, value] = skiff_memory.get_qword(idx);
       CHECK_TRUE(okay);
       CHECK_EQUAL(i.value, value);
-      idx += libskiff::system::q_word_size_bytes;
+      idx += libskiff::config::q_word_size_bytes;
     } break;
     default:
       FAIL("Random number gen broke the freakin tests");

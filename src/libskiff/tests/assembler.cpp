@@ -101,8 +101,8 @@ TEST(assembler_tests, all)
                  result.bin.value().size());
     }
     // Load the binary
-    std::optional<std::unique_ptr<libskiff::binary::executable_c>>
-        loaded_binary = libskiff::binary::load_binary("tmp.test.bin");
+    std::optional<std::unique_ptr<libskiff::bytecode::executable_c>>
+        loaded_binary = libskiff::bytecode::load_binary("tmp.test.bin");
 
     CHECK_TRUE(loaded_binary != std::nullopt);
     CHECK_EQUAL(

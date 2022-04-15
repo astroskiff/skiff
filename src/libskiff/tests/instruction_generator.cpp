@@ -210,6 +210,45 @@ TEST(instruction_generator_tests, constants)
 
     std::vector<uint8_t> value = data.value();
 
+    CHECK_EQUAL((2 * s.size()) + 8, value.size());
+
+    uint64_t len = static_cast<uint64_t>(value[0]) << 56;
+    len |= static_cast<uint64_t>(value[1]) << 48;
+    len |= static_cast<uint64_t>(value[2]) << 40;
+    len |= static_cast<uint64_t>(value[3]) << 32;
+    len |= static_cast<uint64_t>(value[4]) << 24;
+    len |= static_cast<uint64_t>(value[5]) << 16;
+    len |= static_cast<uint64_t>(value[6]) << 8;
+    len |= static_cast<uint64_t>(value[7]);
+
+    CHECK_EQUAL((2 * s.size()), len);
+
+    std::string result;
+    // Skip the first pad, and then the char should be
+    // every other byte
+    for (std::size_t i = 9; i < value.size(); i += 2) {
+      result += static_cast<char>(value[i]);
+    }
+    CHECK_EQUAL(s, result);
+  }
+
+  //  string - no char padding
+  //
+  for (uint8_t i = 0; i < num_const_tests; i++) {
+    std::string s = libutil::generate::random_string_c().generate_string(
+        libutil::generate::generate_random_c<uint8_t>().get_range(10, 20));
+
+    // Word align the string
+    if (s.size() % 2 != 0) {
+      s += static_cast<char>(0x00);
+    }
+
+    auto data = gen.gen_string_constant(s, false);
+
+    CHECK_TRUE(data != std::nullopt);
+
+    std::vector<uint8_t> value = data.value();
+
     CHECK_EQUAL(s.size() + 8, value.size());
 
     uint64_t len = static_cast<uint64_t>(value[0]) << 56;
@@ -875,4 +914,30 @@ TEST(instruction_generator_tests, instructions_load_store)
     CHECK_EQUAL_TEXT(data.value, bytes[6], "Unexpected byte");
     CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
   }
+}
+
+TEST(instruction_generator_tests, instruction_syscall)
+{
+  auto address = libutil::generate::generate_random_c<uint32_t>().get_range(
+      std::numeric_limits<uint32_t>::min(),
+      std::numeric_limits<uint32_t>::max());
+
+  libskiff::instructions::instruction_generator_c gen;
+  auto bytes = gen.gen_syscall(address);
+
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+
+  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
+  CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
+  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::SYSCALL, bytes[3],
+                   "Instruction opcode did not match expected value");
+
+  uint32_t decoded_address = 0;
+  uint8_t shift = 24;
+  for (auto i = 4; i < bytes.size(); i++) {
+    decoded_address |= (static_cast<uint32_t>(bytes[i]) << shift);
+    shift -= 8;
+  }
+  CHECK_EQUAL_TEXT(address, decoded_address, "Incorrect address encoded");
 }

@@ -16,7 +16,7 @@ namespace machine {
     These structures store references to registers as well meaning we won't need
     to determine where to place data at run time.
 */
-bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
+bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
 
@@ -820,6 +820,14 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
               *idx, *offset, *dest));
       break;
     }
+    case libskiff::bytecode::instructions::SYSCALL: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `SYSCALL` to " << instruction_bot
+                 << "\n";
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_syscall_c>(
+              instruction_bot));
+      break;
+    }
     }
   }
 
@@ -830,8 +838,8 @@ bool vm_c::load(std::unique_ptr<libskiff::binary::executable_c> executable)
 types::vm_register *vm_c::get_register(uint8_t id)
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
-  LOG(DEBUG) << TAG("vm") << "Request for register : " << std::hex << static_cast<int>(id)
-             << std::dec << "\n";
+  LOG(DEBUG) << TAG("vm") << "Request for register : " << std::hex
+             << static_cast<int>(id) << std::dec << "\n";
   switch (id) {
   case 0x00:
     return &_x0;
