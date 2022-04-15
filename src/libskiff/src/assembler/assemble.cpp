@@ -42,6 +42,17 @@ template <class T> std::optional<T> get_number(const std::string value)
   return value_out;
 }
 
+std::tuple<bool, std::string> get_string_literal(std::string value)
+{
+  if (value.size() < 3) {
+    return {false, {}};
+  }
+  if (value.front() != '"' || value.back() != '"') {
+    return {false, {}};
+  }
+  return {true, value.substr(1, value.size() - 2)};
+}
+
 class assembler_c {
 public:
   assembler_c(const std::string &input);
@@ -101,6 +112,7 @@ private:
   void add_warning(const std::string &str);
   void add_debug(const std::string &str);
   void add_trace(const std::string &str);
+  void macro_scan();
   void pre_scan();
   void parse(const std::vector<match_t> &function_match);
 
@@ -420,6 +432,117 @@ void assembler_c::add_trace(const std::string &str)
              << str << "\n";
 }
 
+void assembler_c::macro_scan()
+{
+  LOG(TRACE) << TAG("func") << __func__ << "\n";
+
+  uint64_t item_count{0};
+  std::unordered_map<std::string, std::vector<std::string>> macro_to_contents;
+
+  // Find the macros
+  for (auto i = 0; i < _file_data.size(); i++) {
+    if (_file_data[i].rfind("#macro", 0) == 0) {
+
+      auto chunks = chunk_line(_file_data[i]);
+
+      if (chunks.size() < 3 || chunks.size() > 4) {
+        add_error("Malformed macro : " + chunks[0]);
+        return;
+      }
+
+      auto [valid, line] = get_string_literal(chunks[2]);
+
+      if (!valid) {
+        add_error("Malformed macro : " + chunks[0] +
+                  ", Invalid string literal");
+      }
+
+      std::vector<std::string> data = {line};
+
+      // check to see if its multi-lined
+      if (chunks.size() == 4) {
+        if (chunks[3] != "\\") {
+          add_error(
+              "Malformed macro : " + chunks[0] +
+              ", Expected '\\' as last piece to macro line of given length");
+          return;
+        }
+
+        bool done = false;
+        while (!done) {
+
+          // EOF
+          if (i == _file_data.size() - 1) {
+            done = true;
+          }
+
+          // Go to next item in file
+          i += 1;
+
+          // Chunk the next line
+          auto next = chunk_line(_file_data[i]);
+
+          if (next.size() > 2) {
+            add_error("Malformed macro : " + chunks[0] +
+                      ", Continuation malformation");
+            return;
+          }
+
+          auto [is_valid, next_lit] = get_string_literal(next[0]);
+
+          if (!valid) {
+            add_error("Malformed macro : " + chunks[0] +
+                      ", Invalid string literal");
+            return;
+          }
+
+          data.push_back(next_lit);
+
+          if (next.size() == 2) {
+            if (next[1] != "\\") {
+              add_error("Malformed macro : " + chunks[0] +
+                        ", Expected '\\' as last piece to macro line of given "
+                        "length");
+              return;
+            }
+          }
+          else {
+            done = true;
+          }
+        }
+      }
+
+      // Add to macro map
+      macro_to_contents[chunks[1]] = data;
+      item_count = data.size();
+    }
+  }
+
+  std::vector<std::string> new_file_data;
+  new_file_data.reserve(_file_data.size() + item_count);
+
+  // Insert the macros
+  for (auto &line : _file_data) {
+    auto c_line_chunks = chunk_line(line);
+    if (c_line_chunks.size() == 1 && c_line_chunks[0].starts_with('#') &&
+        c_line_chunks[0].size() > 1) {
+      auto actual_macro_name =
+          c_line_chunks[0].substr(1, c_line_chunks[0].size());
+      if (macro_to_contents.find(actual_macro_name) ==
+          macro_to_contents.end()) {
+        return;
+      }
+      auto macro_contents = macro_to_contents[actual_macro_name];
+      for (auto &macro_line : macro_contents) {
+        new_file_data.push_back(macro_line);
+      }
+      continue;
+    }
+    new_file_data.push_back(line);
+  }
+  _file_data = new_file_data;
+}
+
 void assembler_c::pre_scan()
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
@@ -505,6 +628,7 @@ void assembler_c::assemble()
   }
   ifs.close();
 
+  macro_scan();
   pre_scan();
 
   for (auto &line : _file_data) {
