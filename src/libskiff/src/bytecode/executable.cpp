@@ -7,7 +7,7 @@
 #include <fstream>
 
 namespace libskiff {
-namespace binary {
+namespace bytecode {
 
 namespace {
 
@@ -247,5 +247,5 @@ bool executable_c::add_section(const std::string &name, const uint64_t addr)
   return true;
 }
 
-} // namespace binary
+} // namespace bytecode
 } // namespace libskiff

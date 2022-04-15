@@ -60,7 +60,7 @@ private:
   struct constant_value_t {
     libskiff::types::constant_type_e type;
     uint64_t address;
-    std::vector<uint8_t> data;
+    uint64_t data_len;
   };
 
   struct match_t {
@@ -89,11 +89,12 @@ private:
 
   directive_checks_t _directive_checks = {false, false, false, false};
   std::unordered_map<std::string, uint64_t> _label_to_location;
-  std::unordered_map<std::string, constant_value_t> _constant_name_to_value;
+  std::unordered_map<std::string, constant_value_t> _constant_name_to_meta;
   uint64_t _expected_bin_size{0};
   std::vector<std::string> _current_chunks;
   libskiff::instructions::instruction_generator_c _ins_gen;
   std::unique_ptr<libskiff::generator::binary_generator> _generator;
+  uint64_t _loaded_const_address{0};
 
   std::string remove_comments(const std::string &str);
   void add_error(const std::string &str);
@@ -650,14 +651,29 @@ bool assembler_c::add_constant(std::string name,
                                std::vector<uint8_t> data)
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
-  if (_constant_name_to_value.find(name) != _constant_name_to_value.end()) {
+  if (_constant_name_to_meta.find(name) != _constant_name_to_meta.end()) {
     add_error("Duplicate constant name '" + _current_chunks[1] + "'");
     return false;
   }
 
-  uint64_t address = _generator->add_constant(type, data);
-  _constant_name_to_value[name] =
-      constant_value_t{.type = type, .address = address, .data = data};
+  // Add the constant data as the binary expects it for loading
+  _generator->add_constant(type, data);
+
+  auto current_address = _loaded_const_address;
+  _loaded_const_address += data.size();
+
+  auto data_len = data.size();
+
+  // Convert the data to how the data will be loaded to ensure correct
+  // mapping from commands
+  if (type == libskiff::types::constant_type_e::STRING) {
+    // Shave off string length as it wont be in memory at run time
+    _loaded_const_address -= 8;
+    data_len -= 8;
+  }
+
+  _constant_name_to_meta[name] = constant_value_t{
+      .type = type, .address = current_address, .data_len = data_len};
   return true;
 }
 
@@ -962,8 +978,8 @@ std::optional<uint32_t> assembler_c::get_value(const std::string item)
     }
 
     // Check constants
-    if (_constant_name_to_value.find(s) != _constant_name_to_value.end()) {
-      auto constant = _constant_name_to_value[s];
+    if (_constant_name_to_meta.find(s) != _constant_name_to_meta.end()) {
+      auto constant = _constant_name_to_meta[s];
       if (constant.address > std::numeric_limits<uint32_t>::max()) {
         add_error("Requested mov of constant address whose value exceeds that "
                   "able to be stored in a uint32_t");
@@ -979,14 +995,10 @@ std::optional<uint32_t> assembler_c::get_value(const std::string item)
     std::string s = item.substr(1, item.length());
 
     // Check constants
-    if (_constant_name_to_value.find(s) != _constant_name_to_value.end()) {
-      auto constant = _constant_name_to_value[s];
+    if (_constant_name_to_meta.find(s) != _constant_name_to_meta.end()) {
+      auto constant = _constant_name_to_meta[s];
 
-      auto length = static_cast<uint32_t>(constant.data.size());
-      if(constant.type == libskiff::types::constant_type_e::STRING) {
-        length -= 8;  // Remove the length encoding
-      }
-
+      auto length = static_cast<uint32_t>(constant.data_len) / 2; // words
       if (length > std::numeric_limits<uint32_t>::max()) {
         add_error("Requested mov of constant whose length exceeds that "
                   "able to be stored in a uint32_t");

@@ -14,7 +14,7 @@ namespace memory {
 
 //! \brief A stack structure that contains up-to
 //!        the number of bytes described by
-//!        'stack_size_bytes' in libskiff/system.hpp
+//!        'stack_size_bytes' in libskiff/config.hpp
 class stack_c {
 public:
   //! \brief Create the stack

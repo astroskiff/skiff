@@ -1,5 +1,6 @@
 #include "libskiff/machine/system/print.hpp"
 #include "libskiff/bytecode/floating_point.hpp"
+#include <bitset>
 #include <iostream>
 
 namespace libskiff {
@@ -21,14 +22,15 @@ enum class data_t {
 };
 }
 
-void print_c::execute(libskiff::machine::vm_c::view_t &view)
+void print_c::execute(libskiff::types::view_t &view)
 {
-  std::cout << 
-    "slot   : " << view.integer_registers[0] << "\n" <<
-    "offset : " << view.integer_registers[1] << "\n" <<
-    "length : " << view.integer_registers[2] << "\n" << 
-    "type   : " << view.integer_registers[3] << "\n";
-
+  /*
+    std::cout <<
+      "slot   : " << view.integer_registers[0] << "\n" <<
+      "offset : " << view.integer_registers[1] << "\n" <<
+      "length : " << view.integer_registers[2] << "\n" <<
+      "type   : " << view.integer_registers[3] << "\n";
+  */
 
   // Assume failure
   view.op_register = 0;
@@ -40,9 +42,6 @@ void print_c::execute(libskiff::machine::vm_c::view_t &view)
     return;
   }
 
-  std::cout << 
-    "size   : " << slot->size() << "\n";
-    
   // Ensure length wont overrun it
   auto data_offset = view.integer_registers[1];
   auto data_length = view.integer_registers[2];
@@ -50,18 +49,16 @@ void print_c::execute(libskiff::machine::vm_c::view_t &view)
   // Size returns byts, we need to calculate it using words,
   // so multiply data_length by 2
   if (slot->size() < data_offset + data_length) {
-    std::cout << "Bad size\n";
     return;
   }
 
   switch (static_cast<data_t>(view.integer_registers[3])) {
   case data_t::U8: {
-    std::cout << "U8\n";
     auto [okay, data] = slot->get_word(data_offset);
     if (!okay) {
       return;
     }
-    std::cout << static_cast<uint8_t>(data);
+    std::cout << std::dec << data;
     break;
   }
   case data_t::I8: {
@@ -69,7 +66,8 @@ void print_c::execute(libskiff::machine::vm_c::view_t &view)
     if (!okay) {
       return;
     }
-    std::cout << static_cast<int8_t>(data);
+    // This is dumb but it ensures that negative values print correctly
+    std::cout << std::dec << static_cast<int>(static_cast<int8_t>(data));
     break;
   }
   case data_t::U16: {
@@ -131,8 +129,10 @@ void print_c::execute(libskiff::machine::vm_c::view_t &view)
   case data_t::ASCII: {
     std::string out;
     decltype(data_length) idx = 0;
-    while (idx != data_length) {
-      auto [okay, c_word] = slot->get_word(idx+=2);
+    decltype(data_length) num = 0;
+    while (num++ != data_length) {
+      auto [okay, c_word] = slot->get_word(idx);
+      idx += 2;
       if (!okay) {
         break;
       }

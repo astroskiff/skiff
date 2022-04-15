@@ -3,7 +3,7 @@
 #include "libskiff/bytecode/instructions.hpp"
 #include "libskiff/defines.hpp"
 #include "libskiff/logging/aixlog.hpp"
-#include "libskiff/machine/system/call.hpp"
+#include "libskiff/machine/system/callable.hpp"
 #include "libskiff/machine/system/print.hpp"
 #include "libskiff/types.hpp"
 #include "libskiff/version.hpp"
@@ -29,19 +29,11 @@ vm_c::vm_c()
   //  - Order here matters as their index will determine what
   //    system call number they are so we don't need to register them and
   //    go through a slow map
-  _system_callables = {
-      new system::print_c(), // 0
-  };
+
+  _system_callables.emplace_back(new system::print_c()); // Syscall 0
 }
 
-vm_c::~vm_c()
-{
-  for (auto c : _system_callables) {
-    if (c) {
-      delete c;
-    }
-  }
-}
+vm_c::~vm_c() {}
 
 // Force warning to screen and logger
 void vm_c::issue_forced_warning(const std::string &warn)
@@ -546,22 +538,19 @@ void vm_c::accept(instruction_load_qword_c &ins)
 
 void vm_c::accept(instruction_syscall_c &ins)
 {
-  std::cout << "Syscall to : " << ins.address << std::endl;
   _ip++;
 
   // Ensure that the requested item is within range of callables
-  if(ins.address >= _system_callables.size()) {
+  if (ins.address >= _system_callables.size()) {
     _op_register = 0;
     return;
   }
 
   // Construct the view into the vm
-  view_t view = {
-    .integer_registers = _integer_registers,
-    .float_registers = _floating_point_registers,
-    .memory_manager = _memman,
-    .op_register = _op_register
-  };
+  types::view_t view = {.integer_registers = _integer_registers,
+                        .float_registers = _floating_point_registers,
+                        .memory_manager = _memman,
+                        .op_register = _op_register};
 
   // Call the item
   _system_callables[ins.address]->execute(view);

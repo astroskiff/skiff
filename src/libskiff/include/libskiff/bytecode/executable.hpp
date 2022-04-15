@@ -13,7 +13,7 @@
 #include <iostream>
 
 namespace libskiff {
-namespace binary {
+namespace bytecode {
 
 //! \brief A loaded item
 class executable_c {
@@ -98,7 +98,7 @@ private:
 std::optional<std::unique_ptr<executable_c>>
 load_binary(const std::string &file);
 
-} // namespace binary
+} // namespace bytecode
 } // namespace libskiff
 
 #endif

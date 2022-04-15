@@ -1,21 +1,21 @@
 #ifndef LIBSKIFF_SYSTEM_PRINT_HPP
 #define LIBSKIFF_SYSTEM_PRINT_HPP
 
-#include "libskiff/machine/system/call.hpp"
+#include "libskiff/machine/system/callable.hpp"
 
 namespace libskiff {
 namespace machine {
 namespace system {
 
 //! \brief An interface to print information from memory
-class print_c : public call_if {
+class print_c : public callable_if {
 public:
   //! \brief Prints data to the screen
   //! vm_param: i0 - Memory slot containing data
   //! vm_param: i1 - Offset into memory slot data starts at
   //! vm_param: i2 - Length (in words) to print
   //! vm_param: i3 - Data type
-  //!                0 - i8,  1 - u8,  2 - u16,  3 - i16
+  //!                0 - u8,  1 - i8,  2 - u16,  3 - i16
   //!                4 - u32, 5 - i32, 6 - u64,  7 - i64
   //!                8 - float, 9 - ASCII
   //! vm_param: i4 - If 0 is not present in i4, a new line will print
@@ -27,7 +27,7 @@ public:
   //!       will only result in the `u8` being printed (iff there are
   //!       6 bytes of space from offset->length free) and not a full
   //!       6 bytes.
-  virtual void execute(libskiff::machine::vm_c::view_t &view) override;
+  virtual void execute(libskiff::types::view_t &view) override;
 };
 
 } // namespace system

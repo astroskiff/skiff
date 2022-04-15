@@ -72,8 +72,8 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
 
 int run(const std::string &bin)
 {
-  std::optional<std::unique_ptr<libskiff::binary::executable_c>> loaded_binary =
-      libskiff::binary::load_binary(bin);
+  std::optional<std::unique_ptr<libskiff::bytecode::executable_c>>
+      loaded_binary = libskiff::bytecode::load_binary(bin);
 
   if (loaded_binary == std::nullopt) {
     LOG(FATAL) << TAG("app") << "Failed to load suspected binary file : " << bin

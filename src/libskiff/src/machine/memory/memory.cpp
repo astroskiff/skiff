@@ -1,5 +1,5 @@
 #include "libskiff/machine/memory/memory.hpp"
-#include "libskiff/system.hpp"
+#include "libskiff/config.hpp"
 #include <cstring>
 
 namespace libskiff {
@@ -24,7 +24,7 @@ memory_c::~memory_c()
 
 bool memory_c::put_word(const uint64_t index, const uint16_t data)
 {
-  if (index + libskiff::system::word_size_bytes >= _size) {
+  if (index + libskiff::config::word_size_bytes >= _size) {
     return false;
   }
   _data[index] = data >> 8;
@@ -34,7 +34,7 @@ bool memory_c::put_word(const uint64_t index, const uint16_t data)
 
 bool memory_c::put_dword(const uint64_t index, const uint32_t data)
 {
-  if (index + libskiff::system::d_word_size_bytes >= _size) {
+  if (index + libskiff::config::d_word_size_bytes >= _size) {
     return false;
   }
   _data[index] = data >> 24;
@@ -46,7 +46,7 @@ bool memory_c::put_dword(const uint64_t index, const uint32_t data)
 
 bool memory_c::put_qword(const uint64_t index, const uint64_t data)
 {
-  if (index + libskiff::system::q_word_size_bytes >= _size) {
+  if (index + libskiff::config::q_word_size_bytes >= _size) {
     return false;
   }
   _data[index] = data >> 56;
@@ -62,7 +62,7 @@ bool memory_c::put_qword(const uint64_t index, const uint64_t data)
 
 std::tuple<bool, uint16_t> memory_c::get_word(const uint64_t index)
 {
-  if (index + libskiff::system::word_size_bytes > _size) {
+  if (index + libskiff::config::word_size_bytes > _size) {
     return {false, 0};
   }
   uint16_t d = static_cast<uint16_t>(_data[index]) << 8;
@@ -72,7 +72,7 @@ std::tuple<bool, uint16_t> memory_c::get_word(const uint64_t index)
 
 std::tuple<bool, uint32_t> memory_c::get_dword(const uint64_t index)
 {
-  if (index + libskiff::system::d_word_size_bytes > _size) {
+  if (index + libskiff::config::d_word_size_bytes > _size) {
     return {false, 0};
   }
 
@@ -85,7 +85,7 @@ std::tuple<bool, uint32_t> memory_c::get_dword(const uint64_t index)
 
 std::tuple<bool, uint64_t> memory_c::get_qword(const uint64_t index)
 {
-  if (index + libskiff::system::q_word_size_bytes > _size) {
+  if (index + libskiff::config::q_word_size_bytes > _size) {
     return {false, 0};
   }
 
