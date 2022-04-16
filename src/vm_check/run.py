@@ -31,6 +31,7 @@ test_directories = [
   check_directory + "/branching",
   check_directory + "/memory",
   check_directory + "/arithmetic",
+  check_directory + "/misc",
 ]
 
 def time_to_ms_str(t):
