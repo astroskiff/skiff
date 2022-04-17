@@ -24,14 +24,13 @@ enum class data_t {
 
 void print_c::execute(libskiff::types::view_t &view)
 {
-  /*
+/*
     std::cout <<
       "slot   : " << view.integer_registers[0] << "\n" <<
       "offset : " << view.integer_registers[1] << "\n" <<
       "length : " << view.integer_registers[2] << "\n" <<
       "type   : " << view.integer_registers[3] << "\n";
-  */
-
+*/
   // Assume failure
   view.op_register = 0;
 
@@ -46,8 +45,6 @@ void print_c::execute(libskiff::types::view_t &view)
   auto data_offset = view.integer_registers[1];
   auto data_length = view.integer_registers[2];
 
-  // Size returns byts, we need to calculate it using words,
-  // so multiply data_length by 2
   if (slot->size() < data_offset + data_length) {
     return;
   }
@@ -127,16 +124,15 @@ void print_c::execute(libskiff::types::view_t &view)
     break;
   }
   case data_t::ASCII: {
+    
     std::string out;
-    decltype(data_length) idx = 0;
-    decltype(data_length) num = 0;
-    while (num++ != data_length) {
-      auto [okay, c_word] = slot->get_word(idx);
-      idx += 2;
+    decltype(data_length) num = data_offset;
+    while (num != data_length + data_offset) {
+      auto [okay, c_word] = slot->get_word(num++);
       if (!okay) {
         break;
       }
-      out += static_cast<char>(c_word);
+      out += static_cast<char>(c_word >> 8);
     }
     std::cout << out;
     break;

@@ -1129,7 +1129,7 @@ std::optional<uint32_t> assembler_c::get_value(const std::string item)
     if (_constant_name_to_meta.find(s) != _constant_name_to_meta.end()) {
       auto constant = _constant_name_to_meta[s];
 
-      auto length = static_cast<uint32_t>(constant.data_len) / 2; // words
+      auto length = static_cast<uint32_t>(constant.data_len);
       if (length > std::numeric_limits<uint32_t>::max()) {
         add_error("Requested mov of constant whose length exceeds that "
                   "able to be stored in a uint32_t");

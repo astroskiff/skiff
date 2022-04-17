@@ -92,11 +92,11 @@ All data encoded will simply be its byte representation at the aforementioned 2-
 Strings are encoded as follows:
 
 ```
-   [8 byte length field] [padded char words]
+   [8 byte length field] [un-padded chars] [potential 1-byte padding]
 ```
 
-Note the wording of the last section. Each char must be of `word` size, with the string being divisible by 2. If the string is 
-odd, append a null byte `0x00` to ensure that it meets the requirements. 
+The string must be divisible by 2 so it can be read by the word. 
+If the string is odd, a null byte `0x00` will be added to ensure that it is of even length.
 
 ## Section Table
 
@@ -107,8 +107,6 @@ odd, append a null byte `0x00` to ensure that it meets the requirements.
 [ Section Address QWORD ] [ Section Length QWORD ] [ Section Name String ]
 ...
 ```
-*Note:* The section name string is _not_ word-padded as the `data` strings are (mentioned above).
-
 
 # Executable Binary layout:
 ```
