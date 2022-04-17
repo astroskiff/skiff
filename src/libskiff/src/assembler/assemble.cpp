@@ -810,7 +810,14 @@ bool assembler_c::directive_string()
     return false;
   }
 
-  auto value = _ins_gen.gen_string_constant(_current_chunks[2]);
+  auto [okay, str] = get_string_literal(_current_chunks[2]);
+
+  if (!okay) {
+    add_error("Invalid string literal (" + str + ")");
+    return false;
+  }
+
+  auto value = _ins_gen.gen_string_constant(str);
   if (value == std::nullopt) {
     add_error("Unable to encode .string directive with value : " +
               _current_chunks[2]);
