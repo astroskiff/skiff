@@ -828,6 +828,14 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
               instruction_bot));
       break;
     }
+    case libskiff::bytecode::instructions::DEBUG: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `DEBUG` to " << instruction_bot
+                 << "\n";
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_debug_c>(
+              instruction_bot));
+      break;
+    }
     }
   }
 

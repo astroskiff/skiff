@@ -479,6 +479,13 @@ public:
   uint32_t address;
 };
 
+class instruction_debug_c : public instruction_c {
+public:
+  instruction_debug_c(const uint32_t &id) : id(id) {}
+  virtual void visit(executor_if &e) override;
+  uint32_t id;
+};
+
 //! \brief Executor of instructions interface
 class executor_if {
 public:
@@ -525,6 +532,7 @@ public:
   virtual void accept(instruction_load_dword_c &ins) = 0;
   virtual void accept(instruction_load_qword_c &ins) = 0;
   virtual void accept(instruction_syscall_c &ins) = 0;
+  virtual void accept(instruction_debug_c &ins) = 0;
 };
 
 } // namespace machine

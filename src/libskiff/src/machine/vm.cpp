@@ -556,5 +556,40 @@ void vm_c::accept(instruction_syscall_c &ins)
   _system_callables[ins.address]->execute(view);
 }
 
+void vm_c::accept(instruction_debug_c &ins)
+{
+  _ip++;
+
+  std::cout << TERM_COLOR_BRIGHT_YELLOW << "DEBUG INS:" << ins.id << TERM_COLOR_END << std::endl;
+
+  switch (_debug_level) {
+  case libskiff::types::exec_debug_level_e::NONE:
+    break;
+  case libskiff::types::exec_debug_level_e::MINIMAL:
+    std::cout << "ip | " << _ip << std::endl;
+    break;
+  case libskiff::types::exec_debug_level_e::EXTREME:
+    std::cout << "Integer Registers" << std::endl;
+    for(auto i = 0; i < config::num_integer_registers; i++) {
+      std::cout << "i" << i << " | " << _integer_registers[i] << std::endl;
+    }
+    std::cout << std::endl;
+    std::cout << "Float Registers" << std::endl;
+    for(auto i = 0; i < config::num_floating_point_registers; i++) {
+      std::cout << "f" << i << " | " << _floating_point_registers[i] << std::endl;
+    }
+    std::cout << std::endl;
+  case libskiff::types::exec_debug_level_e::MODERATE:
+    std::cout << "System Registers" << std::endl;
+    std::cout << "x0 | " << _x0 << std::endl 
+              << "x1 | " << _x1 << std::endl 
+              << "sp | " << _sp << std::endl 
+              << "ip | " << _ip << std::endl 
+              << "op | " << _op_register << std::endl;
+    std::cout << std::endl;
+    break;
+  }
+}
+
 } // namespace machine
 } // namespace libskiff
