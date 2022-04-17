@@ -180,6 +180,7 @@ private:
   bool build_load_dw();
   bool build_load_qw();
   bool build_syscall();
+  bool build_debug();
 };
 
 inline std::vector<std::string> chunk_line(std::string line)
@@ -352,6 +353,9 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
       match_t{
           std::regex("^syscall"),
           std::bind(&libskiff::assembler::assembler_c::build_syscall, this)},
+      match_t{
+          std::regex("^debug"),
+          std::bind(&libskiff::assembler::assembler_c::build_debug, this)},
   };
 }
 
@@ -2214,6 +2218,25 @@ bool assembler_c::build_syscall()
   }
 
   add_instruction_bytes(_ins_gen.gen_syscall(*value));
+  return true;
+}
+
+bool assembler_c::build_debug()
+{
+  add_trace(__func__);
+  if (_current_chunks.size() != 2) {
+    add_error("Malformed debug instruction");
+    return false;
+  }
+
+  auto value = get_number<uint32_t>(_current_chunks[1]);
+
+  if (value == std::nullopt) {
+    add_error("Invalid value given to debug instruction : " + _current_chunks[1]);
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_debug(*value));
   return true;
 }
 

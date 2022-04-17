@@ -49,6 +49,7 @@ void instruction_load_word_c::visit(executor_if &e) { e.accept(*this); }
 void instruction_load_dword_c::visit(executor_if &e) { e.accept(*this); }
 void instruction_load_qword_c::visit(executor_if &e) { e.accept(*this); }
 void instruction_syscall_c::visit(executor_if &e) { e.accept(*this); }
+void instruction_debug_c::visit(executor_if &e) { e.accept(*this); }
 
 } // namespace machine
 } // namespace libskiff

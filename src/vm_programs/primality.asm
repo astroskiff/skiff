@@ -3,7 +3,7 @@
 ;
 
 .init fn_main
-
+.debug 3
 .u8       number    0
 .string   string_0  " is prime "
 .string   string_1  "  "
@@ -56,7 +56,7 @@ l_modulus_complete:
   ret
 
 ; IS_PRIME
-; Check if item in i0 is prime, result in i1
+; Check if item in i0 is prime, result in i0
 ;
 fn_is_prime:
   mov i7 @2
@@ -87,6 +87,8 @@ fn_is_prime:
   mov i2 @5 ; i 
   mov i3 @6
 l_primality_loop_top_0:
+
+  debug 0
 
   ; 'n' to check is still in i1 
   ; 'i' is i2, which is also the parameter to mod
@@ -171,7 +173,7 @@ l_end:
   ret
 
 ; MAIN
-fn_main:
+fn_main_old:
   mov i0 @0
   mov i1 @100
 
@@ -200,3 +202,10 @@ l_main_primality_check_loop_top:
   blt i0 i1 l_main_primality_check_loop_top
 
   #EXIT_SUCCESS
+
+fn_main:
+
+  mov i0 @5
+  call fn_is_prime
+
+  exit

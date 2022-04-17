@@ -119,6 +119,7 @@ private:
   virtual void accept(instruction_load_dword_c &ins) override;
   virtual void accept(instruction_load_qword_c &ins) override;
   virtual void accept(instruction_syscall_c &ins) override;
+  virtual void accept(instruction_debug_c &ins) override;
 };
 
 } // namespace machine

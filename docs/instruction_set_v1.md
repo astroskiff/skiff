@@ -812,3 +812,36 @@ free fails, the `op` register will be set to `0`, and `1` otherwise.
 **Format:** `syscall <unsigned 32-bit number>`
 **Description:** Execute a specific system call with the given ID.
 **Example:**	`syscall 0` 
+
+
+## debug
+**Opcode** 0x2B
+**Instruction Layout:**
+```
+	[ ------------- Empty ---------- ]  [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+
+	[ --------------- Debug ID ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `debug <unsigned 32-bit number>`
+**Description:** Prints a debug statement when executed stating the debug ID. 
+If `.debug` directive is set more information will follow: 
+
+```
+Level 0:
+	No extra information
+
+Level 1:
+	Instruction pointer
+
+Level 2:
+	Level 1 + System registers
+
+Level 3:
+	Level 2 + Integer & Floating-point registers
+
+
+```
+
+**Example:**	`debug 0` 

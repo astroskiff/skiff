@@ -51,6 +51,7 @@ constexpr uint8_t LW = 0x27;
 constexpr uint8_t LDW = 0x28;
 constexpr uint8_t LQW = 0x29;
 constexpr uint8_t SYSCALL = 0x2A;
+constexpr uint8_t DEBUG = 0x2B;
 
 } // namespace instructions
 } // namespace bytecode
