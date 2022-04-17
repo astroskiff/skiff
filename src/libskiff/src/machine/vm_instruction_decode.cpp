@@ -28,9 +28,9 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
   // Check compatibilty
   auto version = executable->get_compatiblity_semver();
 
-  LOG(DEBUG) << TAG("WHAT") << "semver.major:"
-             << (int)libskiff::version::semantic_version.minor
-             << "thisversion.major:  " << (int)version.minor << "\n";
+  LOG(DEBUG) << TAG("vm") << "semver.major:"
+             << (int)libskiff::version::semantic_version.major
+             << "thisversion.major:  " << (int)version.major << "\n";
 
   if (libskiff::version::semantic_version.major < version.major) {
     issue_forced_error("Incompatibility detected : "
@@ -39,7 +39,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
   }
   if (libskiff::version::semantic_version.minor < version.minor) {
 
-    LOG(DEBUG) << TAG("WHAT") << "semver.minor:"
+    LOG(DEBUG) << TAG("vm") << "semver.minor:"
                << (int)libskiff::version::semantic_version.minor
                << "thisversion.minor:  " << (int)version.minor << "\n";
 

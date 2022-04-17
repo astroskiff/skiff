@@ -5,9 +5,6 @@
 
 #include <limits>
 
-#include <bitset>
-#include <iostream>
-
 namespace libskiff {
 namespace instructions {
 
@@ -54,13 +51,15 @@ instruction_generator_c::gen_string_constant(const std::string_view str,
   bool padded{false};
   std::size_t len = str.size();
 
+  if (with_char_padding) {
+    len += len;
+  }
+
   if (len % 2 != 0) {
     len += 1;
     padded = true;
   }
-  if (with_char_padding) {
-    len += len;
-  }
+
   if (len > std::numeric_limits<uint16_t>::max()) {
     return std::nullopt;
   }
