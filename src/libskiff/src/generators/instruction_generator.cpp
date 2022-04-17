@@ -10,7 +10,6 @@ namespace instructions {
 
 instruction_generator_c::instruction_generator_c()
 {
-
   _string_to_register["x0"] = 0x00;
   _string_to_register["x1"] = 0x01;
   _string_to_register["ip"] = 0x02;
@@ -45,15 +44,10 @@ void instruction_generator_c::update_meta(const uint64_t bytes)
 }
 
 std::optional<std::vector<uint8_t>>
-instruction_generator_c::gen_string_constant(const std::string_view str,
-                                             bool with_char_padding)
+instruction_generator_c::gen_string_constant(const std::string_view str)
 {
   bool padded{false};
   std::size_t len = str.size();
-
-  if (with_char_padding) {
-    len += len;
-  }
 
   if (len % 2 != 0) {
     len += 1;
@@ -74,9 +68,6 @@ instruction_generator_c::gen_string_constant(const std::string_view str,
                        encoded_size.end());
 
   for (auto &c : str) {
-    if (with_char_padding) {
-      encoded_bytes.push_back(0x00);
-    }
     encoded_bytes.push_back(static_cast<uint8_t>(c));
   }
   if (padded) {
@@ -93,7 +84,7 @@ instruction_generator_c::gen_lib_section(const uint64_t address,
   std::vector<uint8_t> encoded_bytes;
   auto encoded_address = libskiff::bytecode::helpers::pack_8(address);
   auto encoded_section =
-      gen_string_constant(section_name, false); // Same encoding
+      gen_string_constant(section_name); // Same encoding
 
   if (encoded_section == std::nullopt) {
     return std::nullopt;

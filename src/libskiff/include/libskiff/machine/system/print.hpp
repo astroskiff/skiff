@@ -13,7 +13,7 @@ public:
   //! \brief Prints data to the screen
   //! vm_param: i0 - Memory slot containing data
   //! vm_param: i1 - Offset into memory slot data starts at
-  //! vm_param: i2 - Length (in words) to print
+  //! vm_param: i2 - Length (in bytes) to print
   //! vm_param: i3 - Data type
   //!                0 - u8,  1 - i8,  2 - u16,  3 - i16
   //!                4 - u32, 5 - i32, 6 - u64,  7 - i64

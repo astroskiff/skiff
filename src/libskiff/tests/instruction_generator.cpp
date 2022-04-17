@@ -210,7 +210,7 @@ TEST(instruction_generator_tests, constants)
 
     std::vector<uint8_t> value = data.value();
 
-    CHECK_EQUAL((2 * s.size()) + 8, value.size());
+    CHECK_EQUAL(s.size() + 8, value.size());
 
     uint64_t len = static_cast<uint64_t>(value[0]) << 56;
     len |= static_cast<uint64_t>(value[1]) << 48;
@@ -221,12 +221,12 @@ TEST(instruction_generator_tests, constants)
     len |= static_cast<uint64_t>(value[6]) << 8;
     len |= static_cast<uint64_t>(value[7]);
 
-    CHECK_EQUAL((2 * s.size()), len);
+    CHECK_EQUAL(s.size(), len);
 
     std::string result;
     // Skip the first pad, and then the char should be
     // every other byte
-    for (std::size_t i = 9; i < value.size(); i += 2) {
+    for (std::size_t i = 8; i < value.size(); i++) {
       result += static_cast<char>(value[i]);
     }
     CHECK_EQUAL(s, result);
@@ -243,7 +243,7 @@ TEST(instruction_generator_tests, constants)
       s += static_cast<char>(0x00);
     }
 
-    auto data = gen.gen_string_constant(s, false);
+    auto data = gen.gen_string_constant(s);
 
     CHECK_TRUE(data != std::nullopt);
 

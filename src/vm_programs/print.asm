@@ -1,16 +1,20 @@
 .init main
 
-.string str  "Hello world!"
-.u8     a     200
-.i8     b    -10
-.u16    c     300
-.i16    d    -300
-.u32    e     70000
-.i32    f     429496729
-.u64    g     9000000000
-.i64    h    -922337203685477580
-.float  pi    3.14159
-.float  npi  -3.14159
+.string str    "Hello world!"
+.string str_0  "abcd"
+.string str_1  " Josh"
+.string str_2  "This is a test of the emergency alert system"
+.string str_3  "!! Send'er bud"
+.u8     a       200
+.i8     b      -10
+.u16    c       300
+.i16    d      -300
+.u32    e       70000
+.i32    f       429496729
+.u64    g       9000000000
+.i64    h      -922337203685477580
+.float  pi      3.14159
+.float  npi    -3.14159
 
 ; Convenience macros so we can see what the values `mean`
 
@@ -47,6 +51,26 @@ print_item:
 print_str:
   mov i1 &str       ; Offset
   mov i2 #str       ; Length of item in words 
+  #PRINTER_LOAD_ASCII
+  call print_item
+
+  mov i1 &str_0       ; Offset
+  mov i2 #str_0       ; Length of item in words 
+  #PRINTER_LOAD_ASCII
+  call print_item
+
+  mov i1 &str_1       ; Offset
+  mov i2 #str_1       ; Length of item in words 
+  #PRINTER_LOAD_ASCII
+  call print_item
+
+  mov i1 &str_2       ; Offset
+  mov i2 #str_2       ; Length of item in words 
+  #PRINTER_LOAD_ASCII
+  call print_item
+
+  mov i1 &str_3       ; Offset
+  mov i2 #str_3       ; Length of item in words 
   #PRINTER_LOAD_ASCII
   call print_item
   ret
