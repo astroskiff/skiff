@@ -5,8 +5,8 @@
 .init fn_main
 .debug 3
 .u8       number    0
-.string   string_0  " is prime "
-.string   string_1  "  "
+.string   string_0  " is prime"
+.string   string_1  " "
 
 #macro SYSCALL_PRINTER    "syscall 0" ; Printer id '0'
 #macro PRINTER_LOAD_U8    "mov i3 @0"
@@ -86,15 +86,20 @@ fn_is_prime:
 
   mov i2 @5 ; i 
   mov i3 @6
+
+  ; Check to see if the loop needs to be ran 
+  mul i8 i2 i2 
+  bgt i8 i1 l_item_is_prime
+
 l_primality_loop_top_0:
 
-  debug 0
 
   ; 'n' to check is still in i1 
   ; 'i' is i2, which is also the parameter to mod
 
   ; n % i == 0 ?
   call fn_modulus
+  ; debug 0
   beq x0 i0 l_item_is_not_prime
 
   ; Save 'i'
@@ -104,7 +109,9 @@ l_primality_loop_top_0:
   mov i8 @2
   add i2 i2 i8  ; i+2
 
+  ; debug 1
   call fn_modulus
+  ; debug 2
   beq x0 i0 l_item_is_not_prime
 
   ; restore 'i'
@@ -173,9 +180,9 @@ l_end:
   ret
 
 ; MAIN
-fn_main_old:
+fn_main:
   mov i0 @0
-  mov i1 @100
+  mov i1 @30
 
 l_main_primality_check_loop_top:
 
@@ -202,10 +209,3 @@ l_main_primality_check_loop_top:
   blt i0 i1 l_main_primality_check_loop_top
 
   #EXIT_SUCCESS
-
-fn_main:
-
-  mov i0 @5
-  call fn_is_prime
-
-  exit
