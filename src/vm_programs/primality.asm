@@ -93,7 +93,6 @@ fn_is_prime:
 
 l_primality_loop_top_0:
 
-
   ; 'n' to check is still in i1 
   ; 'i' is i2, which is also the parameter to mod
 
@@ -209,3 +208,4 @@ l_main_primality_check_loop_top:
   blt i0 i1 l_main_primality_check_loop_top
 
   #EXIT_SUCCESS
+
