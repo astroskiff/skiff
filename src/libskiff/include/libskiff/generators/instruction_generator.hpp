@@ -231,6 +231,12 @@ public:
   //! \brief Generate debug instruction
   std::vector<uint8_t> gen_debug(const uint32_t address);
 
+  //! \brief Generate eirq instruction
+  std::vector<uint8_t> gen_eirq();
+
+  //! \brief Generate dirq instruction
+  std::vector<uint8_t> gen_dirq();
+
 private:
   void update_meta(const uint64_t bytes_generated);
   uint64_t _instructions_generated{0};

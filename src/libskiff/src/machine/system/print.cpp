@@ -24,13 +24,13 @@ enum class data_t {
 
 void print_c::execute(libskiff::types::view_t &view)
 {
-/*
-    std::cout <<
-      "slot   : " << view.integer_registers[0] << "\n" <<
-      "offset : " << view.integer_registers[1] << "\n" <<
-      "length : " << view.integer_registers[2] << "\n" <<
-      "type   : " << view.integer_registers[3] << "\n";
-*/
+  /*
+      std::cout <<
+        "slot   : " << view.integer_registers[0] << "\n" <<
+        "offset : " << view.integer_registers[1] << "\n" <<
+        "length : " << view.integer_registers[2] << "\n" <<
+        "type   : " << view.integer_registers[3] << "\n";
+  */
   // Assume failure
   view.op_register = 0;
 
@@ -124,7 +124,7 @@ void print_c::execute(libskiff::types::view_t &view)
     break;
   }
   case data_t::ASCII: {
-    
+
     std::string out;
     decltype(data_length) num = data_offset;
     while (num != data_length + data_offset) {

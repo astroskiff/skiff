@@ -83,8 +83,7 @@ instruction_generator_c::gen_lib_section(const uint64_t address,
 {
   std::vector<uint8_t> encoded_bytes;
   auto encoded_address = libskiff::bytecode::helpers::pack_8(address);
-  auto encoded_section =
-      gen_string_constant(section_name); // Same encoding
+  auto encoded_section = gen_string_constant(section_name); // Same encoding
 
   if (encoded_section == std::nullopt) {
     return std::nullopt;
@@ -656,8 +655,7 @@ instruction_generator_c::gen_syscall(const uint32_t address)
   return encoded_bytes;
 }
 
-std::vector<uint8_t>
-instruction_generator_c::gen_debug(const uint32_t address)
+std::vector<uint8_t> instruction_generator_c::gen_debug(const uint32_t address)
 {
   std::vector<uint8_t> encoded_bytes = {
       0x00, 0x00, 0x00, libskiff::bytecode::instructions::DEBUG};
@@ -666,6 +664,18 @@ instruction_generator_c::gen_debug(const uint32_t address)
                        encoded_address.end());
   update_meta(encoded_bytes.size());
   return encoded_bytes;
+}
+
+std::vector<uint8_t> gen_eirq()
+{
+  return {0x00, 0x00, 0x00, libskiff::bytecode::instructions::EIRQ,
+          0x00, 0x00, 0x00, 0x00};
+}
+
+std::vector<uint8_t> gen_dirq()
+{
+  return {0x00, 0x00, 0x00, libskiff::bytecode::instructions::DIRQ,
+          0x00, 0x00, 0x00, 0x00};
 }
 
 } // namespace instructions

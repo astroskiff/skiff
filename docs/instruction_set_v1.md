@@ -840,8 +840,34 @@ Level 2:
 
 Level 3:
 	Level 2 + Integer & Floating-point registers
-
-
 ```
 
 **Example:**	`debug 0` 
+
+## eirq
+**Opcode** 0x2C
+**Instruction Layout:**
+```
+	[ ------------- Empty ---------- ] [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+
+	[ ---------------- Empty ------------------ ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `eirq`
+**Description:** Enables interrupt requests
+**Example:**	`eirq` 
+
+## dirq
+**Opcode** 0x2D
+**Instruction Layout:**
+```
+	[ ------------- Empty ---------- ] [ Opcode ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+
+	[ ---------------- Empty ------------------ ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+```
+**Format:** `dirq`
+**Description:** Disables interrupt requests
+**Example:**	`dirq` 

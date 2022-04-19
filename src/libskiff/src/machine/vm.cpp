@@ -5,6 +5,7 @@
 #include "libskiff/logging/aixlog.hpp"
 #include "libskiff/machine/system/callable.hpp"
 #include "libskiff/machine/system/print.hpp"
+#include "libskiff/machine/system/timer.hpp"
 #include "libskiff/types.hpp"
 #include "libskiff/version.hpp"
 #include <iostream>
@@ -31,6 +32,7 @@ vm_c::vm_c()
   //    go through a slow map
 
   _system_callables.emplace_back(new system::print_c()); // Syscall 0
+  _system_callables.emplace_back(new system::timer_c(_memman)); // Syscall 1
 }
 
 vm_c::~vm_c() {}
@@ -560,7 +562,8 @@ void vm_c::accept(instruction_debug_c &ins)
 {
   _ip++;
 
-  std::cout << TERM_COLOR_BRIGHT_YELLOW << "DEBUG INS:" << ins.id << TERM_COLOR_END << std::endl;
+  std::cout << TERM_COLOR_BRIGHT_YELLOW << "DEBUG INS:" << ins.id
+            << TERM_COLOR_END << std::endl;
 
   switch (_debug_level) {
   case libskiff::types::exec_debug_level_e::NONE:
@@ -570,25 +573,38 @@ void vm_c::accept(instruction_debug_c &ins)
     break;
   case libskiff::types::exec_debug_level_e::EXTREME:
     std::cout << "Integer Registers" << std::endl;
-    for(auto i = 0; i < config::num_integer_registers; i++) {
+    for (auto i = 0; i < config::num_integer_registers; i++) {
       std::cout << "i" << i << " | " << _integer_registers[i] << std::endl;
     }
     std::cout << std::endl;
     std::cout << "Float Registers" << std::endl;
-    for(auto i = 0; i < config::num_floating_point_registers; i++) {
-      std::cout << "f" << i << " | " << _floating_point_registers[i] << std::endl;
+    for (auto i = 0; i < config::num_floating_point_registers; i++) {
+      std::cout << "f" << i << " | " << _floating_point_registers[i]
+                << std::endl;
     }
     std::cout << std::endl;
   case libskiff::types::exec_debug_level_e::MODERATE:
     std::cout << "System Registers" << std::endl;
-    std::cout << "x0 | " << _x0 << std::endl 
-              << "x1 | " << _x1 << std::endl 
-              << "sp | " << _sp << std::endl 
-              << "ip | " << _ip << std::endl 
+    std::cout << "x0 | " << _x0 << std::endl
+              << "x1 | " << _x1 << std::endl
+              << "sp | " << _sp << std::endl
+              << "ip | " << _ip << std::endl
               << "op | " << _op_register << std::endl;
     std::cout << std::endl;
     break;
   }
+}
+
+void vm_c::accept(instruction_eirq_c &ins)
+{
+  _ip++;
+  _interrupts_enabled = true;
+}
+
+void vm_c::accept(instruction_dirq_c &ins)
+{
+  _ip++;
+  _interrupts_enabled = false;
 }
 
 } // namespace machine
