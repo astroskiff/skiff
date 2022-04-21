@@ -11,7 +11,9 @@
 
 #include <array>
 #include <memory>
+#include <mutex>
 #include <optional>
+#include <queue>
 #include <stack>
 #include <utility>
 #include <vector>
@@ -81,6 +83,8 @@ private:
 
   std::optional<libskiff::types::runtime_error_cb> _runtime_error_cb;
   std::vector<std::unique_ptr<system::callable_if>> _system_callables;
+  std::mutex _interrupt_mutex;
+  std::mutex _execution_mutex;
 
   types::vm_register *get_register(uint8_t id);
   void issue_forced_error(const std::string &err);

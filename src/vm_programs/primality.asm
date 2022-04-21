@@ -8,7 +8,7 @@
 .string   string_0  " is prime"
 .string   string_1  " "
 
-#macro SYSCALL_PRINTER    "syscall 0" ; Printer id '0'
+#macro SYSCALL_PRINTER    "syscall 1" ; Printer id '0'
 #macro PRINTER_LOAD_U8    "mov i3 @0"
 #macro PRINTER_LOAD_ASCII "mov i3 @9"
 #macro EXIT_SUCCESS       "mov i0 @0" \

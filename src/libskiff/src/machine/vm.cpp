@@ -30,9 +30,11 @@ vm_c::vm_c()
   //  - Order here matters as their index will determine what
   //    system call number they are so we don't need to register them and
   //    go through a slow map
+  _system_callables.emplace_back(new system::timer_c(
+      std::bind(&vm_c::interrupt, this, std::placeholders::_1),
+      _memman)); // Syscall 0
 
-  _system_callables.emplace_back(new system::print_c()); // Syscall 0
-  _system_callables.emplace_back(new system::timer_c(_memman)); // Syscall 1
+  _system_callables.emplace_back(new system::print_c()); // Syscall 1
 }
 
 vm_c::~vm_c() {}
@@ -58,6 +60,43 @@ void vm_c::set_runtime_callback(libskiff::types::runtime_error_cb cb)
   _runtime_error_cb = {cb};
 }
 
+bool vm_c::interrupt(const uint64_t id)
+{
+  {
+    const std::lock_guard<std::mutex> lock(_interrupt_mutex);
+    if (!_interrupts_enabled) {
+      return false;
+    }
+  }
+
+  /*
+
+    TODO:
+        Map the id to some location in memory.
+        Need to update the assembler and loader to
+        mark special labels to id'd interrupts
+  */
+
+  uint64_t memory_location = 0; // = interrupt_id_to_ip[id];
+
+  //  Using the execution mutex we inject a call instruction
+  //  that will change the ip to the location of
+  {
+    const std::lock_guard<std::mutex> lock(_execution_mutex);
+
+    // just like a call instruction we add the next item to the call stack
+    _call_stack.push(_ip + 1);
+
+    // and then update the instruction pointer
+    _ip = memory_location;
+  }
+
+  LOG(TRACE) << TAG("AHH") << "Updated the thing"
+             << "\n";
+
+  return true;
+}
+
 std::pair<vm_c::execution_result_e, int> vm_c::execute()
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
@@ -78,7 +117,10 @@ std::pair<vm_c::execution_result_e, int> vm_c::execute()
     _x1 = 1; // Constant 1
 
     // Execute the instruction
-    _instructions[_ip]->visit(*this);
+    {
+      const std::lock_guard<std::mutex> lock(_execution_mutex);
+      _instructions[_ip]->visit(*this);
+    }
   }
 
   // Return back with the return status and exit code
@@ -597,14 +639,16 @@ void vm_c::accept(instruction_debug_c &ins)
 
 void vm_c::accept(instruction_eirq_c &ins)
 {
-  _ip++;
+  const std::lock_guard<std::mutex> lock(_interrupt_mutex);
   _interrupts_enabled = true;
+  _ip++;
 }
 
 void vm_c::accept(instruction_dirq_c &ins)
 {
-  _ip++;
+  const std::lock_guard<std::mutex> lock(_interrupt_mutex);
   _interrupts_enabled = false;
+  _ip++;
 }
 
 } // namespace machine
