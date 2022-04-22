@@ -61,6 +61,8 @@ set(PROJECT_SOURCES
 #  ${CMAKE_CURRENT_SOURCE_DIR}/assemble.cpp
 )
 
+find_package (Threads REQUIRED)
+
 add_executable(${PROJECT_NAME}
         ${PROJECT_SOURCES}
         skiffd.cpp)
@@ -68,6 +70,7 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   skiff::libutil
   skiff::libskiff
+  Threads::Threads
 )
 
 #

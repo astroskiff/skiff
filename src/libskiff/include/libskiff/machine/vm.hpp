@@ -73,6 +73,7 @@ private:
   types::vm_register _ip{0};
   types::vm_register _sp{0};
   types::vm_register _op_register{0};
+  std::unordered_map<uint64_t, uint64_t> _interrupt_id_to_address;
   bool _interrupts_enabled{true};
   execution_result_e _return_value{execution_result_e::OKAY};
 

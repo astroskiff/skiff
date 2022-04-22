@@ -20,6 +20,7 @@
 #include <optional>
 #include <regex>
 #include <sstream>
+#include <set>
 #include <unordered_map>
 
 #include "libskiff/generators/binary_generator.hpp"
@@ -106,6 +107,7 @@ private:
   libskiff::instructions::instruction_generator_c _ins_gen;
   std::unique_ptr<libskiff::generator::binary_generator> _generator;
   uint64_t _loaded_const_address{0};
+  std::set<uint64_t> _interrupts;
 
   std::string remove_comments(const std::string &str);
   void add_error(const std::string &str);
@@ -576,12 +578,34 @@ void assembler_c::pre_scan()
       std::string label_name =
           chunks[0].substr(0, chunks[0].find_first_of(':'));
 
+      auto memory_location = _expected_bin_size / INSTRUCTION_SIZE_BYTES;
+
+      if (std::regex_match(label_name, std::regex("^interrupt_[0-9]+"))) {
+
+        auto value = get_number<uint64_t>(label_name.substr(10, label_name.size()));
+
+        if (value == std::nullopt) {
+          add_error("Invalid number for given interrupt address : " + label_name);
+          continue;
+        }
+
+        if (_interrupts.contains(*value) ) {
+          add_error("Duplicate interrupt number : " + std::to_string(*value));
+          continue;
+        }
+
+        add_debug("Interrupt [" + std::to_string(*value) + "] mapped to memory location [" + std::to_string(memory_location) + "]");
+        
+        _generator->add_interrupt(
+          _ins_gen.gen_interrupt_table_entry(*value, memory_location)
+        );
+      }
+
       // Calculate label location within instructions by taking size of binary
       // and dividing it by the number of bytes per instruction
-      _label_to_location[label_name] =
-          _expected_bin_size / INSTRUCTION_SIZE_BYTES;
+      _label_to_location[label_name] = memory_location;
 
-      add_debug(label_name);
+      add_debug("Label found : " + label_name);
 
       // Continue because labels aren't instructions
       continue;
@@ -630,6 +654,8 @@ void assembler_c::assemble()
     _file_data.push_back(remove_comments(current));
   }
   ifs.close();
+
+  _generator = std::make_unique<libskiff::generator::binary_generator>();
 
   macro_scan();
   pre_scan();
@@ -707,7 +733,6 @@ bool assembler_c::directive_init()
   }
 
   _directive_checks.init = true;
-  _generator = std::make_unique<libskiff::generator::binary_generator>();
   _generator->set_entry(*init_address);
   return true;
 }

@@ -52,6 +52,8 @@ std::vector<uint8_t> binary_generator::generate_binary() const
       libskiff::bytecode::helpers::pack_8(_number_of_constants);
   auto encoded_number_of_sections =
       libskiff::bytecode::helpers::pack_8(_num_sections);
+  auto encoded_number_of_interrupts =
+      libskiff::bytecode::helpers::pack_8(_num_interrupts);
   auto encoded_entry = libskiff::bytecode::helpers::pack_8(_entry);
   auto encoded_number_instructions =
       libskiff::bytecode::helpers::pack_8(_number_of_instructions);
@@ -68,6 +70,11 @@ std::vector<uint8_t> binary_generator::generate_binary() const
   binary.insert(binary.end(), encoded_number_of_sections.begin(),
                 encoded_number_of_sections.end());
   binary.insert(binary.end(), _section_table.begin(), _section_table.end());
+
+  // Interrupt Table
+  binary.insert(binary.end(), encoded_number_of_interrupts.begin(),
+                encoded_number_of_interrupts.end());
+  binary.insert(binary.end(), _interrupt_table.begin(), _interrupt_table.end());
 
   // Constants
   binary.insert(binary.end(), encoded_number_of_constants.begin(),
@@ -92,6 +99,13 @@ void binary_generator::add_section(std::vector<uint8_t> encoded_section)
   _num_sections++;
   _section_table.insert(_section_table.end(), encoded_section.begin(),
                         encoded_section.end());
+}
+
+void binary_generator::add_interrupt(std::vector<uint8_t> encoded_interrupt)
+{
+  _num_interrupts++;
+  _interrupt_table.insert(_interrupt_table.end(), encoded_interrupt.begin(),
+                        encoded_interrupt.end());
 }
 
 } // namespace generator

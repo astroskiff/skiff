@@ -59,6 +59,9 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
   // Set instruction pointer to the entry address
   _ip = executable->get_entry_address();
 
+  // Grap interrupt table
+  _interrupt_id_to_address = executable->get_interrupt_table();
+
   // Load constants
   {
     auto constant_bytes = executable->get_constants();

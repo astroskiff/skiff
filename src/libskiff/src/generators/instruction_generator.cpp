@@ -97,6 +97,20 @@ instruction_generator_c::gen_lib_section(const uint64_t address,
   return encoded_bytes;
 }
 
+std::vector<uint8_t> instruction_generator_c::gen_interrupt_table_entry(const uint64_t id, const uint64_t address)
+{
+  std::vector<uint8_t> encoded_bytes;
+  auto encoded_id = libskiff::bytecode::helpers::pack_8(id);
+  auto encoded_address = libskiff::bytecode::helpers::pack_8(address);
+
+  encoded_bytes.insert(encoded_bytes.end(), encoded_id.begin(),
+                       encoded_id.end());
+  encoded_bytes.insert(encoded_bytes.end(), encoded_address.begin(),
+                       encoded_address.end());
+  update_meta(encoded_bytes.size());
+  return encoded_bytes;
+}
+
 std::vector<uint8_t>
 instruction_generator_c::generate_u8_constant(const uint8_t value)
 {

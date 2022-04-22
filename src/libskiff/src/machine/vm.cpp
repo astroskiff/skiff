@@ -62,6 +62,7 @@ void vm_c::set_runtime_callback(libskiff::types::runtime_error_cb cb)
 
 bool vm_c::interrupt(const uint64_t id)
 {
+  // Lock the interrupt mutex and check to see if interrupts are enabled or not
   {
     const std::lock_guard<std::mutex> lock(_interrupt_mutex);
     if (!_interrupts_enabled) {
@@ -69,18 +70,16 @@ bool vm_c::interrupt(const uint64_t id)
     }
   }
 
-  /*
+  if (_interrupt_id_to_address.find(id) == _interrupt_id_to_address.end() ) {
+    LOG(TRACE) << TAG("vm") << "Interrupt requested for id " << id << ", but that interrupt does not exist" << "\n";
 
-    TODO:
-        Map the id to some location in memory.
-        Need to update the assembler and loader to
-        mark special labels to id'd interrupts
-  */
-
-  uint64_t memory_location = 0; // = interrupt_id_to_ip[id];
+    // Return true so the sender doesn't keep trying to send
+    return true;
+  }
 
   //  Using the execution mutex we inject a call instruction
-  //  that will change the ip to the location of
+  //  that will change the instruction pointer
+  //  to the location of the location of the given interrupt 
   {
     const std::lock_guard<std::mutex> lock(_execution_mutex);
 
@@ -88,12 +87,8 @@ bool vm_c::interrupt(const uint64_t id)
     _call_stack.push(_ip + 1);
 
     // and then update the instruction pointer
-    _ip = memory_location;
+    _ip = _interrupt_id_to_address[id];
   }
-
-  LOG(TRACE) << TAG("AHH") << "Updated the thing"
-             << "\n";
-
   return true;
 }
 

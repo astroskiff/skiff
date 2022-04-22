@@ -74,6 +74,11 @@ public:
   std::optional<std::vector<uint8_t>>
   gen_lib_section(const uint64_t address, const std::string section_name);
 
+  //! \brief Generate a table entry for the interrupt table
+  //! \param id The id of the interrupt
+  //! \param address The address that the id points to
+  std::vector<uint8_t> gen_interrupt_table_entry(const uint64_t id, const uint64_t address);
+
   //! \brief Generate nop instruction
   std::vector<uint8_t> gen_nop();
 

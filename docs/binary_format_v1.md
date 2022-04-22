@@ -104,9 +104,25 @@ If the string is odd, a null byte `0x00` will be added to ensure that it is of e
 [ Number of sections QWORD ]
 [ Section Address QWORD ] [ Section Length QWORD ] [ Section Name String ]
 [ Section Address QWORD ] [ Section Length QWORD ] [ Section Name String ]
+.
+.
+.
 [ Section Address QWORD ] [ Section Length QWORD ] [ Section Name String ]
 ...
 ```
+
+## Interrupt Table
+```
+[ Number of interrupts QWORD ]
+[ Interrupt Number QWORD ] [ Interrupt Address QWORD ]
+[ Interrupt Number QWORD ] [ Interrupt Address QWORD ]
+.
+.
+.
+[ Interrupt Number QWORD ] [ Interrupt Address QWORD ]
+
+```
+
 
 # Executable Binary layout:
 ```
@@ -116,6 +132,8 @@ Binary compatibility DWORD
 Debug Level BYTE
 
 [Section Table]
+
+[Interrupt Table]
 
 Number of constants QWORD
 
