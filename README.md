@@ -181,6 +181,13 @@ Runing the program is even easier:
 If you add on `-l trace` to the end of a skiff command you can see all of the internal logging. 
 Check out `./skiff -h` for more assembler / run-time options and log levels.
 
+## Development
+
+If you're interested in helping develop skiff, check out `contributing.md` in the root directory of this repo.
+
+## Documentation 
+
+For documentation on the VM layout, assembler, and instructions, check out the `docs/` directory.
 
 ## Misc. Information
 
