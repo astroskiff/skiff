@@ -839,6 +839,18 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
               instruction_bot));
       break;
     }
+    case libskiff::bytecode::instructions::EIRQ: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `EIRQ`\n";
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_eirq_c>());
+      break;
+    }
+    case libskiff::bytecode::instructions::DIRQ: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `DIRQ`\n";
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_dirq_c>());
+      break;
+    }
     }
   }
 

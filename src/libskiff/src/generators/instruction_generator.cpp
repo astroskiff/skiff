@@ -680,13 +680,13 @@ std::vector<uint8_t> instruction_generator_c::gen_debug(const uint32_t address)
   return encoded_bytes;
 }
 
-std::vector<uint8_t> gen_eirq()
+std::vector<uint8_t> instruction_generator_c::gen_eirq()
 {
   return {0x00, 0x00, 0x00, libskiff::bytecode::instructions::EIRQ,
           0x00, 0x00, 0x00, 0x00};
 }
 
-std::vector<uint8_t> gen_dirq()
+std::vector<uint8_t> instruction_generator_c::gen_dirq()
 {
   return {0x00, 0x00, 0x00, libskiff::bytecode::instructions::DIRQ,
           0x00, 0x00, 0x00, 0x00};

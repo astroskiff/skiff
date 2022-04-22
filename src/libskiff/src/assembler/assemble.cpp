@@ -183,6 +183,8 @@ private:
   bool build_load_qw();
   bool build_syscall();
   bool build_debug();
+  bool build_eirq();
+  bool build_dirq();
 };
 
 inline std::vector<std::string> chunk_line(std::string line)
@@ -357,6 +359,10 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
           std::bind(&libskiff::assembler::assembler_c::build_syscall, this)},
       match_t{std::regex("^debug"),
               std::bind(&libskiff::assembler::assembler_c::build_debug, this)},
+      match_t{std::regex("^eirq"),
+              std::bind(&libskiff::assembler::assembler_c::build_eirq, this)},
+      match_t{std::regex("^dirq"),
+              std::bind(&libskiff::assembler::assembler_c::build_dirq, this)},
   };
 }
 
@@ -2262,6 +2268,28 @@ bool assembler_c::build_debug()
   }
 
   add_instruction_bytes(_ins_gen.gen_debug(*value));
+  return true;
+}
+
+bool assembler_c::build_eirq()
+{
+  if (_current_chunks.size() != 1) {
+    add_error("Malformed eirq instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_eirq());
+  return true;
+}
+
+bool assembler_c::build_dirq()
+{
+  if (_current_chunks.size() != 1) {
+    add_error("Malformed dirq instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_dirq());
   return true;
 }
 
