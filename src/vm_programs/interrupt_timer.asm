@@ -5,7 +5,7 @@
 .init fn_main
 .debug 3
 
-#macro SYSCALL_TIMER    "syscall 0" ; Timer call id '1'
+#macro SYSCALL_TIMER    "syscall 0" ; Timer call id '0'
 
 .code 
 
@@ -14,7 +14,7 @@ fn_main:
   ; Create a 10 second timer
   mov i0 @3000
 
-  ; Have it send interrupt code 8
+  ; Have it send interrupt code 8 (declared below)
   mov i1 @8
 
   #SYSCALL_TIMER
@@ -35,6 +35,8 @@ l_loop_top:
   mov i0 @28
   exit
 
+; Arbitrarily numbered `8`. Any number would work as interrupts
+; are mapped at assemble time
 interrupt_8:
   dirq
   nop
