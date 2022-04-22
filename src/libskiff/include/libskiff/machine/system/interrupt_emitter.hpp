@@ -23,8 +23,9 @@ public:
   }
 
 protected:
-  libskiff::types::interrupt_cb _protected_emit_interrupt;  //! The function pointer
-  libskiff::machine::memory::memman_c &_protected_memman;   //! VM memory
+  libskiff::types::interrupt_cb
+      _protected_emit_interrupt; //! The function pointer
+  libskiff::machine::memory::memman_c &_protected_memman; //! VM memory
 };
 
 } // namespace system

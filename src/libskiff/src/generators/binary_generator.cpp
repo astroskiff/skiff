@@ -105,7 +105,7 @@ void binary_generator::add_interrupt(std::vector<uint8_t> encoded_interrupt)
 {
   _num_interrupts++;
   _interrupt_table.insert(_interrupt_table.end(), encoded_interrupt.begin(),
-                        encoded_interrupt.end());
+                          encoded_interrupt.end());
 }
 
 } // namespace generator

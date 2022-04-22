@@ -97,7 +97,9 @@ instruction_generator_c::gen_lib_section(const uint64_t address,
   return encoded_bytes;
 }
 
-std::vector<uint8_t> instruction_generator_c::gen_interrupt_table_entry(const uint64_t id, const uint64_t address)
+std::vector<uint8_t>
+instruction_generator_c::gen_interrupt_table_entry(const uint64_t id,
+                                                   const uint64_t address)
 {
   std::vector<uint8_t> encoded_bytes;
   auto encoded_id = libskiff::bytecode::helpers::pack_8(id);

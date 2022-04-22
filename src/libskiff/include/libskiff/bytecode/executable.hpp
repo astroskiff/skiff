@@ -86,7 +86,8 @@ public:
   }
 
   //! \brief Get the interrupt table
-  std::unordered_map<uint64_t, uint64_t> get_interrupt_table() const { 
+  std::unordered_map<uint64_t, uint64_t> get_interrupt_table() const
+  {
     return _interrupt_number_to_address;
   }
 

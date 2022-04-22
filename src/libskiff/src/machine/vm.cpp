@@ -70,8 +70,10 @@ bool vm_c::interrupt(const uint64_t id)
     }
   }
 
-  if (_interrupt_id_to_address.find(id) == _interrupt_id_to_address.end() ) {
-    LOG(FATAL) << TAG("vm") << "Interrupt requested for id " << id << ", but that interrupt does not exist" << "\n";
+  if (_interrupt_id_to_address.find(id) == _interrupt_id_to_address.end()) {
+    LOG(FATAL) << TAG("vm") << "Interrupt requested for id " << id
+               << ", but that interrupt does not exist"
+               << "\n";
 
     // Return true so the sender doesn't keep trying to send
     return true;
@@ -79,13 +81,13 @@ bool vm_c::interrupt(const uint64_t id)
 
   //  Using the execution mutex we inject a call instruction
   //  that will change the instruction pointer
-  //  to the location of the location of the given interrupt 
+  //  to the location of the location of the given interrupt
   {
     const std::lock_guard<std::mutex> lock(_execution_mutex);
 
-    // just like a call instruction we add the curernt ip to call stack
-    // we so this instead of next ip as the lock ensures we fall in here between instructions
-    // and the current ip has not yet been executed
+    // similar to a call instruction we add the curernt ip to call stack
+    // we do this instead of next ip as the lock ensures we fall in here between
+    // instructions, which means the current ip has not yet been executed
     _call_stack.push(_ip);
 
     // and then update the instruction pointer

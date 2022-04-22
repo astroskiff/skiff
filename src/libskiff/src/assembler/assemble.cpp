@@ -19,8 +19,8 @@
 #include <memory>
 #include <optional>
 #include <regex>
-#include <sstream>
 #include <set>
+#include <sstream>
 #include <unordered_map>
 
 #include "libskiff/generators/binary_generator.hpp"
@@ -588,23 +588,26 @@ void assembler_c::pre_scan()
 
       if (std::regex_match(label_name, std::regex("^interrupt_[0-9]+"))) {
 
-        auto value = get_number<uint64_t>(label_name.substr(10, label_name.size()));
+        auto value =
+            get_number<uint64_t>(label_name.substr(10, label_name.size()));
 
         if (value == std::nullopt) {
-          add_error("Invalid number for given interrupt address : " + label_name);
+          add_error("Invalid number for given interrupt address : " +
+                    label_name);
           continue;
         }
 
-        if (_interrupts.contains(*value) ) {
+        if (_interrupts.contains(*value)) {
           add_error("Duplicate interrupt number : " + std::to_string(*value));
           continue;
         }
 
-        add_debug("Interrupt [" + std::to_string(*value) + "] mapped to memory location [" + std::to_string(memory_location) + "]");
-        
+        add_debug("Interrupt [" + std::to_string(*value) +
+                  "] mapped to memory location [" +
+                  std::to_string(memory_location) + "]");
+
         _generator->add_interrupt(
-          _ins_gen.gen_interrupt_table_entry(*value, memory_location)
-        );
+            _ins_gen.gen_interrupt_table_entry(*value, memory_location));
       }
 
       // Calculate label location within instructions by taking size of binary
