@@ -5,6 +5,7 @@
 #include "libskiff/logging/aixlog.hpp"
 #include "libskiff/machine/system/callable.hpp"
 #include "libskiff/machine/system/print.hpp"
+#include "libskiff/machine/system/timer.hpp"
 #include "libskiff/types.hpp"
 #include "libskiff/version.hpp"
 #include <iostream>
@@ -29,8 +30,11 @@ vm_c::vm_c()
   //  - Order here matters as their index will determine what
   //    system call number they are so we don't need to register them and
   //    go through a slow map
+  _system_callables.emplace_back(new system::timer_c(
+      std::bind(&vm_c::interrupt, this, std::placeholders::_1),
+      _memman)); // Syscall 0
 
-  _system_callables.emplace_back(new system::print_c()); // Syscall 0
+  _system_callables.emplace_back(new system::print_c()); // Syscall 1
 }
 
 vm_c::~vm_c() {}
@@ -56,6 +60,42 @@ void vm_c::set_runtime_callback(libskiff::types::runtime_error_cb cb)
   _runtime_error_cb = {cb};
 }
 
+bool vm_c::interrupt(const uint64_t id)
+{
+  // Lock the interrupt mutex and check to see if interrupts are enabled or not
+  {
+    const std::lock_guard<std::mutex> lock(_interrupt_mutex);
+    if (!_interrupts_enabled) {
+      return false;
+    }
+  }
+
+  if (_interrupt_id_to_address.find(id) == _interrupt_id_to_address.end()) {
+    LOG(FATAL) << TAG("vm") << "Interrupt requested for id " << id
+               << ", but that interrupt does not exist"
+               << "\n";
+
+    // Return true so the sender doesn't keep trying to send
+    return true;
+  }
+
+  //  Using the execution mutex we inject a call instruction
+  //  that will change the instruction pointer
+  //  to the location of the location of the given interrupt
+  {
+    const std::lock_guard<std::mutex> lock(_execution_mutex);
+
+    // similar to a call instruction we add the curernt ip to call stack
+    // we do this instead of next ip as the lock ensures we fall in here between
+    // instructions, which means the current ip has not yet been executed
+    _call_stack.push(_ip);
+
+    // and then update the instruction pointer
+    _ip = _interrupt_id_to_address[id];
+  }
+  return true;
+}
+
 std::pair<vm_c::execution_result_e, int> vm_c::execute()
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
@@ -76,7 +116,10 @@ std::pair<vm_c::execution_result_e, int> vm_c::execute()
     _x1 = 1; // Constant 1
 
     // Execute the instruction
-    _instructions[_ip]->visit(*this);
+    {
+      const std::lock_guard<std::mutex> lock(_execution_mutex);
+      _instructions[_ip]->visit(*this);
+    }
   }
 
   // Return back with the return status and exit code
@@ -560,7 +603,8 @@ void vm_c::accept(instruction_debug_c &ins)
 {
   _ip++;
 
-  std::cout << TERM_COLOR_BRIGHT_YELLOW << "DEBUG INS:" << ins.id << TERM_COLOR_END << std::endl;
+  std::cout << TERM_COLOR_BRIGHT_YELLOW << "DEBUG INS:" << ins.id
+            << TERM_COLOR_END << std::endl;
 
   switch (_debug_level) {
   case libskiff::types::exec_debug_level_e::NONE:
@@ -570,25 +614,40 @@ void vm_c::accept(instruction_debug_c &ins)
     break;
   case libskiff::types::exec_debug_level_e::EXTREME:
     std::cout << "Integer Registers" << std::endl;
-    for(auto i = 0; i < config::num_integer_registers; i++) {
+    for (auto i = 0; i < config::num_integer_registers; i++) {
       std::cout << "i" << i << " | " << _integer_registers[i] << std::endl;
     }
     std::cout << std::endl;
     std::cout << "Float Registers" << std::endl;
-    for(auto i = 0; i < config::num_floating_point_registers; i++) {
-      std::cout << "f" << i << " | " << _floating_point_registers[i] << std::endl;
+    for (auto i = 0; i < config::num_floating_point_registers; i++) {
+      std::cout << "f" << i << " | " << _floating_point_registers[i]
+                << std::endl;
     }
     std::cout << std::endl;
   case libskiff::types::exec_debug_level_e::MODERATE:
     std::cout << "System Registers" << std::endl;
-    std::cout << "x0 | " << _x0 << std::endl 
-              << "x1 | " << _x1 << std::endl 
-              << "sp | " << _sp << std::endl 
-              << "ip | " << _ip << std::endl 
+    std::cout << "x0 | " << _x0 << std::endl
+              << "x1 | " << _x1 << std::endl
+              << "sp | " << _sp << std::endl
+              << "ip | " << _ip << std::endl
               << "op | " << _op_register << std::endl;
     std::cout << std::endl;
     break;
   }
+}
+
+void vm_c::accept(instruction_eirq_c &ins)
+{
+  const std::lock_guard<std::mutex> lock(_interrupt_mutex);
+  _interrupts_enabled = true;
+  _ip++;
+}
+
+void vm_c::accept(instruction_dirq_c &ins)
+{
+  const std::lock_guard<std::mutex> lock(_interrupt_mutex);
+  _interrupts_enabled = false;
+  _ip++;
 }
 
 } // namespace machine

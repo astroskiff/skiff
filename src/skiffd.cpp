@@ -10,6 +10,32 @@
 #include <libskiff/machine/vm.hpp>
 #include <libskiff/types.hpp>
 
+void runtime_callback(libskiff::types::runtime_error_e error)
+{
+  std::string e;
+  switch (error) {
+  case libskiff::types::runtime_error_e::STACK_PUSH_ERROR:
+    e = "Stack `push` error";
+    break;
+  case libskiff::types::runtime_error_e::STACK_POP_ERROR:
+    e = "Stack `pop` error";
+    break;
+  case libskiff::types::runtime_error_e::RETURN_WITH_EMPTY_CALLSTACK:
+    e = "Retrun executed with empty callstack";
+    break;
+  case libskiff::types::runtime_error_e::INSTRUCTION_PTR_OUT_OF_RANGE:
+    e = "Instruction pointer moved out of range ";
+    break;
+  case libskiff::types::runtime_error_e::ILLEGAL_INSTRUCTION:
+    e = "Illegal instruction";
+    break;
+  case libskiff::types::runtime_error_e::DIVIDE_BY_ZERO:
+    e = "Divide by 0 detected";
+    break;
+  }
+  LOG(FATAL) << TAG("runtime error") << e << "\n";
+}
+
 void setup_logger(AixLog::Severity level)
 {
   auto sink_cout =
@@ -82,6 +108,9 @@ int run(const std::string &bin)
   }
 
   libskiff::machine::vm_c skiff_vm;
+
+  skiff_vm.set_runtime_callback(runtime_callback);
+
   if (!skiff_vm.load(std::move(loaded_binary.value()))) {
     LOG(FATAL) << TAG("app") << "Failed to load VM\n";
     return 1;

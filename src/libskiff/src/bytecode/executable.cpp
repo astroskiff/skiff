@@ -77,12 +77,12 @@ load_binary(const std::string &file)
     auto num_entries = libskiff::bytecode::helpers::unpack_8(read(is, 8));
     if (num_entries == std::nullopt) {
       LOG(FATAL) << TAG("loader")
-                 << "Failed to read in number of table entries\n";
+                 << "Failed to read in number of section table entries\n";
       return std::nullopt;
     }
 
-    LOG(DEBUG) << TAG("loader") << "Table entries : " << num_entries.value()
-               << "\n";
+    LOG(DEBUG) << TAG("loader")
+               << "Section table entries : " << num_entries.value() << "\n";
 
     // Read in section table
     for (auto i = 0; i < num_entries.value(); i++) {
@@ -117,6 +117,46 @@ load_binary(const std::string &file)
 
       LOG(DEBUG) << TAG("loader") << "Loaded section '" << s
                  << "' at address :" << saddr.value() << "\n";
+    }
+
+    // Interrupt table num interrupts
+    auto interrupt_table_num_entries =
+        libskiff::bytecode::helpers::unpack_8(read(is, 8));
+    if (num_entries == std::nullopt) {
+      LOG(FATAL) << TAG("loader")
+                 << "Failed to read in number of interrupt table entries\n";
+      return std::nullopt;
+    }
+
+    LOG(DEBUG) << TAG("loader")
+               << "Interrupt table entries : " << num_entries.value() << "\n";
+
+    // Read in interrupt table
+    for (auto i = 0; i < interrupt_table_num_entries.value(); i++) {
+
+      // Interrupt Number
+      auto interrupt_number =
+          libskiff::bytecode::helpers::unpack_8(read(is, 8));
+      if (interrupt_number == std::nullopt) {
+        LOG(FATAL) << TAG("loader") << "Failed to read in interrupt number\n";
+        return std::nullopt;
+      }
+
+      // Interrupt Address
+      auto interrupt_address =
+          libskiff::bytecode::helpers::unpack_8(read(is, 8));
+      if (interrupt_address == std::nullopt) {
+        LOG(FATAL) << TAG("loader") << "Failed to read in interrupt address\n";
+        return std::nullopt;
+      }
+
+      if (!loaded_object->add_interrupt(*interrupt_number,
+                                        *interrupt_address)) {
+        LOG(FATAL)
+            << TAG("loader")
+            << "Failed to add interrupt to map -> Non unique number given\n";
+        return std::nullopt;
+      }
     }
 
     // Read constant count QWORD
@@ -244,6 +284,16 @@ bool executable_c::add_section(const std::string &name, const uint64_t addr)
     return false;
   }
   _section_table[name] = addr;
+  return true;
+}
+
+bool executable_c::add_interrupt(const uint64_t id, const uint64_t address)
+{
+  if (_interrupt_number_to_address.find(id) !=
+      _interrupt_number_to_address.end()) {
+    return false;
+  }
+  _interrupt_number_to_address[id] = address;
   return true;
 }
 

@@ -19,6 +19,7 @@
 #include <memory>
 #include <optional>
 #include <regex>
+#include <set>
 #include <sstream>
 #include <unordered_map>
 
@@ -106,6 +107,7 @@ private:
   libskiff::instructions::instruction_generator_c _ins_gen;
   std::unique_ptr<libskiff::generator::binary_generator> _generator;
   uint64_t _loaded_const_address{0};
+  std::set<uint64_t> _interrupts;
 
   std::string remove_comments(const std::string &str);
   void add_error(const std::string &str);
@@ -181,6 +183,8 @@ private:
   bool build_load_qw();
   bool build_syscall();
   bool build_debug();
+  bool build_eirq();
+  bool build_dirq();
 };
 
 inline std::vector<std::string> chunk_line(std::string line)
@@ -353,9 +357,12 @@ assembler_c::assembler_c(const std::string &input) : _input_file(input)
       match_t{
           std::regex("^syscall"),
           std::bind(&libskiff::assembler::assembler_c::build_syscall, this)},
-      match_t{
-          std::regex("^debug"),
-          std::bind(&libskiff::assembler::assembler_c::build_debug, this)},
+      match_t{std::regex("^debug"),
+              std::bind(&libskiff::assembler::assembler_c::build_debug, this)},
+      match_t{std::regex("^eirq"),
+              std::bind(&libskiff::assembler::assembler_c::build_eirq, this)},
+      match_t{std::regex("^dirq"),
+              std::bind(&libskiff::assembler::assembler_c::build_dirq, this)},
   };
 }
 
@@ -577,12 +584,37 @@ void assembler_c::pre_scan()
       std::string label_name =
           chunks[0].substr(0, chunks[0].find_first_of(':'));
 
+      auto memory_location = _expected_bin_size / INSTRUCTION_SIZE_BYTES;
+
+      if (std::regex_match(label_name, std::regex("^interrupt_[0-9]+"))) {
+
+        auto value =
+            get_number<uint64_t>(label_name.substr(10, label_name.size()));
+
+        if (value == std::nullopt) {
+          add_error("Invalid number for given interrupt address : " +
+                    label_name);
+          continue;
+        }
+
+        if (_interrupts.contains(*value)) {
+          add_error("Duplicate interrupt number : " + std::to_string(*value));
+          continue;
+        }
+
+        add_debug("Interrupt [" + std::to_string(*value) +
+                  "] mapped to memory location [" +
+                  std::to_string(memory_location) + "]");
+
+        _generator->add_interrupt(
+            _ins_gen.gen_interrupt_table_entry(*value, memory_location));
+      }
+
       // Calculate label location within instructions by taking size of binary
       // and dividing it by the number of bytes per instruction
-      _label_to_location[label_name] =
-          _expected_bin_size / INSTRUCTION_SIZE_BYTES;
+      _label_to_location[label_name] = memory_location;
 
-      add_debug(label_name);
+      add_debug("Label found : " + label_name);
 
       // Continue because labels aren't instructions
       continue;
@@ -631,6 +663,8 @@ void assembler_c::assemble()
     _file_data.push_back(remove_comments(current));
   }
   ifs.close();
+
+  _generator = std::make_unique<libskiff::generator::binary_generator>();
 
   macro_scan();
   pre_scan();
@@ -708,7 +742,6 @@ bool assembler_c::directive_init()
   }
 
   _directive_checks.init = true;
-  _generator = std::make_unique<libskiff::generator::binary_generator>();
   _generator->set_entry(*init_address);
   return true;
 }
@@ -2232,11 +2265,34 @@ bool assembler_c::build_debug()
   auto value = get_number<uint32_t>(_current_chunks[1]);
 
   if (value == std::nullopt) {
-    add_error("Invalid value given to debug instruction : " + _current_chunks[1]);
+    add_error("Invalid value given to debug instruction : " +
+              _current_chunks[1]);
     return false;
   }
 
   add_instruction_bytes(_ins_gen.gen_debug(*value));
+  return true;
+}
+
+bool assembler_c::build_eirq()
+{
+  if (_current_chunks.size() != 1) {
+    add_error("Malformed eirq instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_eirq());
+  return true;
+}
+
+bool assembler_c::build_dirq()
+{
+  if (_current_chunks.size() != 1) {
+    add_error("Malformed dirq instruction");
+    return false;
+  }
+
+  add_instruction_bytes(_ins_gen.gen_dirq());
   return true;
 }
 

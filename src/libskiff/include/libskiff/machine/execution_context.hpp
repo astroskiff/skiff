@@ -486,6 +486,18 @@ public:
   uint32_t id;
 };
 
+class instruction_eirq_c : public instruction_c {
+public:
+  instruction_eirq_c() {}
+  virtual void visit(executor_if &e) override;
+};
+
+class instruction_dirq_c : public instruction_c {
+public:
+  instruction_dirq_c() {}
+  virtual void visit(executor_if &e) override;
+};
+
 //! \brief Executor of instructions interface
 class executor_if {
 public:
@@ -533,6 +545,8 @@ public:
   virtual void accept(instruction_load_qword_c &ins) = 0;
   virtual void accept(instruction_syscall_c &ins) = 0;
   virtual void accept(instruction_debug_c &ins) = 0;
+  virtual void accept(instruction_eirq_c &ins) = 0;
+  virtual void accept(instruction_dirq_c &ins) = 0;
 };
 
 } // namespace machine

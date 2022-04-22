@@ -50,6 +50,10 @@ public:
   //! \returns false iff the name is not unique
   bool add_section(const std::string &name, const uint64_t address);
 
+  //! \brief Adds an interrupt id and address
+  //! \returns false iff the id is not unique
+  bool add_interrupt(const uint64_t id, const uint64_t address);
+
   //! \brief Retrieve the debug level for the executable
   libskiff::types::exec_debug_level_e get_debug_level() const
   {
@@ -69,16 +73,22 @@ public:
   //! \brief Get the instructions
   std::vector<uint8_t> get_instructions() const { return _instructions; }
 
-  // \brief Get the compatiblity DWORD
+  //! \brief Get the compatiblity DWORD
   uint32_t get_compatiblity() const { return _compatiblity_dword; }
 
-  // \brief Retrieve the semver that compiled the code
+  //! \brief Retrieve the semver that compiled the code
   libskiff::types::semver_t get_compatiblity_semver() const
   {
     return libskiff::types::semver_t{
         .major = static_cast<uint8_t>(_compatiblity_dword >> 16),
         .minor = static_cast<uint8_t>(_compatiblity_dword >> 8),
         .patch = static_cast<uint8_t>(_compatiblity_dword)};
+  }
+
+  //! \brief Get the interrupt table
+  std::unordered_map<uint64_t, uint64_t> get_interrupt_table() const
+  {
+    return _interrupt_number_to_address;
   }
 
 private:
@@ -89,6 +99,7 @@ private:
   uint64_t _entry_address{0};
   std::unordered_map<std::string, uint64_t> _section_table;
   libskiff::types::exec_debug_level_e _debug_level;
+  std::unordered_map<uint64_t, uint64_t> _interrupt_number_to_address;
 };
 
 //! \brief Load a given binary

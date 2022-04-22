@@ -18,7 +18,7 @@
 
 ; Convenience macros so we can see what the values `mean`
 
-#macro SYSCALL_PRINTER    "syscall 0" ; Printer id '0'
+#macro SYSCALL_PRINTER    "syscall 1" ; Printer id '1'
 
 #macro PRINTER_LOAD_U8    "mov i3 @0"
 #macro PRINTER_LOAD_I8    "mov i3 @1"

@@ -59,6 +59,9 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
   // Set instruction pointer to the entry address
   _ip = executable->get_entry_address();
 
+  // Grap interrupt table
+  _interrupt_id_to_address = executable->get_interrupt_table();
+
   // Load constants
   {
     auto constant_bytes = executable->get_constants();
@@ -834,6 +837,18 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       _instructions.emplace_back(
           std::make_unique<libskiff::machine::instruction_debug_c>(
               instruction_bot));
+      break;
+    }
+    case libskiff::bytecode::instructions::EIRQ: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `EIRQ`\n";
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_eirq_c>());
+      break;
+    }
+    case libskiff::bytecode::instructions::DIRQ: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `DIRQ`\n";
+      _instructions.emplace_back(
+          std::make_unique<libskiff::machine::instruction_dirq_c>());
       break;
     }
     }

@@ -967,3 +967,35 @@ TEST(instruction_generator_tests, instruction_debug)
   }
   CHECK_EQUAL_TEXT(address, decoded_address, "Incorrect address encoded");
 }
+
+TEST(instruction_generator_tests, instruction_eirq)
+{
+  libskiff::instructions::instruction_generator_c gen;
+  auto bytes = gen.gen_eirq();
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+  for (auto i = 0; i < bytes.size(); i++) {
+    if (i == 3) {
+      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::EIRQ, bytes[i],
+                       "Instruction opcode did not match expected value");
+    }
+    else {
+      CHECK_EQUAL_TEXT(0x00, bytes[i], "Expected empty bytes");
+    }
+  }
+}
+
+TEST(instruction_generator_tests, instruction_dirq)
+{
+  libskiff::instructions::instruction_generator_c gen;
+  auto bytes = gen.gen_dirq();
+  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+  for (auto i = 0; i < bytes.size(); i++) {
+    if (i == 3) {
+      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::DIRQ, bytes[i],
+                       "Instruction opcode did not match expected value");
+    }
+    else {
+      CHECK_EQUAL_TEXT(0x00, bytes[i], "Expected empty bytes");
+    }
+  }
+}
