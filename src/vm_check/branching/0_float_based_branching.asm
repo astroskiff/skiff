@@ -1,5 +1,4 @@
 .init main
-
 .float lhs 1.0
 .float rhs 2.0
 .code

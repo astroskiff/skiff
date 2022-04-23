@@ -36,7 +36,7 @@ TEST_GROUP(instruction_generator_tests){};
 TEST(instruction_generator_tests, constants)
 {
   constexpr uint8_t num_const_tests = 10;
-  libskiff::instructions::instruction_generator_c gen;
+  libskiff::generator::instruction_generator_c gen;
 
   //  .u8
   //
@@ -272,7 +272,7 @@ TEST(instruction_generator_tests, constants)
 
 TEST(instruction_generator_tests, lib_sections)
 {
-  libskiff::instructions::instruction_generator_c gen;
+  libskiff::generator::instruction_generator_c gen;
   for (uint8_t i = 0; i < 10; i++) {
     std::string s = libutil::generate::random_string_c().generate_string(
         libutil::generate::generate_random_c<uint8_t>().get_range(10, 20));
@@ -328,7 +328,7 @@ TEST(instruction_generator_tests, lib_sections)
 
 TEST(instruction_generator_tests, registers)
 {
-  libskiff::instructions::instruction_generator_c gen;
+  libskiff::generator::instruction_generator_c gen;
   for (auto &el : known_good_registers) {
     auto value = gen.get_register_value(el.reg);
     CHECK_TRUE(value != std::nullopt);
@@ -350,34 +350,44 @@ TEST(instruction_generator_tests, registers)
 
 TEST(instruction_generator_tests, instruction_nop)
 {
-  libskiff::instructions::instruction_generator_c gen;
+  // Check size map setup test
+  uint8_t expected_instruction_size_bytes = 1;
+  auto expected_instruction = libskiff::bytecode::instructions::NOP;
+  auto size_map =
+      libskiff::bytecode::instructions::get_instruction_to_size_map();
+  CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                  "Expected instruction not present in size map");
+  CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                   size_map[expected_instruction],
+                   "Incorrect size in size map for given instruction");
+
+  // Check instruction encoding
+  libskiff::generator::instruction_generator_c gen;
+
   auto bytes = gen.gen_nop();
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-  for (auto i = 0; i < bytes.size(); i++) {
-    if (i == 3) {
-      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::NOP, bytes[i],
-                       "Instruction opcode did not match expected value");
-    }
-    else {
-      CHECK_EQUAL_TEXT(0x00, bytes[i], "Expected empty bytes");
-    }
-  }
+  CHECK_EQUAL(expected_instruction_size_bytes, bytes.size());
+  CHECK_EQUAL_TEXT(expected_instruction, bytes[0], "Unexpected opcode");
 }
 
 TEST(instruction_generator_tests, instruction_exit)
 {
-  libskiff::instructions::instruction_generator_c gen;
+  // Check size map setup test
+  uint8_t expected_instruction_size_bytes = 1;
+  auto expected_instruction = libskiff::bytecode::instructions::EXIT;
+  auto size_map =
+      libskiff::bytecode::instructions::get_instruction_to_size_map();
+  CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                  "Expected instruction not present in size map");
+  CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                   size_map[expected_instruction],
+                   "Incorrect size in size map for given instruction");
+
+  // Check instruction encoding
+  libskiff::generator::instruction_generator_c gen;
+
   auto bytes = gen.gen_exit();
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-  for (auto i = 0; i < bytes.size(); i++) {
-    if (i == 3) {
-      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::EXIT, bytes[i],
-                       "Instruction opcode did not match expected value");
-    }
-    else {
-      CHECK_EQUAL_TEXT(0x00, bytes[i], "Expected empty bytes");
-    }
-  }
+  CHECK_EQUAL(expected_instruction_size_bytes, bytes.size());
+  CHECK_EQUAL_TEXT(expected_instruction, bytes[0], "Unexpected opcode");
 }
 
 TEST(instruction_generator_tests, instruction_branch)
@@ -390,6 +400,17 @@ TEST(instruction_generator_tests, instruction_branch)
                     libskiff::bytecode::instructions::BGTF,
                     libskiff::bytecode::instructions::BEQF}) {
 
+    // Check size map setup test
+    uint8_t expected_instruction_size_bytes = 11;
+    auto expected_instruction = ins;
+    auto size_map =
+        libskiff::bytecode::instructions::get_instruction_to_size_map();
+    CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                    "Expected instruction not present in size map");
+    CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                     size_map[expected_instruction],
+                     "Incorrect size in size map for given instruction");
+
     auto lhs_register =
         known_good_registers[libutil::generate::generate_random_c<uint8_t>()
                                  .get_range(0,
@@ -400,11 +421,11 @@ TEST(instruction_generator_tests, instruction_branch)
                                  .get_range(0,
                                             known_good_registers.size() - 1)];
 
-    auto address = libutil::generate::generate_random_c<uint32_t>().get_range(
-        std::numeric_limits<uint32_t>::min(),
-        std::numeric_limits<uint32_t>::max());
+    auto address = libutil::generate::generate_random_c<uint64_t>().get_range(
+        std::numeric_limits<uint64_t>::min(),
+        std::numeric_limits<uint64_t>::max());
 
-    libskiff::instructions::instruction_generator_c gen;
+    libskiff::generator::instruction_generator_c gen;
 
     std::vector<uint8_t> bytes;
 
@@ -432,130 +453,108 @@ TEST(instruction_generator_tests, instruction_branch)
       break;
     };
 
-    CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+    CHECK_EQUAL(expected_instruction_size_bytes, bytes.size());
 
-    CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
+    CHECK_EQUAL_TEXT(ins, bytes[0],
+                     "Instruction opcode did not match expected value");
     CHECK_EQUAL_TEXT(lhs_register.value, bytes[1],
                      "Incorrect LHS register encoded");
     CHECK_EQUAL_TEXT(rhs_register.value, bytes[2],
                      "Incorrect RHS register encoded");
-    CHECK_EQUAL_TEXT(ins, bytes[3],
-                     "Instruction opcode did not match expected value");
 
-    uint32_t decoded_address = 0;
-    uint8_t shift = 24;
-    for (auto i = 4; i < bytes.size(); i++) {
-      decoded_address |= (static_cast<uint32_t>(bytes[i]) << shift);
+    uint64_t decoded_address = 0;
+    uint8_t shift = 56;
+    for (auto i = 3; i < bytes.size(); i++) {
+      decoded_address |= (static_cast<uint64_t>(bytes[i]) << shift);
       shift -= 8;
     }
     CHECK_EQUAL_TEXT(address, decoded_address, "Incorrect address encoded");
   }
 }
 
-TEST(instruction_generator_tests, instruction_jmp)
+TEST(instruction_generator_tests, instruction_not)
 {
-  libskiff::instructions::instruction_generator_c gen;
+  // Check size map setup test
+  uint8_t expected_instruction_size_bytes = 3;
+  auto expected_instruction = libskiff::bytecode::instructions::NOT;
+  auto size_map =
+      libskiff::bytecode::instructions::get_instruction_to_size_map();
+  CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                  "Expected instruction not present in size map");
+  CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                   size_map[expected_instruction],
+                   "Incorrect size in size map for given instruction");
 
-  auto address = libutil::generate::generate_random_c<uint32_t>().get_range(
-      std::numeric_limits<uint32_t>::min(),
-      std::numeric_limits<uint32_t>::max());
+  auto dest =
+      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                               .get_range(0, known_good_registers.size() - 1)];
 
-  auto bytes = gen.gen_jmp(address);
+  auto source =
+      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                               .get_range(0, known_good_registers.size() - 1)];
 
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+  libskiff::generator::instruction_generator_c gen;
+  auto bytes = gen.gen_not(dest.value, source.value);
 
-  for (auto i = 0; i < 4; i++) {
-    if (i == 3) {
-      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::JMP, bytes[i],
-                       "Instruction opcode did not match expected value");
-    }
-    else {
-      CHECK_EQUAL_TEXT(0x00, bytes[i], "Expected empty bytes");
-    }
-  }
-
-  uint32_t decoded_address = 0;
-  uint8_t shift = 24;
-  for (auto i = 4; i < bytes.size(); i++) {
-    decoded_address |= (static_cast<uint32_t>(bytes[i]) << shift);
-    shift -= 8;
-  }
-  CHECK_EQUAL_TEXT(address, decoded_address, "Incorrect address encoded");
-}
-
-TEST(instruction_generator_tests, instruction_call)
-{
-  libskiff::instructions::instruction_generator_c gen;
-
-  auto address = libutil::generate::generate_random_c<uint32_t>().get_range(
-      std::numeric_limits<uint32_t>::min(),
-      std::numeric_limits<uint32_t>::max());
-
-  auto bytes = gen.gen_call(address);
-
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-
-  for (auto i = 0; i < 4; i++) {
-    if (i == 3) {
-      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::CALL, bytes[i],
-                       "Instruction opcode did not match expected value");
-    }
-    else {
-      CHECK_EQUAL_TEXT(0x00, bytes[i], "Expected empty bytes");
-    }
-  }
-
-  uint32_t decoded_address = 0;
-  uint8_t shift = 24;
-  for (auto i = 4; i < bytes.size(); i++) {
-    decoded_address |= (static_cast<uint32_t>(bytes[i]) << shift);
-    shift -= 8;
-  }
-  CHECK_EQUAL_TEXT(address, decoded_address, "Incorrect address encoded");
+  CHECK_EQUAL_TEXT(expected_instruction, bytes[0], "Unexpected opcode");
+  CHECK_EQUAL_TEXT(dest.value, bytes[1], "Unexpected byte");
+  CHECK_EQUAL_TEXT(source.value, bytes[2], "Unexpected byte");
 }
 
 TEST(instruction_generator_tests, instruction_ret)
 {
-  libskiff::instructions::instruction_generator_c gen;
+  // Check size map setup test
+  uint8_t expected_instruction_size_bytes = 1;
+  auto expected_instruction = libskiff::bytecode::instructions::RET;
+  auto size_map =
+      libskiff::bytecode::instructions::get_instruction_to_size_map();
+  CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                  "Expected instruction not present in size map");
+  CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                   size_map[expected_instruction],
+                   "Incorrect size in size map for given instruction");
+
+  // Check instruction encoding
+  libskiff::generator::instruction_generator_c gen;
+
   auto bytes = gen.gen_ret();
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-  for (auto i = 0; i < bytes.size(); i++) {
-    if (i == 3) {
-      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::RET, bytes[i],
-                       "Instruction opcode did not match expected value");
-    }
-    else {
-      CHECK_EQUAL_TEXT(0x00, bytes[i], "Expected empty bytes");
-    }
-  }
+  CHECK_EQUAL(expected_instruction_size_bytes, bytes.size());
+  CHECK_EQUAL_TEXT(expected_instruction, bytes[0], "Unexpected opcode");
 }
 
 TEST(instruction_generator_tests, instruction_mov)
 {
+  // Check size map setup test
+  uint8_t expected_instruction_size_bytes = 10;
+  auto expected_instruction = libskiff::bytecode::instructions::MOV;
+  auto size_map =
+      libskiff::bytecode::instructions::get_instruction_to_size_map();
+  CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                  "Expected instruction not present in size map");
+  CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                   size_map[expected_instruction],
+                   "Incorrect size in size map for given instruction");
+
   auto dest_register =
       known_good_registers[libutil::generate::generate_random_c<uint8_t>()
                                .get_range(0, known_good_registers.size() - 1)];
 
-  auto value = libutil::generate::generate_random_c<uint32_t>().get_range(
-      std::numeric_limits<uint32_t>::min(),
-      std::numeric_limits<uint32_t>::max());
+  auto value = libutil::generate::generate_random_c<uint64_t>().get_range(
+      std::numeric_limits<uint64_t>::min(),
+      std::numeric_limits<uint64_t>::max());
 
-  libskiff::instructions::instruction_generator_c gen;
+  libskiff::generator::instruction_generator_c gen;
   auto bytes = gen.gen_mov(dest_register.value, value);
 
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-
-  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
-  CHECK_EQUAL_TEXT(dest_register.value, bytes[2],
-                   "Incorrect destination register encoded");
-  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::MOV, bytes[3],
+  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::MOV, bytes[0],
                    "Instruction opcode did not match expected value");
+  CHECK_EQUAL_TEXT(dest_register.value, bytes[1],
+                   "Incorrect destination register encoded");
 
-  uint32_t decoded_value = 0;
-  uint8_t shift = 24;
-  for (auto i = 4; i < bytes.size(); i++) {
-    decoded_value |= (static_cast<uint32_t>(bytes[i]) << shift);
+  uint64_t decoded_value = 0;
+  uint8_t shift = 56;
+  for (auto i = 2; i < bytes.size(); i++) {
+    decoded_value |= (static_cast<uint64_t>(bytes[i]) << shift);
     shift -= 8;
   }
   CHECK_EQUAL_TEXT(value, decoded_value, "Incorrect address encoded");
@@ -579,6 +578,17 @@ TEST(instruction_generator_tests, instruction_math_ops)
                     libskiff::bytecode::instructions::OR,
                     libskiff::bytecode::instructions::XOR}) {
 
+    // Check size map setup test
+    uint8_t expected_instruction_size_bytes = 4;
+    auto expected_instruction = ins;
+    auto size_map =
+        libskiff::bytecode::instructions::get_instruction_to_size_map();
+    CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                    "Expected instruction not present in size map");
+    CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                     size_map[expected_instruction],
+                     "Incorrect size in size map for given instruction");
+
     auto dest_register =
         known_good_registers[libutil::generate::generate_random_c<uint8_t>()
                                  .get_range(0,
@@ -594,7 +604,7 @@ TEST(instruction_generator_tests, instruction_math_ops)
                                  .get_range(0,
                                             known_good_registers.size() - 1)];
 
-    libskiff::instructions::instruction_generator_c gen;
+    libskiff::generator::instruction_generator_c gen;
 
     std::vector<uint8_t> bytes;
 
@@ -655,106 +665,66 @@ TEST(instruction_generator_tests, instruction_math_ops)
       FAIL("Default hit");
       break;
     };
-
-    CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-
-    CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
-    CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
-    CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
-    CHECK_EQUAL_TEXT(ins, bytes[3],
-                     "Instruction opcode did not match expected value");
-
-    CHECK_EQUAL_TEXT(dest_register.value, bytes[4], "Expected empty byte");
-    CHECK_EQUAL_TEXT(lhs_register.value, bytes[5], "Expected empty byte");
-    CHECK_EQUAL_TEXT(rhs_register.value, bytes[6], "Expected empty byte");
-    CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
+    CHECK_EQUAL_TEXT(ins, bytes[0], "Unexpected opcode");
+    CHECK_EQUAL_TEXT(dest_register.value, bytes[1], "Unexpected byte");
+    CHECK_EQUAL_TEXT(lhs_register.value, bytes[2], "Unexpected byte");
+    CHECK_EQUAL_TEXT(rhs_register.value, bytes[3], "Unexpected byte");
   }
 }
 
-TEST(instruction_generator_tests, instruction_not)
+TEST(instruction_generator_tests, instruction_asserts)
 {
-  auto dest_register =
-      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
-                               .get_range(0, known_good_registers.size() - 1)];
+  // All of these math instructions match the same encoding, so we test them all
+  // here
+  for (auto &ins : {libskiff::bytecode::instructions::ASEQ,
+                    libskiff::bytecode::instructions::ASNE}) {
 
-  auto source_register =
-      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
-                               .get_range(0, known_good_registers.size() - 1)];
+    // Check size map setup test
+    uint8_t expected_instruction_size_bytes = 3;
+    auto expected_instruction = ins;
+    auto size_map =
+        libskiff::bytecode::instructions::get_instruction_to_size_map();
+    CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                    "Expected instruction not present in size map");
+    CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                     size_map[expected_instruction],
+                     "Incorrect size in size map for given instruction");
 
-  libskiff::instructions::instruction_generator_c gen;
-  auto bytes = gen.gen_not(dest_register.value, source_register.value);
+    auto expected =
+        known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                                 .get_range(0,
+                                            known_good_registers.size() - 1)];
 
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+    auto actual =
+        known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                                 .get_range(0,
+                                            known_good_registers.size() - 1)];
 
-  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
-  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::NOT, bytes[3],
-                   "Instruction opcode did not match expected value");
+    libskiff::generator::instruction_generator_c gen;
 
-  CHECK_EQUAL_TEXT(dest_register.value, bytes[4], "Expected empty byte");
-  CHECK_EQUAL_TEXT(source_register.value, bytes[5], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[6], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
-}
+    std::vector<uint8_t> bytes;
 
-TEST(instruction_generator_tests, instruction_aseq)
-{
-  auto expected_register =
-      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
-                               .get_range(0, known_good_registers.size() - 1)];
+    switch (ins) {
+    case libskiff::bytecode::instructions::ASEQ:
+      bytes = gen.gen_aseq(expected.value, actual.value);
+      break;
+    case libskiff::bytecode::instructions::ASNE:
+      bytes = gen.gen_asne(expected.value, actual.value);
+      break;
+    default:
+      FAIL("Default hit");
+      break;
+    };
 
-  auto actual_register =
-      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
-                               .get_range(0, known_good_registers.size() - 1)];
-
-  libskiff::instructions::instruction_generator_c gen;
-  auto bytes = gen.gen_aseq(expected_register.value, actual_register.value);
-
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-
-  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
-  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::ASEQ, bytes[3],
-                   "Instruction opcode did not match expected value");
-
-  CHECK_EQUAL_TEXT(expected_register.value, bytes[4], "Expected empty byte");
-  CHECK_EQUAL_TEXT(actual_register.value, bytes[5], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[6], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
-}
-
-TEST(instruction_generator_tests, instruction_asne)
-{
-  auto expected_register =
-      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
-                               .get_range(0, known_good_registers.size() - 1)];
-
-  auto actual_register =
-      known_good_registers[libutil::generate::generate_random_c<uint8_t>()
-                               .get_range(0, known_good_registers.size() - 1)];
-
-  libskiff::instructions::instruction_generator_c gen;
-  auto bytes = gen.gen_asne(expected_register.value, actual_register.value);
-
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-
-  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
-  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::ASNE, bytes[3],
-                   "Instruction opcode did not match expected value");
-
-  CHECK_EQUAL_TEXT(expected_register.value, bytes[4], "Expected empty byte");
-  CHECK_EQUAL_TEXT(actual_register.value, bytes[5], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[6], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
+    CHECK_EQUAL_TEXT(ins, bytes[0], "Unexpected opcode");
+    CHECK_EQUAL_TEXT(expected.value, bytes[1], "Unexpected byte");
+    CHECK_EQUAL_TEXT(actual.value, bytes[2], "Unexpected");
+  }
 }
 
 TEST(instruction_generator_tests, instruction_stack_pushpop)
 {
-  for (auto &item : {
+  for (auto &ins : {
            libskiff::bytecode::instructions::PUSH_W,
            libskiff::bytecode::instructions::PUSH_DW,
            libskiff::bytecode::instructions::PUSH_QW,
@@ -763,15 +733,27 @@ TEST(instruction_generator_tests, instruction_stack_pushpop)
            libskiff::bytecode::instructions::POP_QW,
 
        }) {
+
+    // Check size map setup test
+    uint8_t expected_instruction_size_bytes = 2;
+    auto expected_instruction = ins;
+    auto size_map =
+        libskiff::bytecode::instructions::get_instruction_to_size_map();
+    CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                    "Expected instruction not present in size map");
+    CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                     size_map[expected_instruction],
+                     "Incorrect size in size map for given instruction");
+
     auto reg =
         known_good_registers[libutil::generate::generate_random_c<uint8_t>()
                                  .get_range(0,
                                             known_good_registers.size() - 1)];
 
-    libskiff::instructions::instruction_generator_c gen;
+    libskiff::generator::instruction_generator_c gen;
 
     std::vector<uint8_t> bytes;
-    switch (item) {
+    switch (ins) {
     case libskiff::bytecode::instructions::PUSH_W:
       bytes = gen.gen_push_w(reg.value);
       break;
@@ -792,21 +774,24 @@ TEST(instruction_generator_tests, instruction_stack_pushpop)
       break;
     };
 
-    CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-    CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
-    CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
-    CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
-    CHECK_EQUAL_TEXT(item, bytes[3],
-                     "Instruction opcode did not match expected value");
-    CHECK_EQUAL_TEXT(reg.value, bytes[4], "Unexpected byte");
-    CHECK_EQUAL_TEXT(0x00, bytes[5], "Expected empty byte");
-    CHECK_EQUAL_TEXT(0x00, bytes[6], "Expected empty byte");
-    CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
+    CHECK_EQUAL_TEXT(reg.value, bytes[1], "Unexpected byte");
+    CHECK_EQUAL_TEXT(ins, bytes[0], "Unexpected opcode");
   }
 }
 
 TEST(instruction_generator_tests, instruction_alloc)
 {
+  // Check size map setup test
+  uint8_t expected_instruction_size_bytes = 3;
+  auto expected_instruction = libskiff::bytecode::instructions::ALLOC;
+  auto size_map =
+      libskiff::bytecode::instructions::get_instruction_to_size_map();
+  CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                  "Expected instruction not present in size map");
+  CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                   size_map[expected_instruction],
+                   "Incorrect size in size map for given instruction");
+
   auto dest_register =
       known_good_registers[libutil::generate::generate_random_c<uint8_t>()
                                .get_range(0, known_good_registers.size() - 1)];
@@ -815,49 +800,41 @@ TEST(instruction_generator_tests, instruction_alloc)
       known_good_registers[libutil::generate::generate_random_c<uint8_t>()
                                .get_range(0, known_good_registers.size() - 1)];
 
-  libskiff::instructions::instruction_generator_c gen;
+  libskiff::generator::instruction_generator_c gen;
   auto bytes = gen.gen_alloc(dest_register.value, source_register.value);
 
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-
-  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
-  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::ALLOC, bytes[3],
-                   "Instruction opcode did not match expected value");
-
-  CHECK_EQUAL_TEXT(dest_register.value, bytes[4], "Expected dest byte");
-  CHECK_EQUAL_TEXT(source_register.value, bytes[5], "Expected source byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[6], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
+  CHECK_EQUAL_TEXT(expected_instruction, bytes[0], "Unexpected opcode");
+  CHECK_EQUAL_TEXT(dest_register.value, bytes[1], "Unexpected byte");
+  CHECK_EQUAL_TEXT(source_register.value, bytes[2], "Unexpected byte");
 }
 
 TEST(instruction_generator_tests, instruction_free)
 {
+  // Check size map setup test
+  uint8_t expected_instruction_size_bytes = 2;
+  auto expected_instruction = libskiff::bytecode::instructions::FREE;
+  auto size_map =
+      libskiff::bytecode::instructions::get_instruction_to_size_map();
+  CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                  "Expected instruction not present in size map");
+  CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                   size_map[expected_instruction],
+                   "Incorrect size in size map for given instruction");
+
   auto index_register =
       known_good_registers[libutil::generate::generate_random_c<uint8_t>()
                                .get_range(0, known_good_registers.size() - 1)];
 
-  libskiff::instructions::instruction_generator_c gen;
+  libskiff::generator::instruction_generator_c gen;
   auto bytes = gen.gen_free(index_register.value);
 
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-
-  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
-  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::FREE, bytes[3],
-                   "Instruction opcode did not match expected value");
-
-  CHECK_EQUAL_TEXT(index_register.value, bytes[4], "Expected index byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[5], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[6], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
+  CHECK_EQUAL_TEXT(index_register.value, bytes[1], "Unexpected byte");
+  CHECK_EQUAL_TEXT(expected_instruction, bytes[0], "Unexpected opcode");
 }
 
 TEST(instruction_generator_tests, instructions_load_store)
 {
-  for (auto &item : {
+  for (auto &ins : {
            libskiff::bytecode::instructions::SW,
            libskiff::bytecode::instructions::SDW,
            libskiff::bytecode::instructions::SQW,
@@ -866,6 +843,18 @@ TEST(instruction_generator_tests, instructions_load_store)
            libskiff::bytecode::instructions::LQW,
 
        }) {
+
+    // Check size map setup test
+    uint8_t expected_instruction_size_bytes = 4;
+    auto expected_instruction = ins;
+    auto size_map =
+        libskiff::bytecode::instructions::get_instruction_to_size_map();
+    CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                    "Expected instruction not present in size map");
+    CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                     size_map[expected_instruction],
+                     "Incorrect size in size map for given instruction");
+
     auto idx =
         known_good_registers[libutil::generate::generate_random_c<uint8_t>()
                                  .get_range(0,
@@ -879,10 +868,10 @@ TEST(instruction_generator_tests, instructions_load_store)
                                  .get_range(0,
                                             known_good_registers.size() - 1)];
 
-    libskiff::instructions::instruction_generator_c gen;
+    libskiff::generator::instruction_generator_c gen;
 
     std::vector<uint8_t> bytes;
-    switch (item) {
+    switch (ins) {
     case libskiff::bytecode::instructions::SW:
       bytes = gen.gen_store_word(idx.value, offset.value, data.value);
       break;
@@ -903,99 +892,102 @@ TEST(instruction_generator_tests, instructions_load_store)
       break;
     };
 
-    CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-    CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
-    CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
-    CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
-    CHECK_EQUAL_TEXT(item, bytes[3],
-                     "Instruction opcode did not match expected value");
-    CHECK_EQUAL_TEXT(idx.value, bytes[4], "Unexpected byte");
-    CHECK_EQUAL_TEXT(offset.value, bytes[5], "Unexpected byte");
-    CHECK_EQUAL_TEXT(data.value, bytes[6], "Unexpected byte");
-    CHECK_EQUAL_TEXT(0x00, bytes[7], "Expected empty byte");
+    CHECK_EQUAL_TEXT(expected_instruction, bytes[0], "Unexpected opcode");
+    CHECK_EQUAL_TEXT(idx.value, bytes[1], "Unexpected byte");
+    CHECK_EQUAL_TEXT(offset.value, bytes[2], "Unexpected byte");
+    CHECK_EQUAL_TEXT(data.value, bytes[3], "Unexpected byte");
   }
 }
 
-TEST(instruction_generator_tests, instruction_syscall)
+TEST(instruction_generator_tests, instructions_address_based)
 {
-  auto address = libutil::generate::generate_random_c<uint32_t>().get_range(
-      std::numeric_limits<uint32_t>::min(),
-      std::numeric_limits<uint32_t>::max());
+  for (auto &ins : {
+           libskiff::bytecode::instructions::SYSCALL,
+           libskiff::bytecode::instructions::CALL,
+           libskiff::bytecode::instructions::JMP,
+           libskiff::bytecode::instructions::DEBUG,
+       }) {
 
-  libskiff::instructions::instruction_generator_c gen;
-  auto bytes = gen.gen_syscall(address);
+    // Check size map setup test
+    uint8_t expected_instruction_size_bytes = 9;
+    auto expected_instruction = ins;
+    auto size_map =
+        libskiff::bytecode::instructions::get_instruction_to_size_map();
+    CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                    "Expected instruction not present in size map");
+    CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                     size_map[expected_instruction],
+                     "Incorrect size in size map for given instruction");
 
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
+    auto address = libutil::generate::generate_random_c<uint64_t>().get_range(
+        std::numeric_limits<uint64_t>::min(),
+        std::numeric_limits<uint64_t>::max());
 
-  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
-  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::SYSCALL, bytes[3],
-                   "Instruction opcode did not match expected value");
+    libskiff::generator::instruction_generator_c gen;
 
-  uint32_t decoded_address = 0;
-  uint8_t shift = 24;
-  for (auto i = 4; i < bytes.size(); i++) {
-    decoded_address |= (static_cast<uint32_t>(bytes[i]) << shift);
-    shift -= 8;
-  }
-  CHECK_EQUAL_TEXT(address, decoded_address, "Incorrect address encoded");
-}
+    std::vector<uint8_t> bytes;
+    switch (ins) {
+    case libskiff::bytecode::instructions::SYSCALL:
+      bytes = gen.gen_syscall(address);
+      break;
+    case libskiff::bytecode::instructions::JMP:
+      bytes = gen.gen_jmp(address);
+      break;
+    case libskiff::bytecode::instructions::CALL:
+      bytes = gen.gen_call(address);
+      break;
+    case libskiff::bytecode::instructions::DEBUG:
+      bytes = gen.gen_debug(address);
+      break;
+    };
 
-TEST(instruction_generator_tests, instruction_debug)
-{
-  auto address = libutil::generate::generate_random_c<uint32_t>().get_range(
-      std::numeric_limits<uint32_t>::min(),
-      std::numeric_limits<uint32_t>::max());
+    CHECK_EQUAL_TEXT(expected_instruction, bytes[0], "Unexpected opcode");
 
-  libskiff::instructions::instruction_generator_c gen;
-  auto bytes = gen.gen_debug(address);
-
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-
-  CHECK_EQUAL_TEXT(0x00, bytes[0], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[1], "Expected empty byte");
-  CHECK_EQUAL_TEXT(0x00, bytes[2], "Expected empty byte");
-  CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::DEBUG, bytes[3],
-                   "Instruction opcode did not match expected value");
-
-  uint32_t decoded_address = 0;
-  uint8_t shift = 24;
-  for (auto i = 4; i < bytes.size(); i++) {
-    decoded_address |= (static_cast<uint32_t>(bytes[i]) << shift);
-    shift -= 8;
-  }
-  CHECK_EQUAL_TEXT(address, decoded_address, "Incorrect address encoded");
-}
-
-TEST(instruction_generator_tests, instruction_eirq)
-{
-  libskiff::instructions::instruction_generator_c gen;
-  auto bytes = gen.gen_eirq();
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-  for (auto i = 0; i < bytes.size(); i++) {
-    if (i == 3) {
-      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::EIRQ, bytes[i],
-                       "Instruction opcode did not match expected value");
+    uint64_t decoded_address = 0;
+    uint8_t shift = 56;
+    for (auto i = 1; i < bytes.size(); i++) {
+      decoded_address |= (static_cast<uint64_t>(bytes[i]) << shift);
+      shift -= 8;
     }
-    else {
-      CHECK_EQUAL_TEXT(0x00, bytes[i], "Expected empty bytes");
-    }
+    CHECK_EQUAL_TEXT(address, decoded_address, "Incorrect address encoded");
   }
 }
 
-TEST(instruction_generator_tests, instruction_dirq)
+TEST(instruction_generator_tests, instruction_irqs)
 {
-  libskiff::instructions::instruction_generator_c gen;
-  auto bytes = gen.gen_dirq();
-  CHECK_EQUAL(libskiff::bytecode::instructions::INS_SIZE_BYTES, bytes.size());
-  for (auto i = 0; i < bytes.size(); i++) {
-    if (i == 3) {
-      CHECK_EQUAL_TEXT(libskiff::bytecode::instructions::DIRQ, bytes[i],
-                       "Instruction opcode did not match expected value");
-    }
-    else {
-      CHECK_EQUAL_TEXT(0x00, bytes[i], "Expected empty bytes");
-    }
+  for (auto &ins : {
+           libskiff::bytecode::instructions::EIRQ,
+           libskiff::bytecode::instructions::DIRQ,
+       }) {
+
+    // Check size map setup test
+    uint8_t expected_instruction_size_bytes = 1;
+    auto expected_instruction = ins;
+    auto size_map =
+        libskiff::bytecode::instructions::get_instruction_to_size_map();
+    CHECK_TRUE_TEXT(size_map.find(expected_instruction) != size_map.end(),
+                    "Expected instruction not present in size map");
+    CHECK_EQUAL_TEXT(expected_instruction_size_bytes,
+                     size_map[expected_instruction],
+                     "Incorrect size in size map for given instruction");
+
+    auto reg =
+        known_good_registers[libutil::generate::generate_random_c<uint8_t>()
+                                 .get_range(0,
+                                            known_good_registers.size() - 1)];
+
+    libskiff::generator::instruction_generator_c gen;
+
+    std::vector<uint8_t> bytes;
+    switch (ins) {
+    case libskiff::bytecode::instructions::EIRQ:
+      bytes = gen.gen_eirq();
+      break;
+    case libskiff::bytecode::instructions::DIRQ:
+      bytes = gen.gen_dirq();
+      break;
+    };
+
+    CHECK_EQUAL_TEXT(ins, bytes[0], "Unexpected opcode");
   }
 }

@@ -28,7 +28,7 @@ public:
 
 class instruction_blt_c : public instruction_c {
 public:
-  instruction_blt_c(uint32_t dest, types::vm_register &lhs,
+  instruction_blt_c(uint64_t dest, types::vm_register &lhs,
                     types::vm_register &rhs)
       : destination(dest), lhs_reg(lhs), rhs_reg(rhs)
   {
@@ -36,12 +36,12 @@ public:
   virtual void visit(executor_if &e) override;
   types::vm_register &lhs_reg;
   types::vm_register &rhs_reg;
-  uint32_t destination;
+  uint64_t destination;
 };
 
 class instruction_bgt_c : public instruction_c {
 public:
-  instruction_bgt_c(uint32_t dest, types::vm_register &lhs,
+  instruction_bgt_c(uint64_t dest, types::vm_register &lhs,
                     types::vm_register &rhs)
       : destination(dest), lhs_reg(lhs), rhs_reg(rhs)
   {
@@ -49,12 +49,12 @@ public:
   virtual void visit(executor_if &e) override;
   types::vm_register &lhs_reg;
   types::vm_register &rhs_reg;
-  uint32_t destination;
+  uint64_t destination;
 };
 
 class instruction_beq_c : public instruction_c {
 public:
-  instruction_beq_c(uint32_t dest, types::vm_register &lhs,
+  instruction_beq_c(uint64_t dest, types::vm_register &lhs,
                     types::vm_register &rhs)
       : destination(dest), lhs_reg(lhs), rhs_reg(rhs)
   {
@@ -62,21 +62,21 @@ public:
   virtual void visit(executor_if &e) override;
   types::vm_register &lhs_reg;
   types::vm_register &rhs_reg;
-  uint32_t destination;
+  uint64_t destination;
 };
 
 class instruction_jmp_c : public instruction_c {
 public:
-  instruction_jmp_c(uint32_t dest) : destination(dest) {}
+  instruction_jmp_c(uint64_t dest) : destination(dest) {}
   virtual void visit(executor_if &e) override;
-  uint32_t destination;
+  uint64_t destination;
 };
 
 class instruction_call_c : public instruction_c {
 public:
-  instruction_call_c(uint32_t dest) : destination(dest) {}
+  instruction_call_c(uint64_t dest) : destination(dest) {}
   virtual void visit(executor_if &e) override;
-  uint32_t destination;
+  uint64_t destination;
 };
 
 class instruction_ret_c : public instruction_c {
@@ -86,13 +86,13 @@ public:
 
 class instruction_mov_c : public instruction_c {
 public:
-  instruction_mov_c(types::vm_register &dest, uint32_t value)
+  instruction_mov_c(types::vm_register &dest, uint64_t value)
       : dest_reg(dest), value(value)
   {
   }
   virtual void visit(executor_if &e) override;
   types::vm_register &dest_reg;
-  uint32_t value;
+  uint64_t value;
 };
 
 class instruction_add_c : public instruction_c {
@@ -277,7 +277,7 @@ public:
 
 class instruction_bltf_c : public instruction_c {
 public:
-  instruction_bltf_c(uint32_t dest, types::vm_register &lhs,
+  instruction_bltf_c(uint64_t dest, types::vm_register &lhs,
                      types::vm_register &rhs)
       : destination(dest), lhs_reg(lhs), rhs_reg(rhs)
   {
@@ -285,12 +285,12 @@ public:
   virtual void visit(executor_if &e) override;
   types::vm_register &lhs_reg;
   types::vm_register &rhs_reg;
-  uint32_t destination;
+  uint64_t destination;
 };
 
 class instruction_bgtf_c : public instruction_c {
 public:
-  instruction_bgtf_c(uint32_t dest, types::vm_register &lhs,
+  instruction_bgtf_c(uint64_t dest, types::vm_register &lhs,
                      types::vm_register &rhs)
       : destination(dest), lhs_reg(lhs), rhs_reg(rhs)
   {
@@ -298,12 +298,12 @@ public:
   virtual void visit(executor_if &e) override;
   types::vm_register &lhs_reg;
   types::vm_register &rhs_reg;
-  uint32_t destination;
+  uint64_t destination;
 };
 
 class instruction_beqf_c : public instruction_c {
 public:
-  instruction_beqf_c(uint32_t dest, types::vm_register &lhs,
+  instruction_beqf_c(uint64_t dest, types::vm_register &lhs,
                      types::vm_register &rhs)
       : destination(dest), lhs_reg(lhs), rhs_reg(rhs)
   {
@@ -311,7 +311,7 @@ public:
   virtual void visit(executor_if &e) override;
   types::vm_register &lhs_reg;
   types::vm_register &rhs_reg;
-  uint32_t destination;
+  uint64_t destination;
 };
 
 class instruction_aseq_c : public instruction_c {
@@ -474,16 +474,16 @@ public:
 
 class instruction_syscall_c : public instruction_c {
 public:
-  instruction_syscall_c(const uint32_t &address) : address(address) {}
+  instruction_syscall_c(const uint64_t &address) : address(address) {}
   virtual void visit(executor_if &e) override;
-  uint32_t address;
+  uint64_t address;
 };
 
 class instruction_debug_c : public instruction_c {
 public:
-  instruction_debug_c(const uint32_t &id) : id(id) {}
+  instruction_debug_c(const uint64_t &id) : id(id) {}
   virtual void visit(executor_if &e) override;
-  uint32_t id;
+  uint64_t id;
 };
 
 class instruction_eirq_c : public instruction_c {

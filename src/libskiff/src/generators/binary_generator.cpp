@@ -5,19 +5,12 @@
 namespace libskiff {
 namespace generator {
 
-uint64_t
-binary_generator::add_constant(const libskiff::types::constant_type_e type,
-                               const std::vector<uint8_t> data)
+void binary_generator::add_constant(const libskiff::types::constant_type_e type,
+                                    const std::vector<uint8_t> data)
 {
   _constant_data.push_back(static_cast<uint8_t>(type));
-
-  // Ensure address doesn't include the byte required to load the thing for the
-  // vm
-  uint64_t address = _constant_address;
   _constant_data.insert(_constant_data.end(), data.begin(), data.end());
   _number_of_constants++;
-  _constant_address += data.size();
-  return address;
 }
 
 void binary_generator::add_instruction(const std::vector<uint8_t> instruction)
@@ -56,7 +49,7 @@ std::vector<uint8_t> binary_generator::generate_binary() const
       libskiff::bytecode::helpers::pack_8(_num_interrupts);
   auto encoded_entry = libskiff::bytecode::helpers::pack_8(_entry);
   auto encoded_number_instructions =
-      libskiff::bytecode::helpers::pack_8(_number_of_instructions);
+      libskiff::bytecode::helpers::pack_8(_instruction_data.size());
 
   std::vector<uint8_t> binary;
   // Compatibility DWORD
@@ -84,7 +77,7 @@ std::vector<uint8_t> binary_generator::generate_binary() const
   // Entry QWORD
   binary.insert(binary.end(), encoded_entry.begin(), encoded_entry.end());
 
-  // Num Instructions QWORD
+  // Num Instruction bytes QWORD
   binary.insert(binary.end(), encoded_number_instructions.begin(),
                 encoded_number_instructions.end());
 

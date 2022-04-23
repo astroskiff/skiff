@@ -93,7 +93,6 @@ TEST(assembler_tests, all)
       if (result.errors != std::nullopt) {
         CHECK_EQUAL(0, result.errors.value().size());
       }
-      CHECK_EQUAL(tc.num_items, result.stats.num_instructions);
 
       // Write out the bytes
       std::ofstream fout("tmp.test.bin", std::ios::out | std::ios::binary);
