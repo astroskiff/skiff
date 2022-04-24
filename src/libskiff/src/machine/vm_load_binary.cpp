@@ -768,6 +768,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
     }
     }
   }
+  _runtime_data.instructions_loaded = _instructions.size();
   return true;
 }
 

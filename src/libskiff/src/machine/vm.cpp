@@ -92,6 +92,8 @@ bool vm_c::interrupt(const uint64_t id)
 
     // and then update the instruction pointer
     _ip = _interrupt_id_to_address[id];
+
+    _runtime_data.interrupts_accepted++;
   }
   return true;
 }
@@ -120,6 +122,7 @@ std::pair<vm_c::execution_result_e, int> vm_c::execute()
       const std::lock_guard<std::mutex> lock(_execution_mutex);
       _instructions[_ip]->visit(*this);
     }
+    _runtime_data.instructions_executed++;
   }
 
   // Return back with the return status and exit code
