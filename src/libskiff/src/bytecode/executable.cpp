@@ -238,7 +238,7 @@ load_binary(const std::string &file)
 
     loaded_object->set_entry_address(entry.value());
 
-    // Read in number of instructions
+    // Read in number of instruction bytes
     auto num_instructions = libskiff::bytecode::helpers::unpack_8(read(is, 8));
     if (num_instructions == std::nullopt) {
       LOG(FATAL) << TAG("loader")
@@ -246,21 +246,12 @@ load_binary(const std::string &file)
       return std::nullopt;
     }
 
-    // Read in instructions
+    // Read in all of the instructions
     std::vector<uint8_t> instructions;
-    for (auto i = 0; i < num_instructions.value(); i++) {
-      LOG(DEBUG) << TAG("loader") << "Read instruction " << i + 1 << " of "
-                 << num_instructions.value() << "\n";
-      auto instruction = read(is, 8);
+    {
+      auto instruction = read(is, *num_instructions);
       instructions.insert(instructions.end(), instruction.begin(),
                           instruction.end());
-    }
-
-    // Ensure we have a reasonable number of bytes
-    // as each instruction is 8-byte fixed
-    if (instructions.size() % 8 != 0) {
-      LOG(FATAL) << TAG("loader")
-                 << "Invalid number of bytes for loaded instruction set\n";
     }
 
     loaded_object->set_instructions(instructions);

@@ -145,10 +145,8 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Opcode:** 0x00
 **Instruction Layout:**
 ```
-	[ ------------- Empty ---------- ]  [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
-	[ ------------------ Empty ----------------- ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ]
+	0000 0000 
 ```
 **Format:** `nop`
 **Description:** A no-operation. This instruction does nothing.
@@ -158,11 +156,8 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Opcode** 0x01
 **Instruction Layout:**
 ```
-	[ ------------- Empty ---------- ]  [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
-
-	[ ------------------ Empty ----------------- ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ]
+	0000 0000 
 ```
 **Format:** `exit`
 **Description:** Exit execution 
@@ -172,10 +167,11 @@ Indicates the start of 'code' space. No more directives shall follow this
 **Opcode** 0x02
 **Instruction Layout:**
 ```
-	[ Empty ]  [ LHS Reg ] [ RHS Reg ] [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ LHS Reg ] [ RHS Reg ] 
+	0000 0000 | 0000 0000 | 0000 0000 
 	
 	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 
@@ -190,10 +186,11 @@ used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x03
 **Instruction Layout:**
 ```
-	[ Empty ]  [ LHS Reg ] [ RHS Reg ] [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ LHS Reg ] [ RHS Reg ] 
+	0000 0000 | 0000 0000 | 0000 0000 
 	
 	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 
@@ -208,10 +205,11 @@ used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x04
 **Instruction Layout:**
 ```
-	[ Empty ]  [ LHS Reg ] [ RHS Reg ] [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ LHS Reg ] [ RHS Reg ] 
+	0000 0000 | 0000 0000 | 0000 0000 
 	
 	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 
@@ -226,10 +224,11 @@ used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x05
 **Instruction Layout:**
 ```
-	[ ------------- Empty ---------- ]  [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ]
+	0000 0000  
 	
 	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 
@@ -244,10 +243,11 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x06
 **Instruction Layout:**
 ```
-	[ ------------- Empty ---------- ]  [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ]
+	0000 0000  
 	
 	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 
@@ -259,11 +259,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x07
 **Instruction Layout:**
 ```
-	[ ------------- Empty ---------- ]  [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ ------------------ Empty ----------------- ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ]
+	0000 0000 
 ```
 
 **Format:** `ret`
@@ -274,10 +271,11 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x08
 **Instruction Layout:**
 ```
-	[ ----- Empty ------ ]  [ Dest ]   [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ]  [ Dest ]
+	0000 0000 | 0000 0000 
 	
 	[ ------------------ Value ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 
@@ -296,11 +294,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x09
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest Reg ] [ LHS Reg ] [ RHS Reg ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `add <dest register> <lhs register> <rhs register>`
 **Example:**	`add i0 i0 i1`
@@ -311,11 +306,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x0A
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000  | 0000 0000 
-	
-	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest Reg ] [ LHS Reg ] [ RHS Reg ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `sub <dest register> <lhs register> <rhs register>`
 **Example:**	`sub i0 i0 i1`
@@ -326,11 +318,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x0B
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000  | 0000 0000 
-	
-	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest Reg ] [ LHS Reg ] [ RHS Reg ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `div <dest register> <lhs register> <rhs register>`
 **Example:**	`div i0 i0 i1`
@@ -341,11 +330,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x0C
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000  | 0000 0000 
-	
-	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest Reg ] [ LHS Reg ] [ RHS Reg ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `mul <dest register> <lhs register> <rhs register>`
 **Example:**	`mul i0 i0 i1`
@@ -356,11 +342,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x0D
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest Reg ] [ LHS Reg ] [ RHS Reg ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `addf <dest register> <lhs register> <rhs register>`
 **Example:**	`addf f0 f0 f1`
@@ -371,11 +354,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x0E
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest Reg ] [ LHS Reg ] [ RHS Reg ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `subf <dest register> <lhs register> <rhs register>`
 **Example:**	`subf f0 f0 f1`
@@ -386,11 +366,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x0F
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest Reg ] [ LHS Reg ] [ RHS Reg ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `divf <dest register> <lhs register> <rhs register>`
 **Example:**	`divf f0 f0 f1`
@@ -401,11 +378,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x10
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest Reg ] [ LHS Reg ] [ RHS Reg ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `mulf <dest register> <lhs register> <rhs register>`
 **Example:**	`mulf f0 f0 f1`
@@ -416,11 +390,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x11
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest Reg ] [ LHS Reg ] [ RHS Reg ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `lsh <dest register> <lhs register> <rhs register>`
 **Example:**	`lsh i0 i0 i1`
@@ -431,11 +402,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x12
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest Reg ] [ LHS Reg ] [ RHS Reg ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `rsh <dest register> <lhs register> <rhs register>`
 **Example:**	`rsh i0 i0 i1`
@@ -446,11 +414,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x13
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest Reg ] [ LHS Reg ] [ RHS Reg ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `and <dest register> <lhs register> <rhs register>`
 **Example:**	`and i0 i0 i1`
@@ -461,11 +426,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x14
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest Reg ] [ LHS Reg ] [ RHS Reg ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `or <dest register> <lhs register> <rhs register>`
 **Example:**	`or i0 i0 i1`
@@ -476,11 +438,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x15
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Dest Reg ] [ LHS Reg ] [ RHS Reg ] [ Empty ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest Reg ] [ LHS Reg ] [ RHS Reg ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `xor <dest register> <lhs register> <rhs register>`
 **Example:**	`xor i0 i0 i1`
@@ -491,11 +450,8 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x16
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Dest Reg ] [  Reg   ] [ ------ Empty ----- ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	 [ OpCode ] [ Dest Reg ] [  Reg   ]
+	0000 0000  | 0000 0000  | 0000 0000
 ```
 **Format:** `not <dest register> <register>`
 **Example:**	`not i0 i0`
@@ -506,10 +462,11 @@ to be used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x17
 **Instruction Layout:**
 ```
-	[ Empty ]  [ LHS Reg ] [ RHS Reg ] [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ LHS Reg ] [ RHS Reg ] 
+	0000 0000 | 0000 0000 | 0000 0000 
 	
 	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 
@@ -524,10 +481,11 @@ used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x18
 **Instruction Layout:**
 ```
-	[ Empty ]  [ LHS Reg ] [ RHS Reg ] [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ LHS Reg ] [ RHS Reg ] 
+	0000 0000 | 0000 0000 | 0000 0000 
 	
 	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 
@@ -542,10 +500,11 @@ used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x19
 **Instruction Layout:**
 ```
-	[ Empty ]  [ LHS Reg ] [ RHS Reg ] [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ LHS Reg ] [ RHS Reg ] 
+	0000 0000 | 0000 0000 | 0000 0000 
 	
 	[ ---------------- Address ---------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 
@@ -560,11 +519,8 @@ used in the stead of labels. That way we can branch further than u32
 **Opcode** 0x1A
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000  | 0000 0000 
-	
-	[ Expected ] [  Actual  ] [ ------ Empty ----- ]
- 	 0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Expected ] [  Actual  ]
+ 	 0000 0000 | 0000 0000  | 0000 0000 
 ```
 **Format:** `aseq <expected register> <actual register>`
 **Example:**	`aseq i0 i2`
@@ -575,11 +531,8 @@ Failure of this condition will lead the VM to exit with a code of `1`
 **Opcode** 0x1B
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
- 	 0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Expected ] [  Actual  ] [ ------ Empty ----- ]
- 	 0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Expected ] [  Actual  ]
+ 	 0000 0000 | 0000 0000  | 0000 0000 
 ```
 **Format:** `asneq <expected register> <actual register>`
 **Example:**	`asneq i0 i2`
@@ -590,11 +543,8 @@ Failure of this condition will lead the VM to exit with a code of `1`
 **Opcode** 0x1C
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
- 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Source ] [ ------------ Empty ---------- ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000
+	[ Opcode ] [ Source ]
+  0000 0000 | 0000 0000 
 ```
 **Format:** `push_w <source register>`
 **Example:**	`push_w i0`
@@ -607,11 +557,8 @@ Failure to push data to stack will result in runtime error.
 **Opcode** 0x1D
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
- 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Source ] [ ------------ Empty ---------- ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Source ]
+  0000 0000 | 0000 0000 
 ```
 **Format:** `push_dw <source register>`
 **Example:**	`push_dw i0`
@@ -624,11 +571,8 @@ Failure to push data to stack will result in runtime error.
 **Opcode** 0x1E
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
- 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Source ] [ ------------ Empty ---------- ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Source ]
+  0000 0000 | 0000 0000 
 ```
 **Format:** `push_qw <source register>`
 **Example:**	`push_qw i0`
@@ -641,11 +585,8 @@ Failure to push data to stack will result in runtime error.
 **Opcode** 0x1F
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
- 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[  Dest  ]  [ ------------ Empty ---------- ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest ]
+  0000 0000 | 0000 0000 
 ```
 **Format:** `pop_w <dest register>`
 **Example:**	`pop_w i0`
@@ -657,11 +598,8 @@ to reflect the size of the stack
 **Opcode** 0x20
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
- 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[  Dest  ]  [ ------------ Empty ---------- ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest ]
+  0000 0000 | 0000 0000 
 ```
 **Format:** `pop_dw <dest register>`
 **Example:**	`pop_dw i0`
@@ -673,11 +611,8 @@ to reflect the size of the stack
 **Opcode** 0x21
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
- 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[  Dest  ]  [ ------------ Empty ---------- ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Dest ]
+  0000 0000 | 0000 0000 
 ```
 **Format:** `pop_qw <dest register>`
 **Example:**	`pop_qw i0`
@@ -689,11 +624,8 @@ to reflect the size of the stack
 **Opcode** 0x22
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Dest Reg ] [ Source] [ ------ Empty ----- ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ] | [ Dest Reg ] [ Source] 
+	0000 0000  | 0000 0000   | 0000 0000 
 ```
 **Format:** `alloc <dest register> <source register>`
 **Example:**	`alloc i0 i8`
@@ -704,11 +636,8 @@ allocation fails, the `op` register will be set to `0`, and `1` otherwise.
 **Opcode** 0x23
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
- 	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[  Index ] [ ------------ Empty ---------- ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+  [ Opcode ]	[  Index ] 
+	0000 0000 | 0000 0000
 ```
 **Format:** `free <index register>`
 **Example:**	`free i0`
@@ -719,11 +648,8 @@ free fails, the `op` register will be set to `0`, and `1` otherwise.
 **Opcode** 0x24
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Idx Reg ] [ Offst Reg ] [ Data Reg ] [ Empty ]
-	0000 0000   | 0000 0000  | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Idx Reg ] [ Offst Reg ] [ Data Reg ]
+	0000 0000  | 0000 0000  | 0000 0000 |  0000 0000
 ```
 **Format:** `sw <index register> <offset register> <data register>`
 **Example:**	`sw i0 i2 i3`
@@ -733,11 +659,8 @@ free fails, the `op` register will be set to `0`, and `1` otherwise.
 **Opcode** 0x25
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Idx Reg ] [ Offst Reg ] [ Data Reg ] [ Empty ]
-	0000 0000   | 0000 0000  | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Idx Reg ] [ Offst Reg ] [ Data Reg ]
+	0000 0000  | 0000 0000  | 0000 0000 |  0000 0000
 ```
 **Format:** `sdw <index register> <offset register> <data register>`
 **Example:**	`sdw i0 i2 i3`
@@ -747,11 +670,8 @@ free fails, the `op` register will be set to `0`, and `1` otherwise.
 **Opcode** 0x26
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Idx Reg ] [ Offst Reg ] [ Data Reg ] [ Empty ]
-	0000 0000   | 0000 0000  | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Idx Reg ] [ Offst Reg ] [ Data Reg ]
+	0000 0000  | 0000 0000  | 0000 0000 |  0000 0000
 ```
 **Format:** `sqw <index register> <offset register> <data register>`
 **Example:**	`sqw i0 i2 i3`
@@ -761,11 +681,8 @@ free fails, the `op` register will be set to `0`, and `1` otherwise.
 **Opcode** 0x27
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Idx Reg ] [ Offst Reg ] [ Dest Reg ] [ Empty ]
-	0000 0000   | 0000 0000  | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Idx Reg ] [ Offst Reg ] [ Data Reg ]
+	0000 0000  | 0000 0000  | 0000 0000 |  0000 0000
 ```
 **Format:** `lw <index register> <offset register> <dest register>`
 **Example:**	`lw i0 i2 i3`
@@ -775,11 +692,8 @@ free fails, the `op` register will be set to `0`, and `1` otherwise.
 **Opcode** 0x28
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Idx Reg ] [ Offst Reg ] [ Dest Reg ] [ Empty ]
-	0000 0000   | 0000 0000  | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Idx Reg ] [ Offst Reg ] [ Data Reg ]
+	0000 0000  | 0000 0000  | 0000 0000 |  0000 0000
 ```
 **Format:** `ldw <index register> <offset register> <dest register>`
 **Example:**	`ldw i0 i2 i3`
@@ -789,11 +703,8 @@ free fails, the `op` register will be set to `0`, and `1` otherwise.
 **Opcode** 0x29
 **Instruction Layout:**
 ```
-	[ ------------- Empty ----------- ] [ Opcode ]
-	0000 0000  | 0000 0000 | 0000 0000 | 0000 0000 
-	
-	[ Idx Reg ] [ Offst Reg ] [ Dest Reg ] [ Empty ]
-	0000 0000   | 0000 0000  | 0000 0000 | 0000 0000 
+	[ Opcode ] [ Idx Reg ] [ Offst Reg ] [ Data Reg ]
+	0000 0000  | 0000 0000  | 0000 0000 |  0000 0000
 ```
 **Format:** `lqw <index register> <offset register> <dest register>`
 **Example:**	`lqw i0 i2 i3`
@@ -803,10 +714,11 @@ free fails, the `op` register will be set to `0`, and `1` otherwise.
 **Opcode** 0x2A
 **Instruction Layout:**
 ```
-	[ ------------- Empty ---------- ]  [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ]
+	0000 0000 
 
 	[ ------------ Callee Address ------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
 **Format:** `syscall <unsigned 32-bit number>`
@@ -818,13 +730,14 @@ free fails, the `op` register will be set to `0`, and `1` otherwise.
 **Opcode** 0x2B
 **Instruction Layout:**
 ```
-	[ ------------- Empty ---------- ]  [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ]
+	0000 0000 
 
-	[ --------------- Debug ID ---------------- ]
+	[ ------------ Callee Address ------------- ]
+	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
 ```
-**Format:** `debug <unsigned 32-bit number>`
+**Format:** `debug <unsigned 64-bit number>`
 **Description:** Prints a debug statement when executed stating the debug ID. 
 If `.debug` directive is set more information will follow: 
 
@@ -848,11 +761,8 @@ Level 3:
 **Opcode** 0x2C
 **Instruction Layout:**
 ```
-	[ ------------- Empty ---------- ] [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
-
-	[ ---------------- Empty ------------------ ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ]
+ 	 0000 0000 
 ```
 **Format:** `eirq`
 **Description:** Enables interrupt requests
@@ -862,11 +772,8 @@ Level 3:
 **Opcode** 0x2D
 **Instruction Layout:**
 ```
-	[ ------------- Empty ---------- ] [ Opcode ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
-
-	[ ---------------- Empty ------------------ ]
-	0000 0000 | 0000 0000 | 0000 0000 | 0000 0000 
+	[ Opcode ]
+ 	 0000 0000 
 ```
 **Format:** `dirq`
 **Description:** Disables interrupt requests

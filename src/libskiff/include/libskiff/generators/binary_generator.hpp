@@ -14,9 +14,8 @@ class binary_generator {
 public:
   //! \brief Add a constant encoded from the instruction_generator
   //! \param data Encoded constant
-  //! \returns Address assigned to constant
-  uint64_t add_constant(const libskiff::types::constant_type_e type,
-                        const std::vector<uint8_t> data);
+  void add_constant(const libskiff::types::constant_type_e type,
+                    const std::vector<uint8_t> data);
 
   //! \brief Add an instruction made by the instruction_generator
   //!        to the binary

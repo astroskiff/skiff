@@ -141,7 +141,7 @@ Number of constants QWORD
 
 Entry Address QWORD
 
-Number of instructions QWORD
+Number of bytes constituting instructions QWORD
 
 [Instructions]
 

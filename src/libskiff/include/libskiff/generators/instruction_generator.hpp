@@ -11,7 +11,7 @@
 #include <vector>
 
 namespace libskiff {
-namespace instructions {
+namespace generator {
 
 //! \brief Instruction generator
 class instruction_generator_c {
@@ -88,27 +88,27 @@ public:
 
   //! \brief Generate blt instruction
   std::vector<uint8_t> gen_blt(const uint8_t lhs, const uint8_t rhs,
-                               const uint32_t address);
+                               const uint64_t address);
 
   //! \brief Generate bgt instruction
   std::vector<uint8_t> gen_bgt(const uint8_t lhs, const uint8_t rhs,
-                               const uint32_t address);
+                               const uint64_t address);
 
   //! \brief Generate beq instruction
   std::vector<uint8_t> gen_beq(const uint8_t lhs, const uint8_t rhs,
-                               const uint32_t address);
+                               const uint64_t address);
 
   //! \brief Generate jmp instruction
-  std::vector<uint8_t> gen_jmp(const uint32_t address);
+  std::vector<uint8_t> gen_jmp(const uint64_t address);
 
   //! \brief Generate call instruction
-  std::vector<uint8_t> gen_call(const uint32_t address);
+  std::vector<uint8_t> gen_call(const uint64_t address);
 
   //! \brief Generate ret instruction
   std::vector<uint8_t> gen_ret();
 
   //! \brief Generate mov instruction
-  std::vector<uint8_t> gen_mov(const uint8_t reg, const uint32_t value);
+  std::vector<uint8_t> gen_mov(const uint8_t reg, const uint64_t value);
 
   //! \brief Generate add instruction
   std::vector<uint8_t> gen_add(const uint8_t dest, const uint8_t lhs,
@@ -167,15 +167,15 @@ public:
 
   //! \brief Generate bltf instruction
   std::vector<uint8_t> gen_bltf(const uint8_t lhs, const uint8_t rhs,
-                                const uint32_t address);
+                                const uint64_t address);
 
   //! \brief Generate bgtf instruction
   std::vector<uint8_t> gen_bgtf(const uint8_t lhs, const uint8_t rhs,
-                                const uint32_t address);
+                                const uint64_t address);
 
   //! \brief Generate beqf instruction
   std::vector<uint8_t> gen_beqf(const uint8_t lhs, const uint8_t rhs,
-                                const uint32_t address);
+                                const uint64_t address);
 
   //! \brief Generate asne instruction
   std::vector<uint8_t> gen_asne(const uint8_t expected, const uint8_t actual);
@@ -232,10 +232,10 @@ public:
                                       const uint8_t dest);
 
   //! \brief Generate syscall instruction
-  std::vector<uint8_t> gen_syscall(const uint32_t address);
+  std::vector<uint8_t> gen_syscall(const uint64_t address);
 
   //! \brief Generate debug instruction
-  std::vector<uint8_t> gen_debug(const uint32_t address);
+  std::vector<uint8_t> gen_debug(const uint64_t address);
 
   //! \brief Generate eirq instruction
   std::vector<uint8_t> gen_eirq();
@@ -248,9 +248,22 @@ private:
   uint64_t _instructions_generated{0};
   uint64_t _bytes_generated{0};
   std::unordered_map<std::string, uint8_t> _string_to_register;
+  std::vector<uint8_t> do_generate_branch(uint8_t ins, uint8_t lhs, uint8_t rhs,
+                                          uint64_t address);
+  std::vector<uint8_t> do_generate_arithmetic(const uint8_t ins,
+                                              const uint8_t dest,
+                                              const uint8_t lhs,
+                                              const uint8_t rhs);
+  std::vector<uint8_t> do_generate_stack(const uint8_t ins, const uint8_t reg);
+  std::vector<uint8_t> do_generate_load_store(const uint8_t ins,
+                                              const uint8_t idx,
+                                              const uint8_t offset,
+                                              const uint8_t data);
+  std::vector<uint8_t> do_address_based(const uint8_t ins,
+                                        const uint64_t address);
 };
 
-} // namespace instructions
+} // namespace generator
 } // namespace libskiff
 
 #endif
