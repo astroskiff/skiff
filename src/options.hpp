@@ -12,13 +12,13 @@ namespace skiff_opt {
 struct assemble_t {
   std::string file_in;
   std::optional<std::string> file_out;
-  bool display_stats;
 };
 
 struct options_t {
   std::optional<assemble_t> assemble_file;
   AixLog::Severity log_level;
   std::vector<std::string> suspected_bin;
+  bool display_stats;
 };
 
 static void show_usage()
@@ -26,8 +26,8 @@ static void show_usage()
   std::cout << "[-a | --assemble ] <file>\t\tAssemble a file\n"
                "[-o | --out      ] <file>\t\tOutput file for assemble command\n"
                "[-s | --stats    ] \t\t\tDisplay statistics\n"
-               "[-l | --loglevel ] \n\t[trace|debug|info|warn|error]\tDisplay "
-               "statistics\n";
+               "[-c | --config   ] <file>\t\tRuntime configuration file\n"
+               "[-l | --loglevel ] \n\t[trace|debug|info|warn|error]\tLog Level\n";
 }
 
 static std::optional<options_t> build_options(std::vector<std::string> opts)
@@ -49,8 +49,7 @@ static std::optional<options_t> build_options(std::vector<std::string> opts)
         return std::nullopt;
       }
       options.assemble_file = {.file_in = opts[i + 1],
-                               .file_out = std::nullopt,
-                               .display_stats = false};
+                               .file_out = std::nullopt};
       i++; // Skip over the file name read in
       continue;
     }
@@ -106,7 +105,7 @@ static std::optional<options_t> build_options(std::vector<std::string> opts)
 
     // Toggle stats display
     if (opts[i] == "-s" || opts[i] == "--stats") {
-      options.assemble_file->display_stats = true;
+      options.display_stats = true;
       continue;
     }
 

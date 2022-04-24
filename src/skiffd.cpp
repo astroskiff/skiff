@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <chrono>
 
 #include "options.hpp"
 #include <libskiff/assembler/assemble.hpp>
@@ -9,6 +10,7 @@
 #include <libskiff/logging/aixlog.hpp>
 #include <libskiff/machine/vm.hpp>
 #include <libskiff/types.hpp>
+#include <libskiff/defines.hpp>
 
 void runtime_callback(libskiff::types::runtime_error_e error)
 {
@@ -70,18 +72,22 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
     exit(1);
   }
 
-  if (display_stats && assembled.bin != std::nullopt) {
-    LOG(DEBUG) << TAG("app") << "Show stats\n";
-    std::cout << assembled.stats.num_instructions
-              << " items assembled resulting in "
-              << assembled.bin.value().size() << " bytes" << std::endl;
-  }
-
   std::string out_name = "out.skiff";
 
   if (output != std::nullopt) {
     out_name = output.value();
   }
+
+
+  if (display_stats && assembled.bin != std::nullopt) {
+    LOG(DEBUG) << TAG("app") << "Show stats\n";
+    std::cout << TERM_COLOR_CYAN << "---- Execution Statistics ----" << TERM_COLOR_END << std::endl;
+    std::cout << TERM_COLOR_YELLOW << "Output file     : " << TERM_COLOR_END << out_name << std::endl;
+    std::cout << TERM_COLOR_YELLOW << "Items assembled : " << TERM_COLOR_END << assembled.stats.num_instructions << std::endl;
+    std::cout << TERM_COLOR_YELLOW << "Bytes produced  : " << TERM_COLOR_END << assembled.bin.value().size() << std::endl;
+    std::cout << TERM_COLOR_CYAN << "------------------------------" << TERM_COLOR_END << std::endl;
+  }
+
 
   if (assembled.bin == std::nullopt) {
     std::cout << "No resulting binary. Nothing to write" << std::endl;
@@ -96,7 +102,7 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
   LOG(DEBUG) << TAG("app") << "Binary written to file : " << out_name << "\n";
 }
 
-int run(const std::string &bin)
+int run(const std::string &bin, bool show_statistics)
 {
   std::optional<std::unique_ptr<libskiff::bytecode::executable_c>>
       loaded_binary = libskiff::bytecode::load_binary(bin);
@@ -107,16 +113,17 @@ int run(const std::string &bin)
     return 1;
   }
 
-  libskiff::machine::vm_c skiff_vm;
+  libskiff::machine::vm_c vm;
+  vm.set_runtime_callback(runtime_callback);
 
-  skiff_vm.set_runtime_callback(runtime_callback);
-
-  if (!skiff_vm.load(std::move(loaded_binary.value()))) {
+  if (!vm.load(std::move(loaded_binary.value()))) {
     LOG(FATAL) << TAG("app") << "Failed to load VM\n";
     return 1;
   }
 
-  auto [value, code] = skiff_vm.execute();
+  auto start = std::chrono::system_clock::now();
+  auto [value, code] = vm.execute();
+  auto duration = std::chrono::system_clock::now() - start;
 
   if (value != libskiff::machine::vm_c::execution_result_e::OKAY) {
     LOG(FATAL) << TAG("app") << "VM Died with an error\n";
@@ -124,6 +131,16 @@ int run(const std::string &bin)
   }
 
   LOG(DEBUG) << TAG("app") << "VM returned code : " << code << "\n";
+
+  if (show_statistics) {
+    auto runtime_data = vm.get_runtime_data();
+    std::cout << TERM_COLOR_CYAN << "---- Execution Statistics ----" << TERM_COLOR_END << std::endl;
+    std::cout << TERM_COLOR_YELLOW << "Execution time        : " << TERM_COLOR_END << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << "ms" << std::endl;
+    std::cout << TERM_COLOR_YELLOW << "Instructions loaded   : " << TERM_COLOR_END << runtime_data.instructions_loaded << std::endl;
+    std::cout << TERM_COLOR_YELLOW << "Instructions executed : " << TERM_COLOR_END << runtime_data.instructions_executed << " (may overflow uint64_t) " << std::endl;
+    std::cout << TERM_COLOR_YELLOW << "Interrupts accepted   : " << TERM_COLOR_END << runtime_data.interrupts_accepted << std::endl;
+    std::cout << TERM_COLOR_CYAN << "------------------------------" << TERM_COLOR_END << std::endl;
+  }
 
   return code;
 }
@@ -160,14 +177,14 @@ int main(int argc, char **argv)
 
     // Handle resulting object
     handle_assebmled_t(result, opts->assemble_file->file_out,
-                       opts->assemble_file->display_stats);
+                       opts->display_stats);
     return 0;
   }
 
   //  Check for bins
   if (!opts->suspected_bin.empty()) {
     for (auto &item : opts->suspected_bin) {
-      if (auto i = run(item); i != 0) {
+      if (auto i = run(item, opts->display_stats); i != 0) {
         return i;
       }
     }

@@ -24,6 +24,13 @@ namespace machine {
 //! \brief Virtual machine
 class vm_c : public executor_if {
 public:
+  //! \brief Data about the runtime of the vm
+  struct runtime_data_t {
+    uint64_t instructions_executed{0};
+    uint64_t instructions_loaded{0};
+    uint64_t interrupts_accepted{0};
+  };
+
   //! \brief Result status of execution
   enum class execution_result_e {
     OKAY, //! Execution finished with no errors
@@ -61,7 +68,12 @@ public:
   //!          interrupts might be disabled
   [[nodiscard]] bool interrupt(const uint64_t id);
 
+  //! \brief Collect data gathered at and regarding runtime
+  [[nodiscard]] runtime_data_t get_runtime_data() const { return _runtime_data; }
+
 private:
+  runtime_data_t _runtime_data;
+
   bool _is_alive{true};
   types::exec_debug_level_e _debug_level{types::exec_debug_level_e::NONE};
   std::array<types::vm_register, config::num_integer_registers>
