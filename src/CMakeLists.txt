@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD 20)
 option(COMPILE_TESTS "Execute unit tests" ON)
 option(WITH_ASAN     "Compile with ASAN" OFF)
 
+
 #
 # Setup build type 'Release vs Debug'
 #
@@ -61,16 +62,20 @@ set(PROJECT_SOURCES
 #  ${CMAKE_CURRENT_SOURCE_DIR}/assemble.cpp
 )
 
-find_package (Threads REQUIRED)
-
 add_executable(${PROJECT_NAME}
         ${PROJECT_SOURCES}
         skiffd.cpp)
 
+if(LIBSKIFF_USE_THREADS)
+  find_package (Threads REQUIRED)
+  target_link_libraries(${PROJECT_NAME}
+    Threads::Threads
+  )
+endif()
+
 target_link_libraries(${PROJECT_NAME}
   skiff::libutil
   skiff::libskiff
-  Threads::Threads
 )
 
 #

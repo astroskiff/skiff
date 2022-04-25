@@ -29,6 +29,8 @@ public:
     uint64_t instructions_executed{0};
     uint64_t instructions_loaded{0};
     uint64_t interrupts_accepted{0};
+    std::chrono::system_clock::time_point start;
+    std::chrono::system_clock::time_point end;
   };
 
   //! \brief Result status of execution
@@ -68,8 +70,8 @@ public:
   //!          interrupts might be disabled
   [[nodiscard]] bool interrupt(const uint64_t id);
 
-  //! \brief Collect data gathered at and regarding runtime
-  [[nodiscard]] runtime_data_t get_runtime_data() const { return _runtime_data; }
+  //! \brief Dump runtime statistics to standard out (iff enabled)
+  void display_runtime_statistics();
 
 private:
   runtime_data_t _runtime_data;

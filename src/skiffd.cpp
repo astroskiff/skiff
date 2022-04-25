@@ -2,7 +2,6 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <chrono>
 
 #include "options.hpp"
 #include <libskiff/assembler/assemble.hpp>
@@ -121,10 +120,7 @@ int run(const std::string &bin, bool show_statistics)
     return 1;
   }
 
-  auto start = std::chrono::system_clock::now();
   auto [value, code] = vm.execute();
-  auto duration = std::chrono::system_clock::now() - start;
-
   if (value != libskiff::machine::vm_c::execution_result_e::OKAY) {
     LOG(FATAL) << TAG("app") << "VM Died with an error\n";
     return code;
@@ -133,13 +129,7 @@ int run(const std::string &bin, bool show_statistics)
   LOG(DEBUG) << TAG("app") << "VM returned code : " << code << "\n";
 
   if (show_statistics) {
-    auto runtime_data = vm.get_runtime_data();
-    std::cout << TERM_COLOR_CYAN << "---- Execution Statistics ----" << TERM_COLOR_END << std::endl;
-    std::cout << TERM_COLOR_YELLOW << "Execution time        : " << TERM_COLOR_END << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << "ms" << std::endl;
-    std::cout << TERM_COLOR_YELLOW << "Instructions loaded   : " << TERM_COLOR_END << runtime_data.instructions_loaded << std::endl;
-    std::cout << TERM_COLOR_YELLOW << "Instructions executed : " << TERM_COLOR_END << runtime_data.instructions_executed << " (may overflow uint64_t) " << std::endl;
-    std::cout << TERM_COLOR_YELLOW << "Interrupts accepted   : " << TERM_COLOR_END << runtime_data.interrupts_accepted << std::endl;
-    std::cout << TERM_COLOR_CYAN << "------------------------------" << TERM_COLOR_END << std::endl;
+    vm.display_runtime_statistics();
   }
 
   return code;
