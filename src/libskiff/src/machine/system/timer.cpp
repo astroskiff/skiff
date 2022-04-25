@@ -4,12 +4,16 @@
 
 #include <chrono>
 #include <iostream>
+
+#ifdef LIBSKIFF_USE_THREADS
 #include <thread>
+#endif
 
 namespace libskiff {
 namespace machine {
 namespace system {
 
+#ifdef LIBSKIFF_USE_THREADS
 namespace {
 void timer_thread(std::function<bool(const uint64_t)> interrupt,
                   const uint64_t time_ms, const uint64_t interrupt_id)
@@ -30,6 +34,7 @@ void timer_thread(std::function<bool(const uint64_t)> interrupt,
   }
 }
 } // namespace
+#endif
 
 timer_c::timer_c(std::function<bool(const uint64_t)> interrupt,
                  libskiff::machine::memory::memman_c &vm_memory)
@@ -42,7 +47,7 @@ timer_c::~timer_c() {}
 void timer_c::execute(libskiff::types::view_t &view)
 {
   view.op_register = 0;
-
+#ifdef LIBSKIFF_USE_THREADS
   if (view.integer_registers[0] == 0) {
     return;
   }
@@ -54,6 +59,9 @@ void timer_c::execute(libskiff::types::view_t &view)
   t.detach();
 
   view.op_register = 1;
+#else 
+  LOG(FATAL) << TAG("system:timer") << "System timer requires compile-time definition `LIBSKIFF_USE_THREADS` to function\n";
+#endif
 }
 
 } // namespace system

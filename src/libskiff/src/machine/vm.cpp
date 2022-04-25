@@ -9,6 +9,7 @@
 #include "libskiff/types.hpp"
 #include "libskiff/version.hpp"
 #include <iostream>
+#include <chrono>
 
 namespace libskiff {
 namespace machine {
@@ -93,15 +94,34 @@ bool vm_c::interrupt(const uint64_t id)
     // and then update the instruction pointer
     _ip = _interrupt_id_to_address[id];
 
+#ifdef LIBSKIFF_GENERATE_STATS
     _runtime_data.interrupts_accepted++;
+#endif
   }
   return true;
+}
+
+void vm_c::display_runtime_statistics()
+{
+  std::cout << TERM_COLOR_CYAN << "---- Execution Statistics ----" << TERM_COLOR_END << std::endl;
+  std::cout << TERM_COLOR_YELLOW << "Execution time        : " << TERM_COLOR_END 
+            << std::chrono::duration_cast<std::chrono::milliseconds>(_runtime_data.end - _runtime_data.start).count() 
+            << "ms" << std::endl;
+  std::cout << TERM_COLOR_YELLOW << "Instructions loaded   : " << TERM_COLOR_END << _runtime_data.instructions_loaded << std::endl;
+
+#ifdef LIBSKIFF_GENERATE_STATS
+  std::cout << TERM_COLOR_YELLOW << "Instructions executed : " << TERM_COLOR_END << _runtime_data.instructions_executed << " (may overflow uint64_t) " << std::endl;
+  std::cout << TERM_COLOR_YELLOW << "Interrupts accepted   : " << TERM_COLOR_END << _runtime_data.interrupts_accepted << std::endl;
+#else
+  std::cout << TERM_COLOR_BRIGHT_RED << "Note: " << TERM_COLOR_END << "Some information gathering was disabled at compile time" << std::endl;
+#endif
+  std::cout << TERM_COLOR_CYAN << "------------------------------" << TERM_COLOR_END << std::endl;
 }
 
 std::pair<vm_c::execution_result_e, int> vm_c::execute()
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
-
+  _runtime_data.start = std::chrono::system_clock::now();
   while (_is_alive) {
 
     // Ensure that the instruction pointer isn't wack
@@ -122,9 +142,12 @@ std::pair<vm_c::execution_result_e, int> vm_c::execute()
       const std::lock_guard<std::mutex> lock(_execution_mutex);
       _instructions[_ip]->visit(*this);
     }
+#ifdef LIBSKIFF_GENERATE_STATS
     _runtime_data.instructions_executed++;
+#endif
   }
 
+  _runtime_data.end = std::chrono::system_clock::now();
   // Return back with the return status and exit code
   return {_return_value, _integer_registers[0]};
 }
