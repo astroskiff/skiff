@@ -1,8 +1,9 @@
 
-#include <libskiff/config.hpp>
-#include <libskiff/machine/memory/stack.hpp>
 #include <libskiff/types.hpp>
-#include <libutil/generate_random.hpp>
+#include <libutil/random/generator.hpp>
+#include "config.hpp"
+#include "machine/memory/stack.hpp"
+#include "types.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -20,7 +21,7 @@ template <typename T> static std::vector<T> generate_tc()
   std::vector<T> tc;
   tc.reserve(num_tests_per_type);
   for (auto i = 0; i < num_tests_per_type; i++) {
-    tc.push_back(libutil::generate::generate_random_c<T>().get_range(
+    tc.push_back(libutil::random::generate_random_c<T>().get_range(
         std::numeric_limits<T>::min(), std::numeric_limits<T>::max()));
   }
   return tc;
@@ -234,23 +235,23 @@ TEST(memory_stack, chonker)
   for (auto i = 0; i < num_tests_per_type * 3; i++) {
     tc test_case;
     test_case.type = static_cast<type_t>(
-        libutil::generate::generate_random_c<uint8_t>().get_range(0, 2));
+        libutil::random::generate_random_c<uint8_t>().get_range(0, 2));
     switch (test_case.type) {
     case type_t::WORD:
       test_case.value = static_cast<uint64_t>(
-          libutil::generate::generate_random_c<uint16_t>().get_range(
+          libutil::random::generate_random_c<uint16_t>().get_range(
               std::numeric_limits<uint16_t>::min(),
               std::numeric_limits<uint16_t>::max()));
       break;
     case type_t::DWORD:
       test_case.value = static_cast<uint64_t>(
-          libutil::generate::generate_random_c<uint32_t>().get_range(
+          libutil::random::generate_random_c<uint32_t>().get_range(
               std::numeric_limits<uint32_t>::min(),
               std::numeric_limits<uint32_t>::max()));
       break;
     case type_t::QWORD:
       test_case.value =
-          libutil::generate::generate_random_c<uint64_t>().get_range(
+          libutil::random::generate_random_c<uint64_t>().get_range(
               std::numeric_limits<uint64_t>::min(),
               std::numeric_limits<uint64_t>::max());
       break;

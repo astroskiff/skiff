@@ -1,4 +1,4 @@
-#include <libskiff/machine/memory/memman.hpp>
+#include "machine/memory/memman.hpp"
 #include <vector>
 
 #include <CppUTest/TestHarness.h>

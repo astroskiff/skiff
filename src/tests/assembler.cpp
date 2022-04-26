@@ -1,6 +1,6 @@
-#include <libskiff/assembler/assemble.hpp>
+#include "assembler/assemble.hpp"
 #include <libskiff/bytecode/executable.hpp>
-#include <libskiff/logging/aixlog.hpp>
+#include "logging/aixlog.hpp"
 #include <libskiff/types.hpp>
 
 #include <CppUTest/TestHarness.h>

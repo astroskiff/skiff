@@ -56,15 +56,15 @@ include_directories(
 )
 
 set(PROJECT_SOURCES
-  assembler/assemble.cpp
-  machine/vm.cpp
-  machine/vm_load_binary.cpp
-  machine/execution_context.cpp
-  machine/memory/memman.cpp
-  machine/memory/memory.cpp
-  machine/memory/stack.cpp
-  machine/system/print.cpp
-  machine/system/timer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/assembler/assemble.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/vm.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/vm_load_binary.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/execution_context.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/memory/memman.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/memory/memory.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/memory/stack.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/system/print.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/system/timer.cpp
 )
 
 add_executable(${PROJECT_NAME}
@@ -86,5 +86,5 @@ target_link_libraries(${PROJECT_NAME}
 # Tests
 #
 if(COMPILE_TESTS)
-  #add_subdirectory(tests)
+  add_subdirectory(tests)
 endif()
