@@ -10,6 +10,10 @@ set(CMAKE_CXX_STANDARD 20)
 option(COMPILE_TESTS "Execute unit tests" ON)
 option(WITH_ASAN     "Compile with ASAN" OFF)
 
+#
+# Find libskiff
+#
+find_package(libskiff REQUIRED)
 
 #
 # Setup build type 'Release vs Debug'
@@ -44,29 +48,30 @@ if(WITH_ASAN)
 endif()
 
 #
-# Lib Util
-#
-add_subdirectory(libutil)
-
-#
-# Lib Skiff
-#
-add_subdirectory(libskiff)
-
-#
 # Build 
 #
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+include_directories( 
+  ${LIBSKIFF_INCLUDE_DIRS} 
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 set(PROJECT_SOURCES
-#  ${CMAKE_CURRENT_SOURCE_DIR}/assemble.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/assembler/assemble.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/vm.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/vm_load_binary.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/execution_context.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/memory/memman.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/memory/memory.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/memory/stack.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/system/print.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/system/timer.cpp
 )
 
 add_executable(${PROJECT_NAME}
         ${PROJECT_SOURCES}
         skiffd.cpp)
 
-if(LIBSKIFF_USE_THREADS)
+if(SKIFF_USE_THREADS)
   find_package (Threads REQUIRED)
   target_link_libraries(${PROJECT_NAME}
     Threads::Threads
@@ -74,8 +79,7 @@ if(LIBSKIFF_USE_THREADS)
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-  skiff::libutil
-  skiff::libskiff
+  libskiff
 )
 
 #

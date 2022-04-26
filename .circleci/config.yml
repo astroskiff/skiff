@@ -11,13 +11,19 @@ jobs:
           command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
       - run:
           name: Installing Build Tools
-          command: 'sudo apt-get update && apt-get install -y gcc-9 g++-9 wget pkg-config build-essential cmake python3'
+          command: 'sudo apt-get update && apt-get install -y git gcc-9 g++-9 wget pkg-config build-essential cmake python3'
       - run:
           name: Upgrade
           command: 'sudo apt-get upgrade -y'
       - run:
           name: Install CppuTest
           command: 'bash scripts/install_cpputest.sh'
+      - run:
+          name: Install libutil
+          command: 'bash scripts/install_libutil.sh'
+      - run:
+          name: Install libskiff
+          command: 'bash scripts/install_libskiff.sh'
       - run:
           name: Dir Setup
           command: 'mkdir build && mkdir build-release && mkdir build-asan'
@@ -32,4 +38,4 @@ jobs:
           command: 'cd build-asan && cmake ../src -DCMAKE_BUILD_TYPE=Release -DWITH_ASAN=ON && make -j5'
       - run:
           name: VM Check
-          command: 'cd src/vm_check && python3 run.py ../../build/skiff'
+          command: 'cd vm_check && python3 run.py ../build/skiff'

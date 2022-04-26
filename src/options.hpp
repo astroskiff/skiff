@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include <libskiff/logging/aixlog.hpp>
+#include "logging/aixlog.hpp"
 
 namespace skiff_opt {
 struct assemble_t {
@@ -23,11 +23,12 @@ struct options_t {
 
 static void show_usage()
 {
-  std::cout << "[-a | --assemble ] <file>\t\tAssemble a file\n"
-               "[-o | --out      ] <file>\t\tOutput file for assemble command\n"
-               "[-s | --stats    ] \t\t\tDisplay statistics\n"
-               "[-c | --config   ] <file>\t\tRuntime configuration file\n"
-               "[-l | --loglevel ] \n\t[trace|debug|info|warn|error]\tLog Level\n";
+  std::cout
+      << "[-a | --assemble ] <file>\t\tAssemble a file\n"
+         "[-o | --out      ] <file>\t\tOutput file for assemble command\n"
+         "[-s | --stats    ] \t\t\tDisplay statistics\n"
+         "[-c | --config   ] <file>\t\tRuntime configuration file\n"
+         "[-l | --loglevel ] \n\t[trace|debug|info|warn|error]\tLog Level\n";
 }
 
 static std::optional<options_t> build_options(std::vector<std::string> opts)
