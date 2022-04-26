@@ -38,4 +38,4 @@ jobs:
           command: 'cd build-asan && cmake ../src -DCMAKE_BUILD_TYPE=Release -DWITH_ASAN=ON && make -j5'
       - run:
           name: VM Check
-          command: 'cd src/vm_check && python3 run.py ../../build/skiff'
+          command: 'cd vm_check && python3 run.py ../build/skiff'
