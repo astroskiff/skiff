@@ -19,6 +19,12 @@ jobs:
           name: Install CppuTest
           command: 'bash scripts/install_cpputest.sh'
       - run:
+          name: Install libutil
+          command: 'bash scripts/install_libutil.sh'
+      - run:
+          name: Install libskiff
+          command: 'bash scripts/install_libskiff.sh'
+      - run:
           name: Dir Setup
           command: 'mkdir build && mkdir build-release && mkdir build-asan'
       - run:
