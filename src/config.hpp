@@ -1,9 +1,9 @@
-#ifndef LIBSKIFF_SYSTEM_HPP
-#define LIBSKIFF_SYSTEM_HPP
+#ifndef SKIFF_SYSTEM_HPP
+#define SKIFF_SYSTEM_HPP
 
 #include <cstdint>
 
-namespace libskiff {
+namespace skiff {
 namespace config {
 // These constants can be configured without issue
 static constexpr uint64_t stack_size_bytes = 1'048'576;
@@ -16,6 +16,6 @@ static constexpr uint8_t num_integer_registers = 10;
 static constexpr uint8_t num_floating_point_registers = 10;
 
 } // namespace config
-} // namespace libskiff
+} // namespace skiff
 
 #endif

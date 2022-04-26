@@ -1,9 +1,9 @@
-#ifndef LIBSKIFF_SYSTEM_PRINT_HPP
-#define LIBSKIFF_SYSTEM_PRINT_HPP
+#ifndef SKIFF_SYSTEM_PRINT_HPP
+#define SKIFF_SYSTEM_PRINT_HPP
 
-#include "libskiff/machine/system/callable.hpp"
+#include "machine/system/callable.hpp"
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 namespace system {
 
@@ -27,11 +27,11 @@ public:
   //!       will only result in the `u8` being printed (iff there are
   //!       6 bytes of space from offset->length free) and not a full
   //!       6 bytes.
-  virtual void execute(libskiff::types::view_t &view) override;
+  virtual void execute(skiff::types::view_t &view) override;
 };
 
 } // namespace system
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff
 
 #endif

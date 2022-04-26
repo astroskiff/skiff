@@ -1,13 +1,15 @@
 #ifndef SKIFF_VM_HPP
 #define SKIFF_VM_HPP
 
-#include "libskiff/bytecode/executable.hpp"
-#include "libskiff/config.hpp"
-#include "libskiff/machine/execution_context.hpp"
-#include "libskiff/machine/memory/memman.hpp"
-#include "libskiff/machine/memory/stack.hpp"
-#include "libskiff/machine/system/callable.hpp"
-#include "libskiff/types.hpp"
+#include "machine/execution_context.hpp"
+#include "machine/memory/memman.hpp"
+#include "machine/memory/stack.hpp"
+#include "machine/system/callable.hpp"
+#include <libskiff/bytecode/executable.hpp>
+#include <libskiff/types.hpp>
+
+#include "config.hpp"
+#include "types.hpp"
 
 #include <array>
 #include <memory>
@@ -18,7 +20,7 @@
 #include <utility>
 #include <vector>
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 
 //! \brief Virtual machine
@@ -54,7 +56,7 @@ public:
   //! \param cb The runtime callback
   //! \note There is only one callback stored. Calling this twice will
   //!       unset the first cb
-  void set_runtime_callback(libskiff::types::runtime_error_cb cb);
+  void set_runtime_callback(skiff::types::runtime_error_cb cb);
 
   //! \brief Execute the loaded binary
   //! \returns Pair with execution status and
@@ -77,7 +79,8 @@ private:
   runtime_data_t _runtime_data;
 
   bool _is_alive{true};
-  types::exec_debug_level_e _debug_level{types::exec_debug_level_e::NONE};
+  libskiff::types::exec_debug_level_e _debug_level{
+      libskiff::types::exec_debug_level_e::NONE};
   std::array<types::vm_register, config::num_integer_registers>
       _integer_registers{};
   std::array<types::vm_register, config::num_floating_point_registers>
@@ -96,7 +99,7 @@ private:
   memory::stack_c _stack;
   memory::memman_c _memman;
 
-  std::optional<libskiff::types::runtime_error_cb> _runtime_error_cb;
+  std::optional<skiff::types::runtime_error_cb> _runtime_error_cb;
   std::vector<std::unique_ptr<system::callable_if>> _system_callables;
   std::mutex _interrupt_mutex;
   std::mutex _execution_mutex;
@@ -155,6 +158,6 @@ private:
 };
 
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff
 
 #endif

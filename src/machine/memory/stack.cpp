@@ -1,27 +1,27 @@
-#include "libskiff/machine/memory/stack.hpp"
+#include "machine/memory/stack.hpp"
 
-#include "libskiff/config.hpp"
-#include "libskiff/types.hpp"
+#include "config.hpp"
+#include "types.hpp"
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 namespace memory {
 
 stack_c::stack_c()
-    : _end{0}, _mem(libskiff::config::stack_size_bytes), _sp{nullptr}
+    : _end{0}, _mem(skiff::config::stack_size_bytes), _sp{nullptr}
 {
 }
 
 stack_c::~stack_c() {}
 
-void stack_c::set_sp(libskiff::types::vm_register &reg) { _sp = &reg; }
+void stack_c::set_sp(skiff::types::vm_register &reg) { _sp = &reg; }
 
 std::tuple<bool, uint16_t> stack_c::pop_word()
 {
-  if (_end < libskiff::config::word_size_bytes) {
+  if (_end < skiff::config::word_size_bytes) {
     return {false, 0};
   }
-  _end -= libskiff::config::word_size_bytes;
+  _end -= skiff::config::word_size_bytes;
   if (_sp) {
     (*_sp) = _end;
   }
@@ -30,10 +30,10 @@ std::tuple<bool, uint16_t> stack_c::pop_word()
 
 std::tuple<bool, uint32_t> stack_c::pop_dword()
 {
-  if (_end < libskiff::config::d_word_size_bytes) {
+  if (_end < skiff::config::d_word_size_bytes) {
     return {false, 0};
   }
-  _end -= libskiff::config::d_word_size_bytes;
+  _end -= skiff::config::d_word_size_bytes;
   if (_sp) {
     (*_sp) = _end;
   }
@@ -42,10 +42,10 @@ std::tuple<bool, uint32_t> stack_c::pop_dword()
 
 std::tuple<bool, uint64_t> stack_c::pop_qword()
 {
-  if (_end < libskiff::config::q_word_size_bytes) {
+  if (_end < skiff::config::q_word_size_bytes) {
     return {false, 0};
   }
-  _end -= libskiff::config::q_word_size_bytes;
+  _end -= skiff::config::q_word_size_bytes;
   if (_sp) {
     (*_sp) = _end;
   }
@@ -54,14 +54,14 @@ std::tuple<bool, uint64_t> stack_c::pop_qword()
 
 bool stack_c::push_word(const uint16_t word)
 {
-  if (_end + libskiff::config::word_size_bytes >=
-      libskiff::config::stack_size_bytes) {
+  if (_end + skiff::config::word_size_bytes >=
+      skiff::config::stack_size_bytes) {
     return false;
   }
   if (!_mem.put_word(_end, word)) {
     return false;
   }
-  _end += libskiff::config::word_size_bytes;
+  _end += skiff::config::word_size_bytes;
   if (_sp) {
     (*_sp) = _end;
   }
@@ -70,14 +70,14 @@ bool stack_c::push_word(const uint16_t word)
 
 bool stack_c::push_dword(const uint32_t dword)
 {
-  if (_end + libskiff::config::d_word_size_bytes >=
-      libskiff::config::stack_size_bytes) {
+  if (_end + skiff::config::d_word_size_bytes >=
+      skiff::config::stack_size_bytes) {
     return false;
   }
   if (!_mem.put_dword(_end, dword)) {
     return false;
   }
-  _end += libskiff::config::d_word_size_bytes;
+  _end += skiff::config::d_word_size_bytes;
   if (_sp) {
     (*_sp) = _end;
   }
@@ -86,14 +86,14 @@ bool stack_c::push_dword(const uint32_t dword)
 
 bool stack_c::push_qword(const uint64_t qword)
 {
-  if (_end + libskiff::config::q_word_size_bytes >=
-      libskiff::config::stack_size_bytes) {
+  if (_end + skiff::config::q_word_size_bytes >=
+      skiff::config::stack_size_bytes) {
     return false;
   }
   if (!_mem.put_qword(_end, qword)) {
     return false;
   }
-  _end += libskiff::config::q_word_size_bytes;
+  _end += skiff::config::q_word_size_bytes;
   if (_sp) {
     (*_sp) = _end;
   }
@@ -132,4 +132,4 @@ std::tuple<bool, uint64_t> stack_c::load_qword(const uint64_t index)
 
 } // namespace memory
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff

@@ -85,7 +85,7 @@ TEST(assembler_tests, all)
     }
     {
       // Assemble the data
-      auto result = libskiff::assembler::assemble("tmp.test.asm");
+      auto result = skiff::assembler::assemble("tmp.test.asm");
 
       if (result.warnings != std::nullopt) {
         CHECK_EQUAL(0, result.warnings.value().size());

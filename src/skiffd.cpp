@@ -3,35 +3,35 @@
 #include <iostream>
 #include <vector>
 
-#include "options.hpp"
-#include <libskiff/bytecode/executable.hpp>
+#include "assembler/assemble.hpp"
+#include "defines.hpp"
 #include "logging/aixlog.hpp"
 #include "machine/vm.hpp"
-#include "assembler/assemble.hpp"
-#include <libskiff/types.hpp>
+#include "options.hpp"
 #include "types.hpp"
-#include "defines.hpp"
+#include <libskiff/bytecode/executable.hpp>
+#include <libskiff/types.hpp>
 
-void runtime_callback(libskiff::types::runtime_error_e error)
+void runtime_callback(skiff::types::runtime_error_e error)
 {
   std::string e;
   switch (error) {
-  case libskiff::types::runtime_error_e::STACK_PUSH_ERROR:
+  case skiff::types::runtime_error_e::STACK_PUSH_ERROR:
     e = "Stack `push` error";
     break;
-  case libskiff::types::runtime_error_e::STACK_POP_ERROR:
+  case skiff::types::runtime_error_e::STACK_POP_ERROR:
     e = "Stack `pop` error";
     break;
-  case libskiff::types::runtime_error_e::RETURN_WITH_EMPTY_CALLSTACK:
+  case skiff::types::runtime_error_e::RETURN_WITH_EMPTY_CALLSTACK:
     e = "Retrun executed with empty callstack";
     break;
-  case libskiff::types::runtime_error_e::INSTRUCTION_PTR_OUT_OF_RANGE:
+  case skiff::types::runtime_error_e::INSTRUCTION_PTR_OUT_OF_RANGE:
     e = "Instruction pointer moved out of range ";
     break;
-  case libskiff::types::runtime_error_e::ILLEGAL_INSTRUCTION:
+  case skiff::types::runtime_error_e::ILLEGAL_INSTRUCTION:
     e = "Illegal instruction";
     break;
-  case libskiff::types::runtime_error_e::DIVIDE_BY_ZERO:
+  case skiff::types::runtime_error_e::DIVIDE_BY_ZERO:
     e = "Divide by 0 detected";
     break;
   }
@@ -48,7 +48,7 @@ void setup_logger(AixLog::Severity level)
   AixLog::Log::init({sink_cout, sink_file});
 }
 
-void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
+void handle_assebmled_t(skiff::assembler::assembled_t assembled,
                         std::optional<std::string> output, bool display_stats)
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
@@ -78,16 +78,19 @@ void handle_assebmled_t(libskiff::assembler::assembled_t assembled,
     out_name = output.value();
   }
 
-
   if (display_stats && assembled.bin != std::nullopt) {
     LOG(DEBUG) << TAG("app") << "Show stats\n";
-    std::cout << TERM_COLOR_CYAN << "---- Execution Statistics ----" << TERM_COLOR_END << std::endl;
-    std::cout << TERM_COLOR_YELLOW << "Output file     : " << TERM_COLOR_END << out_name << std::endl;
-    std::cout << TERM_COLOR_YELLOW << "Items assembled : " << TERM_COLOR_END << assembled.stats.num_instructions << std::endl;
-    std::cout << TERM_COLOR_YELLOW << "Bytes produced  : " << TERM_COLOR_END << assembled.bin.value().size() << std::endl;
-    std::cout << TERM_COLOR_CYAN << "------------------------------" << TERM_COLOR_END << std::endl;
+    std::cout << TERM_COLOR_CYAN << "---- Execution Statistics ----"
+              << TERM_COLOR_END << std::endl;
+    std::cout << TERM_COLOR_YELLOW << "Output file     : " << TERM_COLOR_END
+              << out_name << std::endl;
+    std::cout << TERM_COLOR_YELLOW << "Items assembled : " << TERM_COLOR_END
+              << assembled.stats.num_instructions << std::endl;
+    std::cout << TERM_COLOR_YELLOW << "Bytes produced  : " << TERM_COLOR_END
+              << assembled.bin.value().size() << std::endl;
+    std::cout << TERM_COLOR_CYAN << "------------------------------"
+              << TERM_COLOR_END << std::endl;
   }
-
 
   if (assembled.bin == std::nullopt) {
     std::cout << "No resulting binary. Nothing to write" << std::endl;
@@ -164,7 +167,7 @@ int main(int argc, char **argv)
 
     // Assemble input
     auto result =
-        libskiff::assembler::assemble(opts->assemble_file.value().file_in);
+        skiff::assembler::assemble(opts->assemble_file.value().file_in);
 
     // Handle resulting object
     handle_assebmled_t(result, opts->assemble_file->file_out,

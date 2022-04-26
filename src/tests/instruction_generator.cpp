@@ -1,6 +1,6 @@
 
 #include <libskiff/bytecode/floating_point.hpp>
-#include <libskiff/generators/instruction_generator.hpp>
+#include <libskiff/generator/instruction_generator.hpp>
 #include <libutil/generate_random.hpp>
 #include <libutil/random_string.hpp>
 

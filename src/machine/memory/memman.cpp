@@ -1,6 +1,6 @@
-#include "libskiff/machine/memory/memman.hpp"
+#include "machine/memory/memman.hpp"
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 namespace memory {
 
@@ -54,4 +54,4 @@ skiff::machine::memory::memory_c *memman_c::get_slot(const uint64_t id) const
 
 } // namespace memory
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff

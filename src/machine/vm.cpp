@@ -1,17 +1,20 @@
-#include "libskiff/machine/vm.hpp"
-#include "libskiff/bytecode/floating_point.hpp"
-#include "libskiff/bytecode/instructions.hpp"
-#include "libskiff/defines.hpp"
-#include "libskiff/logging/aixlog.hpp"
-#include "libskiff/machine/system/callable.hpp"
-#include "libskiff/machine/system/print.hpp"
-#include "libskiff/machine/system/timer.hpp"
-#include "libskiff/types.hpp"
-#include "libskiff/version.hpp"
-#include <iostream>
-#include <chrono>
 
-namespace libskiff {
+#include <libskiff/bytecode/floating_point.hpp>
+#include <libskiff/bytecode/instructions.hpp>
+#include <libskiff/version.hpp>
+
+#include "defines.hpp"
+#include "logging/aixlog.hpp"
+#include "machine/system/callable.hpp"
+#include "machine/system/print.hpp"
+#include "machine/system/timer.hpp"
+#include "machine/vm.hpp"
+#include "types.hpp"
+
+#include <chrono>
+#include <iostream>
+
+namespace skiff {
 namespace machine {
 
 namespace {
@@ -55,7 +58,7 @@ void vm_c::issue_forced_error(const std::string &err)
   LOG(WARNING) << TAG("vm") << err << "\n";
 }
 
-void vm_c::set_runtime_callback(libskiff::types::runtime_error_cb cb)
+void vm_c::set_runtime_callback(skiff::types::runtime_error_cb cb)
 {
   LOG(TRACE) << TAG("func") << __func__ << "\n";
   _runtime_error_cb = {cb};
@@ -94,7 +97,7 @@ bool vm_c::interrupt(const uint64_t id)
     // and then update the instruction pointer
     _ip = _interrupt_id_to_address[id];
 
-#ifdef LIBSKIFF_GENERATE_STATS
+#ifdef SKIFF_GENERATE_STATS
     _runtime_data.interrupts_accepted++;
 #endif
   }
@@ -103,19 +106,29 @@ bool vm_c::interrupt(const uint64_t id)
 
 void vm_c::display_runtime_statistics()
 {
-  std::cout << TERM_COLOR_CYAN << "---- Execution Statistics ----" << TERM_COLOR_END << std::endl;
-  std::cout << TERM_COLOR_YELLOW << "Execution time        : " << TERM_COLOR_END 
-            << std::chrono::duration_cast<std::chrono::milliseconds>(_runtime_data.end - _runtime_data.start).count() 
+  std::cout << TERM_COLOR_CYAN << "---- Execution Statistics ----"
+            << TERM_COLOR_END << std::endl;
+  std::cout << TERM_COLOR_YELLOW << "Execution time        : " << TERM_COLOR_END
+            << std::chrono::duration_cast<std::chrono::milliseconds>(
+                   _runtime_data.end - _runtime_data.start)
+                   .count()
             << "ms" << std::endl;
-  std::cout << TERM_COLOR_YELLOW << "Instructions loaded   : " << TERM_COLOR_END << _runtime_data.instructions_loaded << std::endl;
+  std::cout << TERM_COLOR_YELLOW << "Instructions loaded   : " << TERM_COLOR_END
+            << _runtime_data.instructions_loaded << std::endl;
 
-#ifdef LIBSKIFF_GENERATE_STATS
-  std::cout << TERM_COLOR_YELLOW << "Instructions executed : " << TERM_COLOR_END << _runtime_data.instructions_executed << " (may overflow uint64_t) " << std::endl;
-  std::cout << TERM_COLOR_YELLOW << "Interrupts accepted   : " << TERM_COLOR_END << _runtime_data.interrupts_accepted << std::endl;
+#ifdef SKIFF_GENERATE_STATS
+  std::cout << TERM_COLOR_YELLOW << "Instructions executed : " << TERM_COLOR_END
+            << _runtime_data.instructions_executed
+            << " (may overflow uint64_t) " << std::endl;
+  std::cout << TERM_COLOR_YELLOW << "Interrupts accepted   : " << TERM_COLOR_END
+            << _runtime_data.interrupts_accepted << std::endl;
 #else
-  std::cout << TERM_COLOR_BRIGHT_RED << "Note: " << TERM_COLOR_END << "Some information gathering was disabled at compile time" << std::endl;
+  std::cout << TERM_COLOR_BRIGHT_RED << "Note: " << TERM_COLOR_END
+            << "Some information gathering was disabled at compile time"
+            << std::endl;
 #endif
-  std::cout << TERM_COLOR_CYAN << "------------------------------" << TERM_COLOR_END << std::endl;
+  std::cout << TERM_COLOR_CYAN << "------------------------------"
+            << TERM_COLOR_END << std::endl;
 }
 
 std::pair<vm_c::execution_result_e, int> vm_c::execute()
@@ -129,7 +142,7 @@ std::pair<vm_c::execution_result_e, int> vm_c::execute()
       std::string msg =
           "Instruction pointer out of range : " + std::to_string(_ip);
       kill_with_error(
-          libskiff::types::runtime_error_e::INSTRUCTION_PTR_OUT_OF_RANGE, msg);
+          skiff::types::runtime_error_e::INSTRUCTION_PTR_OUT_OF_RANGE, msg);
       continue;
     }
 
@@ -142,7 +155,7 @@ std::pair<vm_c::execution_result_e, int> vm_c::execute()
       const std::lock_guard<std::mutex> lock(_execution_mutex);
       _instructions[_ip]->visit(*this);
     }
-#ifdef LIBSKIFF_GENERATE_STATS
+#ifdef SKIFF_GENERATE_STATS
     _runtime_data.instructions_executed++;
 #endif
   }
@@ -232,9 +245,8 @@ void vm_c::accept(instruction_ret_c &ins)
 {
   if (_call_stack.empty()) {
     // Kill the run, set 1 as exit result, inform the owner
-    kill_with_error(
-        libskiff::types::runtime_error_e::RETURN_WITH_EMPTY_CALLSTACK,
-        "`ret` instruction hit with empty callstack");
+    kill_with_error(skiff::types::runtime_error_e::RETURN_WITH_EMPTY_CALLSTACK,
+                    "`ret` instruction hit with empty callstack");
     return;
   }
 
@@ -265,7 +277,7 @@ void vm_c::accept(instruction_sub_c &ins)
 void vm_c::accept(instruction_div_c &ins)
 {
   if (ins.rhs_reg == 0) {
-    kill_with_error(libskiff::types::runtime_error_e::DIVIDE_BY_ZERO,
+    kill_with_error(skiff::types::runtime_error_e::DIVIDE_BY_ZERO,
                     "`div` instruction asked to divide by 0");
     return;
   }
@@ -298,7 +310,7 @@ void vm_c::accept(instruction_subf_c &ins)
 void vm_c::accept(instruction_divf_c &ins)
 {
   if (libskiff::bytecode::floating_point::are_equal(ins.rhs_reg, 0.0)) {
-    kill_with_error(libskiff::types::runtime_error_e::DIVIDE_BY_ZERO,
+    kill_with_error(skiff::types::runtime_error_e::DIVIDE_BY_ZERO,
                     "`divf` instruction asked to divide by 0");
     return;
   }
@@ -413,7 +425,7 @@ void vm_c::accept(instruction_aseq_c &ins)
 void vm_c::accept(instruction_push_w_c &ins)
 {
   if (!_stack.push_word(ins.source)) {
-    kill_with_error(libskiff::types::runtime_error_e::STACK_PUSH_ERROR,
+    kill_with_error(skiff::types::runtime_error_e::STACK_PUSH_ERROR,
                     "Unable to push data to stack. Out of memory?");
   }
   _ip++;
@@ -422,7 +434,7 @@ void vm_c::accept(instruction_push_w_c &ins)
 void vm_c::accept(instruction_push_dw_c &ins)
 {
   if (!_stack.push_dword(ins.source)) {
-    kill_with_error(libskiff::types::runtime_error_e::STACK_PUSH_ERROR,
+    kill_with_error(skiff::types::runtime_error_e::STACK_PUSH_ERROR,
                     "Unable to push data to stack. Out of memory?");
   }
   _ip++;
@@ -431,7 +443,7 @@ void vm_c::accept(instruction_push_dw_c &ins)
 void vm_c::accept(instruction_push_qw_c &ins)
 {
   if (!_stack.push_qword(ins.source)) {
-    kill_with_error(libskiff::types::runtime_error_e::STACK_PUSH_ERROR,
+    kill_with_error(skiff::types::runtime_error_e::STACK_PUSH_ERROR,
                     "Unable to push data to stack. Out of memory?");
   }
   _ip++;
@@ -441,7 +453,7 @@ void vm_c::accept(instruction_pop_w_c &ins)
 {
   auto [okay, value] = _stack.pop_word();
   if (!okay) {
-    kill_with_error(libskiff::types::runtime_error_e::STACK_POP_ERROR,
+    kill_with_error(skiff::types::runtime_error_e::STACK_POP_ERROR,
                     "Unable to pop data from stack. Stack empty?");
   }
   ins.dest = value;
@@ -452,7 +464,7 @@ void vm_c::accept(instruction_pop_dw_c &ins)
 {
   auto [okay, value] = _stack.pop_dword();
   if (!okay) {
-    kill_with_error(libskiff::types::runtime_error_e::STACK_POP_ERROR,
+    kill_with_error(skiff::types::runtime_error_e::STACK_POP_ERROR,
                     "Unable to pop data from stack. Stack empty?");
   }
   ins.dest = value;
@@ -463,7 +475,7 @@ void vm_c::accept(instruction_pop_qw_c &ins)
 {
   auto [okay, value] = _stack.pop_qword();
   if (!okay) {
-    kill_with_error(libskiff::types::runtime_error_e::STACK_POP_ERROR,
+    kill_with_error(skiff::types::runtime_error_e::STACK_POP_ERROR,
                     "Unable to pop data from stack. Stack empty?");
   }
   ins.dest = value;
@@ -677,4 +689,4 @@ void vm_c::accept(instruction_dirq_c &ins)
 }
 
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff

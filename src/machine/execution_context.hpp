@@ -1,9 +1,9 @@
 #ifndef SKIFF_EXECUTION_CONTEXT_HPP
 #define SKIFF_EXECUTION_CONTEXT_HPP
 
-#include "libskiff/types.hpp"
+#include "types.hpp"
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 
 //! \brief FED of the executor_if used as a visitor pattern
@@ -550,6 +550,6 @@ public:
 };
 
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff
 
 #endif

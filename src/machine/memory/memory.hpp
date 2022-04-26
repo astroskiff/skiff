@@ -1,11 +1,11 @@
-#ifndef LIBSKIFF_MEMORY_HPP
-#define LIBSKIFF_MEMORY_HPP
+#ifndef SKIFF_MEMORY_HPP
+#define SKIFF_MEMORY_HPP
 
 #include <cstdint>
 #include <tuple>
 #include <vector>
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 namespace memory {
 
@@ -71,6 +71,6 @@ private:
 
 } // namespace memory
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff
 
 #endif

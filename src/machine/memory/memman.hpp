@@ -1,14 +1,14 @@
-#ifndef LIBSKIFF_MEMMAN_HPP
-#define LIBSKIFF_MEMMAN_HPP
+#ifndef SKIFF_MEMMAN_HPP
+#define SKIFF_MEMMAN_HPP
 
-#include "libskiff/machine/memory/memory.hpp"
+#include "machine/memory/memory.hpp"
 #include <cstdint>
 #include <optional>
 #include <queue>
 #include <tuple>
 #include <vector>
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 namespace memory {
 
@@ -45,6 +45,6 @@ private:
 
 } // namespace memory
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff
 
 #endif

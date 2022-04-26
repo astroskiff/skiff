@@ -1,14 +1,14 @@
-#ifndef LIBSKIFF_STACK_HPP
-#define LIBSKIFF_STACK_HPP
+#ifndef SKIFF_STACK_HPP
+#define SKIFF_STACK_HPP
 
-#include "libskiff/machine/memory/memory.hpp"
-#include "libskiff/types.hpp"
+#include "machine/memory/memory.hpp"
+#include "types.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <tuple>
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 namespace memory {
 
@@ -26,7 +26,7 @@ public:
   //! \brief Set the stack pointer
   //! \post  If this is set, then the stack pointer register will
   //!        be auto updated whenever the stack size changes
-  void set_sp(libskiff::types::vm_register &reg);
+  void set_sp(skiff::types::vm_register &reg);
 
   //! \brief   Pop word
   //! \returns tuple containing boolean indicating if
@@ -100,11 +100,11 @@ public:
 private:
   uint64_t _end;
   memory_c _mem;
-  libskiff::types::vm_register *_sp;
+  skiff::types::vm_register *_sp;
 };
 
 } // namespace memory
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff
 
 #endif

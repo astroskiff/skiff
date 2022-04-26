@@ -1,9 +1,9 @@
-#include "libskiff/machine/system/print.hpp"
-#include "libskiff/bytecode/floating_point.hpp"
+#include "machine/system/print.hpp"
 #include <bitset>
 #include <iostream>
+#include <libskiff/bytecode/floating_point.hpp>
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 namespace system {
 
@@ -22,7 +22,7 @@ enum class data_t {
 };
 }
 
-void print_c::execute(libskiff::types::view_t &view)
+void print_c::execute(skiff::types::view_t &view)
 {
   /*
       std::cout <<
@@ -152,4 +152,4 @@ void print_c::execute(libskiff::types::view_t &view)
 
 } // namespace system
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff

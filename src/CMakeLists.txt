@@ -50,7 +50,10 @@ endif()
 #
 # Build 
 #
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+include_directories( 
+  ${LIBSKIFF_INCLUDE_DIRS} 
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 set(PROJECT_SOURCES
   assembler/assemble.cpp
@@ -68,7 +71,7 @@ add_executable(${PROJECT_NAME}
         ${PROJECT_SOURCES}
         skiffd.cpp)
 
-if(LIBSKIFF_USE_THREADS)
+if(SKIFF_USE_THREADS)
   find_package (Threads REQUIRED)
   target_link_libraries(${PROJECT_NAME}
     Threads::Threads

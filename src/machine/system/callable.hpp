@@ -4,12 +4,12 @@
   be constructed as a device.
 */
 
-#ifndef LIBSKIFF_SYSTEM_CALLABLE_IF_HPP
-#define LIBSKIFF_SYSTEM_CALLABLE_IF_HPP
+#ifndef SKIFF_SYSTEM_CALLABLE_IF_HPP
+#define SKIFF_SYSTEM_CALLABLE_IF_HPP
 
-#include "libskiff/types.hpp"
+#include "types.hpp"
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 namespace system {
 
@@ -26,11 +26,11 @@ public:
   //!             - Convention is to use integer registers for parameter passing
   //!               and the op register to indicate success/failure.
   //!               0 = failure, 1 = success
-  virtual void execute(libskiff::types::view_t &view) = 0;
+  virtual void execute(skiff::types::view_t &view) = 0;
 };
 
 } // namespace system
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff
 
 #endif

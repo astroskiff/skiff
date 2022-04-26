@@ -1,5 +1,5 @@
-#ifndef LIBSKIFF_DEFINES_HPP
-#define LIBSKIFF_DEFINES_HPP
+#ifndef SKIFF_DEFINES_HPP
+#define SKIFF_DEFINES_HPP
 
 // Ensure we have __func__
 #if defined(WIN32)

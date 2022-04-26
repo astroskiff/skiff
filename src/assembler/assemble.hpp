@@ -1,11 +1,11 @@
-#ifndef LIBSKIFF_ASSEMBLE_HPP
-#define LIBSKIFF_ASSEMBLE_HPP
+#ifndef SKIFF_ASSEMBLE_HPP
+#define SKIFF_ASSEMBLE_HPP
 
 #include <optional>
 #include <string>
 #include <vector>
 
-namespace libskiff {
+namespace skiff {
 namespace assembler {
 
 //! \brief Statistics about the assemble process
@@ -25,6 +25,6 @@ struct assembled_t {
 extern assembled_t assemble(const std::string &input);
 
 } // namespace assembler
-} // namespace libskiff
+} // namespace skiff
 
 #endif

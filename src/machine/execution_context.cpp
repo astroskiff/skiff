@@ -1,6 +1,6 @@
-#include "libskiff/machine/execution_context.hpp"
+#include "machine/execution_context.hpp"
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 
 /*
@@ -54,4 +54,4 @@ void instruction_eirq_c::visit(executor_if &e) { e.accept(*this); }
 void instruction_dirq_c::visit(executor_if &e) { e.accept(*this); }
 
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff

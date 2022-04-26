@@ -1,10 +1,10 @@
 
-#include "libskiff/assembler/assemble.hpp"
-#include "libskiff/bytecode/instructions.hpp"
-#include "libskiff/generators/binary_generator.hpp"
-#include "libskiff/generators/instruction_generator.hpp"
-#include "libskiff/logging/aixlog.hpp"
-#include "libskiff/types.hpp"
+#include "assembler/assemble.hpp"
+#include "logging/aixlog.hpp"
+#include "types.hpp"
+#include <libskiff/bytecode/instructions.hpp>
+#include <libskiff/generator/binary_generator.hpp>
+#include <libskiff/generator/instruction_generator.hpp>
 
 #include <fstream>
 #include <functional>
@@ -17,7 +17,7 @@
 #include <sstream>
 #include <unordered_map>
 
-namespace libskiff {
+namespace skiff {
 namespace assembler {
 namespace {
 
@@ -1867,4 +1867,4 @@ assembled_t assemble(const std::string &input)
 }
 
 } // namespace assembler
-} // namespace libskiff
+} // namespace skiff

@@ -1,10 +1,10 @@
-#ifndef LIBSKIFF_SYSTEM_INTERRUPT_EMITTER_HPP
-#define LIBSKIFF_SYSTEM_INTERRUPT_EMITTER_HPP
+#ifndef SKIFF_SYSTEM_INTERRUPT_EMITTER_HPP
+#define SKIFF_SYSTEM_INTERRUPT_EMITTER_HPP
 
-#include "libskiff/machine/memory/memman.hpp"
-#include "libskiff/types.hpp"
+#include "machine/memory/memman.hpp"
+#include "types.hpp"
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 namespace system {
 
@@ -16,20 +16,19 @@ public:
   //! \param vm_memory A reference to VM Memory so the emitter
   //!                  can ingest commands directly from memory,
   //!                  and respond using memory
-  interrupt_emitter(libskiff::types::interrupt_cb cb,
+  interrupt_emitter(skiff::types::interrupt_cb cb,
                     skiff::machine::memory::memman_c &vm_memory)
       : _protected_emit_interrupt(cb), _protected_memman(vm_memory)
   {
   }
 
 protected:
-  libskiff::types::interrupt_cb
-      _protected_emit_interrupt; //! The function pointer
-  skiff::machine::memory::memman_c &_protected_memman; //! VM memory
+  skiff::types::interrupt_cb _protected_emit_interrupt; //! The function pointer
+  skiff::machine::memory::memman_c &_protected_memman;  //! VM memory
 };
 
 } // namespace system
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff
 
 #endif

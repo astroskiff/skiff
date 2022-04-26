@@ -1,19 +1,19 @@
-#include "libskiff/machine/system/timer.hpp"
-#include "libskiff/config.hpp"
-#include "libskiff/logging/aixlog.hpp"
+#include "machine/system/timer.hpp"
+#include "config.hpp"
+#include "logging/aixlog.hpp"
 
 #include <chrono>
 #include <iostream>
 
-#ifdef LIBSKIFF_USE_THREADS
+#ifdef SKIFF_USE_THREADS
 #include <thread>
 #endif
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 namespace system {
 
-#ifdef LIBSKIFF_USE_THREADS
+#ifdef SKIFF_USE_THREADS
 namespace {
 void timer_thread(std::function<bool(const uint64_t)> interrupt,
                   const uint64_t time_ms, const uint64_t interrupt_id)
@@ -44,10 +44,10 @@ timer_c::timer_c(std::function<bool(const uint64_t)> interrupt,
 
 timer_c::~timer_c() {}
 
-void timer_c::execute(libskiff::types::view_t &view)
+void timer_c::execute(skiff::types::view_t &view)
 {
   view.op_register = 0;
-#ifdef LIBSKIFF_USE_THREADS
+#ifdef SKIFF_USE_THREADS
   if (view.integer_registers[0] == 0) {
     return;
   }
@@ -59,11 +59,13 @@ void timer_c::execute(libskiff::types::view_t &view)
   t.detach();
 
   view.op_register = 1;
-#else 
-  LOG(FATAL) << TAG("system:timer") << "System timer requires compile-time definition `LIBSKIFF_USE_THREADS` to function\n";
+#else
+  LOG(FATAL) << TAG("system:timer")
+             << "System timer requires compile-time definition "
+                "`SKIFF_USE_THREADS` to function\n";
 #endif
 }
 
 } // namespace system
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff

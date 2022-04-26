@@ -1,11 +1,12 @@
-#include "libskiff/bytecode/instructions.hpp"
-#include "libskiff/defines.hpp"
-#include "libskiff/logging/aixlog.hpp"
-#include "libskiff/machine/vm.hpp"
-#include "libskiff/types.hpp"
-#include "libskiff/version.hpp"
+#include "defines.hpp"
+#include "logging/aixlog.hpp"
+#include "machine/vm.hpp"
+#include "types.hpp"
+#include <libskiff/bytecode/instructions.hpp>
+#include <libskiff/types.hpp>
+#include <libskiff/version.hpp>
 
-namespace libskiff {
+namespace skiff {
 namespace machine {
 
 /*
@@ -109,7 +110,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
   };
 
   auto decode_ins_with_one_reg = [=](std::vector<uint8_t> &data)
-      -> std::tuple<bool, libskiff::types::vm_register *> {
+      -> std::tuple<bool, skiff::types::vm_register *> {
     if (data.size() != 1) {
       LOG(FATAL) << TAG("vm") << "Insufficent data to construct instruction\n";
       return {false, nullptr};
@@ -123,8 +124,8 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
   };
 
   auto decode_ins_with_two_reg = [=](std::vector<uint8_t> &data)
-      -> std::tuple<bool, libskiff::types::vm_register *,
-                    libskiff::types::vm_register *> {
+      -> std::tuple<bool, skiff::types::vm_register *,
+                    skiff::types::vm_register *> {
     if (data.size() != 2) {
       LOG(FATAL) << TAG("vm") << "Insufficent data to construct instruction\n";
       return {false, nullptr, nullptr};
@@ -146,9 +147,8 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
   };
 
   auto decode_ins_with_three_reg = [=](std::vector<uint8_t> &data)
-      -> std::tuple<bool, libskiff::types::vm_register *,
-                    libskiff::types::vm_register *,
-                    libskiff::types::vm_register *> {
+      -> std::tuple<bool, skiff::types::vm_register *,
+                    skiff::types::vm_register *, skiff::types::vm_register *> {
     if (data.size() != 3) {
       LOG(FATAL) << TAG("vm") << "Insufficent data to construct instruction\n";
       return {false, nullptr, nullptr, nullptr};
@@ -176,8 +176,8 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
   };
 
   auto decode_branch_instruction = [=](std::vector<uint8_t> &data)
-      -> std::tuple<bool, libskiff::types::vm_register *,
-                    libskiff::types::vm_register *, uint64_t> {
+      -> std::tuple<bool, skiff::types::vm_register *,
+                    skiff::types::vm_register *, uint64_t> {
     if (data.size() != 10) {
       return {false, nullptr, nullptr, 0};
     }
@@ -407,7 +407,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_asne_c>(*expected_reg,
-                                                                  *actual_reg));
+                                                               *actual_reg));
       break;
     }
     case libskiff::bytecode::instructions::ASEQ: {
@@ -419,7 +419,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_aseq_c>(*expected_reg,
-                                                                  *actual_reg));
+                                                               *actual_reg));
       break;
     }
     case libskiff::bytecode::instructions::NOT: {
@@ -429,8 +429,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
         return false;
       }
       _instructions.emplace_back(
-          std::make_unique<skiff::machine::instruction_not_c>(*dest,
-                                                                 *source));
+          std::make_unique<skiff::machine::instruction_not_c>(*dest, *source));
       break;
     }
     case libskiff::bytecode::instructions::ALLOC: {
@@ -441,7 +440,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_alloc_c>(*dest,
-                                                                   *source));
+                                                                *source));
       break;
     }
     case libskiff::bytecode::instructions::ADD: {
@@ -453,7 +452,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_add_c>(*dest, *lhs,
-                                                                 *rhs));
+                                                              *rhs));
       break;
     }
     case libskiff::bytecode::instructions::SUB: {
@@ -465,7 +464,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_sub_c>(*dest, *lhs,
-                                                                 *rhs));
+                                                              *rhs));
       break;
     }
     case libskiff::bytecode::instructions::DIV: {
@@ -477,7 +476,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_div_c>(*dest, *lhs,
-                                                                 *rhs));
+                                                              *rhs));
       break;
     }
     case libskiff::bytecode::instructions::MUL: {
@@ -489,7 +488,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_mul_c>(*dest, *lhs,
-                                                                 *rhs));
+                                                              *rhs));
       break;
     }
     case libskiff::bytecode::instructions::ADDF: {
@@ -501,7 +500,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_addf_c>(*dest, *lhs,
-                                                                  *rhs));
+                                                               *rhs));
       break;
     }
     case libskiff::bytecode::instructions::SUBF: {
@@ -513,7 +512,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_subf_c>(*dest, *lhs,
-                                                                  *rhs));
+                                                               *rhs));
       break;
     }
     case libskiff::bytecode::instructions::DIVF: {
@@ -525,7 +524,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_divf_c>(*dest, *lhs,
-                                                                  *rhs));
+                                                               *rhs));
       break;
     }
     case libskiff::bytecode::instructions::MULF: {
@@ -537,7 +536,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_mulf_c>(*dest, *lhs,
-                                                                  *rhs));
+                                                               *rhs));
       break;
     }
     case libskiff::bytecode::instructions::LSH: {
@@ -549,7 +548,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_lsh_c>(*dest, *lhs,
-                                                                 *rhs));
+                                                              *rhs));
       break;
     }
     case libskiff::bytecode::instructions::RSH: {
@@ -561,7 +560,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_rsh_c>(*dest, *lhs,
-                                                                 *rhs));
+                                                              *rhs));
       break;
     }
     case libskiff::bytecode::instructions::AND: {
@@ -573,7 +572,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_and_c>(*dest, *lhs,
-                                                                 *rhs));
+                                                              *rhs));
       break;
     }
     case libskiff::bytecode::instructions::OR: {
@@ -585,7 +584,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_or_c>(*dest, *lhs,
-                                                                *rhs));
+                                                             *rhs));
       break;
     }
     case libskiff::bytecode::instructions::XOR: {
@@ -597,7 +596,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_xor_c>(*dest, *lhs,
-                                                                 *rhs));
+                                                              *rhs));
       break;
     }
     case libskiff::bytecode::instructions::SW: {
@@ -702,8 +701,8 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
         return false;
       }
       _instructions.emplace_back(
-          std::make_unique<skiff::machine::instruction_bgt_c>(destination,
-                                                                 *lhs, *rhs));
+          std::make_unique<skiff::machine::instruction_bgt_c>(destination, *lhs,
+                                                              *rhs));
       break;
     }
     case libskiff::bytecode::instructions::BLT: {
@@ -714,8 +713,8 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
         return false;
       }
       _instructions.emplace_back(
-          std::make_unique<skiff::machine::instruction_blt_c>(destination,
-                                                                 *lhs, *rhs));
+          std::make_unique<skiff::machine::instruction_blt_c>(destination, *lhs,
+                                                              *rhs));
       break;
     }
     case libskiff::bytecode::instructions::BEQ: {
@@ -726,8 +725,8 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
         return false;
       }
       _instructions.emplace_back(
-          std::make_unique<skiff::machine::instruction_beq_c>(destination,
-                                                                 *lhs, *rhs));
+          std::make_unique<skiff::machine::instruction_beq_c>(destination, *lhs,
+                                                              *rhs));
       break;
     }
     case libskiff::bytecode::instructions::BGTF: {
@@ -739,7 +738,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_bgtf_c>(destination,
-                                                                  *lhs, *rhs));
+                                                               *lhs, *rhs));
       break;
     }
     case libskiff::bytecode::instructions::BLTF: {
@@ -751,7 +750,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_bltf_c>(destination,
-                                                                  *lhs, *rhs));
+                                                               *lhs, *rhs));
       break;
     }
     case libskiff::bytecode::instructions::BEQF: {
@@ -763,7 +762,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_beqf_c>(destination,
-                                                                  *lhs, *rhs));
+                                                               *lhs, *rhs));
       break;
     }
     }
@@ -859,4 +858,4 @@ types::vm_register *vm_c::get_register(uint8_t id)
 }
 
 } // namespace machine
-} // namespace libskiff
+} // namespace skiff
