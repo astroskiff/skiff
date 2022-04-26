@@ -32,7 +32,7 @@ TEST_GROUP(memory_stack){};
 TEST(memory_stack, words)
 {
   libskiff::types::vm_register stack_pointer = 0;
-  libskiff::machine::memory::stack_c skiff_stack;
+  skiff::machine::memory::stack_c skiff_stack;
   skiff_stack.set_sp(stack_pointer);
   libskiff::types::vm_register expected_sp = 0;
 
@@ -57,7 +57,7 @@ TEST(memory_stack, words)
 TEST(memory_stack, d_words)
 {
   libskiff::types::vm_register stack_pointer = 0;
-  libskiff::machine::memory::stack_c skiff_stack;
+  skiff::machine::memory::stack_c skiff_stack;
   skiff_stack.set_sp(stack_pointer);
   libskiff::types::vm_register expected_sp = 0;
 
@@ -82,7 +82,7 @@ TEST(memory_stack, d_words)
 TEST(memory_stack, q_words)
 {
   libskiff::types::vm_register stack_pointer = 0;
-  libskiff::machine::memory::stack_c skiff_stack;
+  skiff::machine::memory::stack_c skiff_stack;
   skiff_stack.set_sp(stack_pointer);
   libskiff::types::vm_register expected_sp = 0;
 
@@ -106,7 +106,7 @@ TEST(memory_stack, q_words)
 
 TEST(memory_stack, edge_lower)
 {
-  libskiff::machine::memory::stack_c skiff_stack;
+  skiff::machine::memory::stack_c skiff_stack;
   {
     auto [okay, value] = skiff_stack.pop_word();
     CHECK_FALSE_TEXT(okay, "Able to pop word from empty stack");
@@ -140,7 +140,7 @@ TEST(memory_stack, edge_lower)
 TEST(memory_stack, mem_words)
 {
   libskiff::types::vm_register stack_pointer = 0;
-  libskiff::machine::memory::stack_c skiff_stack;
+  skiff::machine::memory::stack_c skiff_stack;
   skiff_stack.set_sp(stack_pointer);
 
   auto test_case = generate_tc<uint16_t>();
@@ -165,7 +165,7 @@ TEST(memory_stack, mem_words)
 TEST(memory_stack, mem_dwords)
 {
   libskiff::types::vm_register stack_pointer = 0;
-  libskiff::machine::memory::stack_c skiff_stack;
+  skiff::machine::memory::stack_c skiff_stack;
   skiff_stack.set_sp(stack_pointer);
 
   auto test_case = generate_tc<uint32_t>();
@@ -190,7 +190,7 @@ TEST(memory_stack, mem_dwords)
 TEST(memory_stack, mem_qwords)
 {
   libskiff::types::vm_register stack_pointer = 0;
-  libskiff::machine::memory::stack_c skiff_stack;
+  skiff::machine::memory::stack_c skiff_stack;
   skiff_stack.set_sp(stack_pointer);
 
   auto test_case = generate_tc<uint64_t>();
@@ -262,7 +262,7 @@ TEST(memory_stack, chonker)
   }
 
   libskiff::types::vm_register stack_pointer = 0;
-  libskiff::machine::memory::stack_c skiff_stack;
+  skiff::machine::memory::stack_c skiff_stack;
   skiff_stack.set_sp(stack_pointer);
   libskiff::types::vm_register expected_sp = 0;
 

@@ -6,18 +6,21 @@ include_directories(
   ../
 )
 
-add_executable(unit_tests
+add_executable(libskiff_unit_tests
         ${PROJECT_SOURCES}
-        example_tests.cpp
+        example.cpp
+        assembler.cpp
+        instruction_generator.cpp
+        floating_point.cpp
+        stack.cpp
+        memory.cpp
+        memman.cpp
         main.cpp)
 
 
-target_link_libraries(unit_tests
+target_link_libraries(libskiff_unit_tests
         ${CPPUTEST_LDFLAGS}
         skiff::libskiff
         skiff::libutil)
-      #add_custom_target(copy-test-files ALL
-      # COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/test_files ${CMAKE_BINARY_DIR}/tests/test_files
-      #  )
 
-add_custom_command(TARGET unit_tests COMMAND ./unit_tests POST_BUILD)
+add_custom_command(TARGET libskiff_unit_tests COMMAND ./libskiff_unit_tests POST_BUILD)

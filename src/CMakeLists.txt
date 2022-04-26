@@ -10,6 +10,10 @@ set(CMAKE_CXX_STANDARD 20)
 option(COMPILE_TESTS "Execute unit tests" ON)
 option(WITH_ASAN     "Compile with ASAN" OFF)
 
+#
+# Find libskiff
+#
+find_package(libskiff REQUIRED)
 
 #
 # Setup build type 'Release vs Debug'
@@ -44,22 +48,20 @@ if(WITH_ASAN)
 endif()
 
 #
-# Lib Util
-#
-add_subdirectory(libutil)
-
-#
-# Lib Skiff
-#
-add_subdirectory(libskiff)
-
-#
 # Build 
 #
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 set(PROJECT_SOURCES
-#  ${CMAKE_CURRENT_SOURCE_DIR}/assemble.cpp
+  assembler/assemble.cpp
+  machine/vm.cpp
+  machine/vm_load_binary.cpp
+  machine/execution_context.cpp
+  machine/memory/memman.cpp
+  machine/memory/memory.cpp
+  machine/memory/stack.cpp
+  machine/system/print.cpp
+  machine/system/timer.cpp
 )
 
 add_executable(${PROJECT_NAME}
@@ -74,13 +76,12 @@ if(LIBSKIFF_USE_THREADS)
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-  skiff::libutil
-  skiff::libskiff
+  libskiff
 )
 
 #
 # Tests
 #
 if(COMPILE_TESTS)
-  add_subdirectory(tests)
+  #add_subdirectory(tests)
 endif()

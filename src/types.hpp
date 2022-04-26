@@ -1,14 +1,14 @@
 #ifndef LIBSKIFF_TYPES_HPP
 #define LIBSKIFF_TYPES_HPP
 
-#include "libskiff/config.hpp"
-#include "libskiff/machine/memory/memman.hpp"
+#include "config.hpp"
+#include "machine/memory/memman.hpp"
 #include <array>
 #include <cstdint>
 #include <functional>
 #include <string>
 
-namespace libskiff {
+namespace skiff {
 namespace types {
 
 //! \brief Encoded constant types
@@ -73,7 +73,7 @@ struct view_t {
       &integer_registers;
   std::array<types::vm_register, config::num_floating_point_registers>
       &float_registers;
-  libskiff::machine::memory::memman_c &memory_manager;
+  skiff::machine::memory::memman_c &memory_manager;
   types::vm_register &op_register;
 };
 

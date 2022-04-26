@@ -37,7 +37,7 @@ void timer_thread(std::function<bool(const uint64_t)> interrupt,
 #endif
 
 timer_c::timer_c(std::function<bool(const uint64_t)> interrupt,
-                 libskiff::machine::memory::memman_c &vm_memory)
+                 skiff::machine::memory::memman_c &vm_memory)
     : interrupt_emitter(interrupt, vm_memory)
 {
 }

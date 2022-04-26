@@ -17,7 +17,7 @@ public:
   //!                  can ingest commands directly from memory,
   //!                  and respond using memory
   interrupt_emitter(libskiff::types::interrupt_cb cb,
-                    libskiff::machine::memory::memman_c &vm_memory)
+                    skiff::machine::memory::memman_c &vm_memory)
       : _protected_emit_interrupt(cb), _protected_memman(vm_memory)
   {
   }
@@ -25,7 +25,7 @@ public:
 protected:
   libskiff::types::interrupt_cb
       _protected_emit_interrupt; //! The function pointer
-  libskiff::machine::memory::memman_c &_protected_memman; //! VM memory
+  skiff::machine::memory::memman_c &_protected_memman; //! VM memory
 };
 
 } // namespace system

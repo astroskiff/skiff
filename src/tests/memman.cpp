@@ -8,7 +8,7 @@ TEST_GROUP(memman_tests){};
 TEST(memman_tests, all)
 {
   // Create the thing
-  libskiff::machine::memory::memman_c memman;
+  skiff::machine::memory::memman_c memman;
 
   std::vector<uint64_t> ids;
 

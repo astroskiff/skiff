@@ -5,8 +5,6 @@
 #include <string>
 #include <vector>
 
-#include "libskiff/types.hpp"
-
 namespace libskiff {
 namespace assembler {
 

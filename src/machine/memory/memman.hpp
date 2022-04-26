@@ -36,10 +36,10 @@ public:
   //! \brief Retrieve a slot
   //! \param id The id of the slot to retrive
   //! \returns Memory slot iff the id was valid, nullptr otherwise
-  libskiff::machine::memory::memory_c *get_slot(const uint64_t id) const;
+  skiff::machine::memory::memory_c *get_slot(const uint64_t id) const;
 
 private:
-  std::vector<libskiff::machine::memory::memory_c *> _slots;
+  std::vector<skiff::machine::memory::memory_c *> _slots;
   std::queue<std::size_t> _available_ids;
 };
 

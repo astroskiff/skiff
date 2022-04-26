@@ -4,12 +4,13 @@
 #include <vector>
 
 #include "options.hpp"
-#include <libskiff/assembler/assemble.hpp>
 #include <libskiff/bytecode/executable.hpp>
-#include <libskiff/logging/aixlog.hpp>
-#include <libskiff/machine/vm.hpp>
+#include "logging/aixlog.hpp"
+#include "machine/vm.hpp"
+#include "assembler/assemble.hpp"
 #include <libskiff/types.hpp>
-#include <libskiff/defines.hpp>
+#include "types.hpp"
+#include "defines.hpp"
 
 void runtime_callback(libskiff::types::runtime_error_e error)
 {
@@ -112,7 +113,7 @@ int run(const std::string &bin, bool show_statistics)
     return 1;
   }
 
-  libskiff::machine::vm_c vm;
+  skiff::machine::vm_c vm;
   vm.set_runtime_callback(runtime_callback);
 
   if (!vm.load(std::move(loaded_binary.value()))) {
@@ -121,7 +122,7 @@ int run(const std::string &bin, bool show_statistics)
   }
 
   auto [value, code] = vm.execute();
-  if (value != libskiff::machine::vm_c::execution_result_e::OKAY) {
+  if (value != skiff::machine::vm_c::execution_result_e::OKAY) {
     LOG(FATAL) << TAG("app") << "VM Died with an error\n";
     return code;
   }

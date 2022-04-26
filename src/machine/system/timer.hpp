@@ -22,7 +22,7 @@ public:
   //!        to send the interrupt 10 times with 1ms between each retry. This
   //!        means that under certain circumstances a timer may be off by 10ms.
   timer_c(libskiff::types::interrupt_cb interrupt,
-          libskiff::machine::memory::memman_c &vm_memory);
+          skiff::machine::memory::memman_c &vm_memory);
 
   //! \brief Destruct timer
   ~timer_c();
