@@ -1,5 +1,5 @@
 git clone https://github.com/astroskiff/libutil
-cd libskiff
+cd libutil
 mkdir libutil_build
 cd libutil_build
 cmake -DCMAKE_BUILD_TYPE=Release ../
