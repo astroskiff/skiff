@@ -1,5 +1,5 @@
-#include "config.hpp"
 #include "machine/memory/memory.hpp"
+#include "config.hpp"
 #include <libutil/random/generator.hpp>
 
 #include <cstdint>
