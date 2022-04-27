@@ -26,6 +26,8 @@ Command 0: (output)
   WORD: [Send to stdout (bool)]
   WORD: [Print newline  (bool)]
 
+  Sets op register to `1` on success
+
 Command 1: (input)
   WORD: [Memory slot to place data]
   WORD: [Offset into slot to start placing data]
@@ -34,6 +36,9 @@ Command 1: (input)
           4 - u32, 5 - i32, 6 - u64,  7 - i64
           8 - float, 9 - ASCII
   WORD: [Length (chars) to read (applies to string only)]
+
+  Sets op register to length read in iff a string was read in on success,
+  otherwise it sets op register to `1` in success
 */
 
 //! \brief An interface to to i/o with a user
@@ -44,7 +49,7 @@ public:
   //! vm_param: i1 - Offset within slot to command
   //! vm_retval: Failure to perform requested iperation result
   //!            in the op register being set to a value of `0`
-  //!            and `1` on success
+  //!            The value on success is dependant on the command 
   virtual void execute(skiff::types::view_t &view) override;
 
 private:
@@ -52,7 +57,7 @@ private:
                       const uint16_t offset, const uint16_t data_type,
                       const uint16_t length, const uint16_t destination,
                       const uint16_t newline);
-  void perform_input(skiff::types::view_t &view, const uint16_t source,
+  void perform_input(skiff::types::view_t &view, const uint16_t destination,
                      const uint16_t offset, const uint16_t data_type,
                      const uint16_t length);
 };

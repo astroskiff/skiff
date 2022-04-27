@@ -1,5 +1,6 @@
 #include "machine/system/io_user.hpp"
 #include "config.hpp"
+#include <algorithm>
 #include <bitset>
 #include <iostream>
 #include <libskiff/bytecode/floating_point.hpp>
@@ -21,12 +22,21 @@ enum class data_t {
   FLOAT = 8,
   ASCII = 9
 };
+
+template<class T>
+void output_data(T data, const uint16_t use_std_out, const uint16_t do_newline) 
+{
+  std::string end = (do_newline == 1) ? "\n" : "";
+  if(use_std_out == 1) {
+    std::cout << data << end;
+  } else {
+    std::cerr << data << end;
+  }
+}
 }
 
 void io_user_c::execute(skiff::types::view_t &view)
 {
-  std::cout << "Called\n";
-
   // Assume failure
   view.op_register = 0;
 
@@ -108,7 +118,7 @@ void io_user_c::perform_output(skiff::types::view_t &view,
     if (!okay) {
       return;
     }
-    std::cout << std::dec << data;
+    output_data<uint16_t>(data, destination, newline);
     break;
   }
   case data_t::I8: {
@@ -117,7 +127,7 @@ void io_user_c::perform_output(skiff::types::view_t &view,
       return;
     }
     // This is dumb but it ensures that negative values print correctly
-    std::cout << std::dec << static_cast<int>(static_cast<int8_t>(data));
+    output_data<int>(static_cast<int>(static_cast<int8_t>(data)), destination, newline);
     break;
   }
   case data_t::U16: {
@@ -125,7 +135,7 @@ void io_user_c::perform_output(skiff::types::view_t &view,
     if (!okay) {
       return;
     }
-    std::cout << data;
+    output_data<uint16_t>(data, destination, newline);
     break;
   }
   case data_t::I16: {
@@ -133,7 +143,7 @@ void io_user_c::perform_output(skiff::types::view_t &view,
     if (!okay) {
       return;
     }
-    std::cout << static_cast<int16_t>(data);
+    output_data<int16_t>(data, destination, newline);
     break;
   }
   case data_t::U32: {
@@ -141,7 +151,7 @@ void io_user_c::perform_output(skiff::types::view_t &view,
     if (!okay) {
       return;
     }
-    std::cout << data;
+    output_data<uint32_t>(data, destination, newline);
     break;
   }
   case data_t::I32: {
@@ -149,7 +159,7 @@ void io_user_c::perform_output(skiff::types::view_t &view,
     if (!okay) {
       return;
     }
-    std::cout << static_cast<int32_t>(data);
+    output_data<int32_t>(static_cast<int32_t>(data), destination, newline);
     break;
   }
   case data_t::U64: {
@@ -157,7 +167,7 @@ void io_user_c::perform_output(skiff::types::view_t &view,
     if (!okay) {
       return;
     }
-    std::cout << data;
+    output_data<uint64_t>(data, destination, newline);
     break;
   }
   case data_t::I64: {
@@ -165,7 +175,7 @@ void io_user_c::perform_output(skiff::types::view_t &view,
     if (!okay) {
       return;
     }
-    std::cout << static_cast<int64_t>(data);
+    output_data<int64_t>(static_cast<int64_t>(data), destination, newline);
     break;
   }
   case data_t::FLOAT: {
@@ -173,7 +183,7 @@ void io_user_c::perform_output(skiff::types::view_t &view,
     if (!okay) {
       return;
     }
-    std::cout << libskiff::bytecode::floating_point::from_uint64_t(data);
+    output_data<double>(libskiff::bytecode::floating_point::from_uint64_t(data), destination, newline);
     break;
   }
   case data_t::ASCII: {
@@ -186,34 +196,82 @@ void io_user_c::perform_output(skiff::types::view_t &view,
       }
       out += static_cast<char>(c_word >> 8);
     }
-    if(destination == 1) {
-      std::cout << out;
-    } else {
-      std::cerr << out;
-    }
-    if (newline) {
-      std::cout << std::endl;
+    output_data<std::string>(out, destination, newline);
+    break;
+  }
+  default:
+    return;
+  };
+  view.op_register = 1;
+}
+
+void io_user_c::perform_input(skiff::types::view_t &view, const uint16_t destination,
+                              const uint16_t offset, const uint16_t data_type,
+                              const uint16_t length)
+{
+  std::cout << "INPUT\n";
+  std::cout << "destination: " << destination << ", offset: " << offset
+            << ", type: " << data_type << ", len: " << length
+            << std::endl;
+
+  auto slot = view.memory_manager.get_slot(destination);
+  if (!slot) {
+    return;
+  }
+
+  if (slot->size() < offset + length) {
+    return;
+  }
+
+  switch (static_cast<data_t>(data_type)) {
+  case data_t::U8: {
+    break;
+  }
+  case data_t::I8: {
+    break;
+  }
+  case data_t::U16: {
+    break;
+  }
+  case data_t::I16: {
+    break;
+  }
+  case data_t::U32: {
+    break;
+  }
+  case data_t::I32: {
+    break;
+  }
+  case data_t::U64: {
+    break;
+  }
+  case data_t::I64: {
+    break;
+  }
+  case data_t::FLOAT: {
+    double value = 0.00;
+    std::cin >> value;
+    if (!slot->put_qword(offset, libskiff::bytecode::floating_point::to_uint64_t(value))){
+      return;
     }
     break;
+  }
+  case data_t::ASCII: {
+    std::string value;
+    std::getline(std::cin, value);
+    for(auto i = 0; i < std::min(static_cast<std::size_t>(length), value.size()); i++) {
+      if (!slot->put_word(i, static_cast<uint16_t>(value[i]) << 8 )) {
+        return;
+      }
+    }
+    view.op_register = length;
+    return;
   }
   default:
     return;
   };
 
 
-
-
-  view.op_register = 1;
-}
-
-void io_user_c::perform_input(skiff::types::view_t &view, const uint16_t source,
-                              const uint16_t offset, const uint16_t data_type,
-                              const uint16_t length)
-{
-  std::cout << "INPUT\n";
-  std::cout << "source: " << source << ", offset: " << offset
-            << ", type: " << data_type << ", len: " << length
-            << std::endl;
   view.op_register = 1;
 }
 
