@@ -1,6 +1,7 @@
 .init fn_main
 
-.string num_prompt "Enter a number> "
+.string int_prompt "Enter an int> "
+.string flt_prompt "Enter a floating point number> "
 .string txt_prompt "Enter some text (len 20 max)> "
 .string out_prompt "You wrote> "
 .string str    "Hello world!"
@@ -21,9 +22,9 @@
 
 .code 
 
-; r5 Type
-; r6 Location
-; r7 Length
+; i5 Type
+; i6 Location
+; i7 Length
 ; i3 source slot
 fn_print_item:
   mov i0 @0
@@ -133,16 +134,16 @@ fn_print_items:
   call fn_print_item
   ret
 
-; r5 Type
-; r9 Destination
-; r7 Length
+; i5 Type
+; i9 Destination
+; i7 Length
 fn_get_item:
   mov i0 @0
   mov i1 @2       ; Word size in bytes  
   sw i8 i0 x1     ; Store `1` into command slot 
   
   add i0 i0 i1    ; Increase slot index 
-  sw i8 i0 i9     ; Indicate input buffer (i6)
+  sw i8 i0 i9     ; Indicate input buffer (i9)
   
   add i0 i0 i1  
   sw i8 i0 x0     ; Load offset to start placing in buffer (0)
@@ -161,7 +162,7 @@ fn_get_item:
   syscall 2
   ret
 
-fn_get_items:
+fn_get_string:
   ; prompt
   mov i5 @9            ; ASCII
   mov i6 &txt_prompt   ; Address
@@ -188,7 +189,61 @@ fn_get_items:
   pop_qw i7 
 
   call fn_print_item
+  ret
 
+
+fn_get_float:
+  ; prompt
+  mov i5 @9            ; ASCII
+  mov i6 &flt_prompt   ; Address
+  mov i7 #flt_prompt   ; Len
+  call fn_print_item
+
+  mov i5 @8             ; Get a float
+  mov i7 @8
+  call fn_get_item
+
+  asne x0 op            ; Ensure we got something
+
+  mov i3 @0
+  mov i5 @9            ; ASCII
+  mov i6 &out_prompt   ; Address
+  mov i7 #out_prompt   ; Len
+  call fn_print_item
+
+  mov i3 @2            ; Source for printing input
+  mov i5 @8            ; float
+  mov i6 @0            ; Address
+  mov i7 @8            ; Len
+
+  call fn_print_item
+  ret
+
+fn_get_int:
+  ; prompt
+  mov i5 @9            ; ASCII
+  mov i6 &int_prompt   ; Address
+  mov i7 #int_prompt   ; Len
+  call fn_print_item
+
+  mov i5 @7             ; Get an int64_t
+  mov i7 @8
+  call fn_get_item
+
+  asne x0 op            ; Ensure we got something
+
+  mov i3 @0
+  mov i5 @9            ; ASCII
+  mov i6 &out_prompt   ; Address
+  mov i7 #out_prompt   ; Len
+  call fn_print_item
+
+  mov i3 @2            ; Source for printing input
+  mov i5 @7            ; int
+  mov i6 @0            ; Address
+  mov i7 @8            ; Len
+
+  call fn_print_item
   ret
 
 fn_main:
@@ -200,7 +255,12 @@ fn_main:
 
   mov i0 @1024  ; Allocate an input buffer
   alloc i9 i0 
-  call fn_get_items
+  
+  ; These trample eachother the way that they are written so
+  ; its best to do one at a time
+  call fn_get_string
+  ;call fn_get_float
+  ;call fn_get_int
 
   mov i0 @0
   exit

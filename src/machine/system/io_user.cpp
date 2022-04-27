@@ -209,11 +209,6 @@ void io_user_c::perform_input(skiff::types::view_t &view, const uint16_t destina
                               const uint16_t offset, const uint16_t data_type,
                               const uint16_t length)
 {
-  std::cout << "INPUT\n";
-  std::cout << "destination: " << destination << ", offset: " << offset
-            << ", type: " << data_type << ", len: " << length
-            << std::endl;
-
   auto slot = view.memory_manager.get_slot(destination);
   if (!slot) {
     return;
@@ -224,28 +219,37 @@ void io_user_c::perform_input(skiff::types::view_t &view, const uint16_t destina
   }
 
   switch (static_cast<data_t>(data_type)) {
+  case data_t::U16:
+    [[fallthrough]];
+  case data_t::I8:
+    [[fallthrough]];
+  case data_t::I16:
   case data_t::U8: {
+    uint16_t value = 0;
+    std::cin >> value;
+    if (!slot->put_word(offset, value)){
+      return;
+    }
     break;
   }
-  case data_t::I8: {
-    break;
-  }
-  case data_t::U16: {
-    break;
-  }
-  case data_t::I16: {
-    break;
-  }
+  case data_t::I32:
+    [[fallthrough]];
   case data_t::U32: {
+    uint32_t value = 0;
+    std::cin >> value;
+    if (!slot->put_dword(offset, value)){
+      return;
+    }
     break;
   }
-  case data_t::I32: {
-    break;
-  }
-  case data_t::U64: {
-    break;
-  }
+  case data_t::U64:
+    [[fallthrough]];
   case data_t::I64: {
+    uint64_t value = 0;
+    std::cin >> value;
+    if (!slot->put_qword(offset, value)){
+      return;
+    }
     break;
   }
   case data_t::FLOAT: {
@@ -259,19 +263,18 @@ void io_user_c::perform_input(skiff::types::view_t &view, const uint16_t destina
   case data_t::ASCII: {
     std::string value;
     std::getline(std::cin, value);
-    for(auto i = 0; i < std::min(static_cast<std::size_t>(length), value.size()); i++) {
-      if (!slot->put_word(i, static_cast<uint16_t>(value[i]) << 8 )) {
+    auto actual_length = std::min(static_cast<std::size_t>(length), value.size());
+    for(auto i = 0; i < actual_length; i++) {
+      if (!slot->put_word(i, static_cast<uint16_t>(value[i]) << 8)) {
         return;
       }
     }
-    view.op_register = length;
+    view.op_register = actual_length;
     return;
   }
   default:
     return;
   };
-
-
   view.op_register = 1;
 }
 
