@@ -6,7 +6,6 @@
 #include "defines.hpp"
 #include "logging/aixlog.hpp"
 #include "machine/system/callable.hpp"
-#include "machine/system/print.hpp"
 #include "machine/system/io_user.hpp"
 #include "machine/system/timer.hpp"
 #include "machine/vm.hpp"
@@ -39,10 +38,7 @@ vm_c::vm_c()
       std::bind(&vm_c::interrupt, this, std::placeholders::_1),
       _memman)); // Syscall 0
 
-  _system_callables.emplace_back(new system::print_c()); // Syscall 1
-
-
-  _system_callables.emplace_back(new system::io_user_c());
+  _system_callables.emplace_back(new system::io_user_c()); // Syscall 1
 }
 
 vm_c::~vm_c() {}

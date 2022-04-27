@@ -56,7 +56,7 @@ fn_print_item:
 
   mov i1 @0       ; Load command offset
 
-  syscall 2
+  syscall 1
   ret
 
 fn_print_items:
@@ -159,11 +159,12 @@ fn_get_item:
 
   mov i1 @0       ; Load command offset
 
-  syscall 2
+  syscall 1
   ret
 
 fn_get_string:
   ; prompt
+  mov i3 @0
   mov i5 @9            ; ASCII
   mov i6 &txt_prompt   ; Address
   mov i7 #txt_prompt   ; Len
@@ -176,7 +177,6 @@ fn_get_string:
   asne x0 op            ; Ensure we got something
   push_qw op            ; Save for printing it 
 
-  mov i3 @0
   mov i5 @9            ; ASCII
   mov i6 &out_prompt   ; Address
   mov i7 #out_prompt   ; Len
@@ -194,6 +194,7 @@ fn_get_string:
 
 fn_get_float:
   ; prompt
+  mov i3 @0
   mov i5 @9            ; ASCII
   mov i6 &flt_prompt   ; Address
   mov i7 #flt_prompt   ; Len
@@ -221,6 +222,7 @@ fn_get_float:
 
 fn_get_int:
   ; prompt
+  mov i3 @0
   mov i5 @9            ; ASCII
   mov i6 &int_prompt   ; Address
   mov i7 #int_prompt   ; Len
@@ -256,11 +258,9 @@ fn_main:
   mov i0 @1024  ; Allocate an input buffer
   alloc i9 i0 
   
-  ; These trample eachother the way that they are written so
-  ; its best to do one at a time
   call fn_get_string
-  ;call fn_get_float
-  ;call fn_get_int
+  call fn_get_float
+  call fn_get_int
 
   mov i0 @0
   exit

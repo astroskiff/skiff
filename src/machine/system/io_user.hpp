@@ -49,7 +49,7 @@ public:
   //! vm_param: i1 - Offset within slot to command
   //! vm_retval: Failure to perform requested iperation result
   //!            in the op register being set to a value of `0`
-  //!            The value on success is dependant on the command 
+  //!            The value on success is dependant on the command
   virtual void execute(skiff::types::view_t &view) override;
 
 private:

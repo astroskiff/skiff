@@ -23,17 +23,18 @@ enum class data_t {
   ASCII = 9
 };
 
-template<class T>
-void output_data(T data, const uint16_t use_std_out, const uint16_t do_newline) 
+template <class T>
+void output_data(T data, const uint16_t use_std_out, const uint16_t do_newline)
 {
   std::string end = (do_newline == 1) ? "\n" : "";
-  if(use_std_out == 1) {
+  if (use_std_out == 1) {
     std::cout << data << end;
-  } else {
+  }
+  else {
     std::cerr << data << end;
   }
 }
-}
+} // namespace
 
 void io_user_c::execute(skiff::types::view_t &view)
 {
@@ -127,7 +128,8 @@ void io_user_c::perform_output(skiff::types::view_t &view,
       return;
     }
     // This is dumb but it ensures that negative values print correctly
-    output_data<int>(static_cast<int>(static_cast<int8_t>(data)), destination, newline);
+    output_data<int>(static_cast<int>(static_cast<int8_t>(data)), destination,
+                     newline);
     break;
   }
   case data_t::U16: {
@@ -183,7 +185,8 @@ void io_user_c::perform_output(skiff::types::view_t &view,
     if (!okay) {
       return;
     }
-    output_data<double>(libskiff::bytecode::floating_point::from_uint64_t(data), destination, newline);
+    output_data<double>(libskiff::bytecode::floating_point::from_uint64_t(data),
+                        destination, newline);
     break;
   }
   case data_t::ASCII: {
@@ -205,9 +208,9 @@ void io_user_c::perform_output(skiff::types::view_t &view,
   view.op_register = 1;
 }
 
-void io_user_c::perform_input(skiff::types::view_t &view, const uint16_t destination,
-                              const uint16_t offset, const uint16_t data_type,
-                              const uint16_t length)
+void io_user_c::perform_input(skiff::types::view_t &view,
+                              const uint16_t destination, const uint16_t offset,
+                              const uint16_t data_type, const uint16_t length)
 {
   auto slot = view.memory_manager.get_slot(destination);
   if (!slot) {
@@ -227,7 +230,7 @@ void io_user_c::perform_input(skiff::types::view_t &view, const uint16_t destina
   case data_t::U8: {
     uint16_t value = 0;
     std::cin >> value;
-    if (!slot->put_word(offset, value)){
+    if (!slot->put_word(offset, value)) {
       return;
     }
     break;
@@ -237,7 +240,7 @@ void io_user_c::perform_input(skiff::types::view_t &view, const uint16_t destina
   case data_t::U32: {
     uint32_t value = 0;
     std::cin >> value;
-    if (!slot->put_dword(offset, value)){
+    if (!slot->put_dword(offset, value)) {
       return;
     }
     break;
@@ -247,7 +250,7 @@ void io_user_c::perform_input(skiff::types::view_t &view, const uint16_t destina
   case data_t::I64: {
     uint64_t value = 0;
     std::cin >> value;
-    if (!slot->put_qword(offset, value)){
+    if (!slot->put_qword(offset, value)) {
       return;
     }
     break;
@@ -255,7 +258,8 @@ void io_user_c::perform_input(skiff::types::view_t &view, const uint16_t destina
   case data_t::FLOAT: {
     double value = 0.00;
     std::cin >> value;
-    if (!slot->put_qword(offset, libskiff::bytecode::floating_point::to_uint64_t(value))){
+    if (!slot->put_qword(
+            offset, libskiff::bytecode::floating_point::to_uint64_t(value))) {
       return;
     }
     break;
@@ -263,8 +267,9 @@ void io_user_c::perform_input(skiff::types::view_t &view, const uint16_t destina
   case data_t::ASCII: {
     std::string value;
     std::getline(std::cin, value);
-    auto actual_length = std::min(static_cast<std::size_t>(length), value.size());
-    for(auto i = 0; i < actual_length; i++) {
+    auto actual_length =
+        std::min(static_cast<std::size_t>(length), value.size());
+    for (auto i = 0; i < actual_length; i++) {
       if (!slot->put_word(i, static_cast<uint16_t>(value[i]) << 8)) {
         return;
       }
