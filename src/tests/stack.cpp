@@ -1,9 +1,9 @@
 
+#include "machine/memory/stack.hpp"
+#include "config.hpp"
+#include "types.hpp"
 #include <libskiff/types.hpp>
 #include <libutil/random/generator.hpp>
-#include "config.hpp"
-#include "machine/memory/stack.hpp"
-#include "types.hpp"
 
 #include <cstdint>
 #include <iostream>
