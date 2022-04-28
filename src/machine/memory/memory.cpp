@@ -22,6 +22,15 @@ memory_c::~memory_c()
   }
 }
 
+bool memory_c::put_hword(const uint64_t index, const uint8_t data)
+{
+  if (index >= _size) {
+    return false;
+  }
+  _data[index] = data;
+  return true;
+}
+
 bool memory_c::put_word(const uint64_t index, const uint16_t data)
 {
   if (index + skiff::config::word_size_bytes >= _size) {
@@ -58,6 +67,14 @@ bool memory_c::put_qword(const uint64_t index, const uint64_t data)
   _data[index + 6] = data >> 8;
   _data[index + 7] = data;
   return true;
+}
+
+std::tuple<bool, uint8_t> memory_c::get_hword(const uint64_t index)
+{
+  if (index > _size) {
+    return {false, 0};
+  }
+  return {true, _data[index]};
 }
 
 std::tuple<bool, uint16_t> memory_c::get_word(const uint64_t index)
