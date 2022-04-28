@@ -8,11 +8,23 @@
 #include <tuple>
 #include <vector>
 
+
+#include <iostream>
+
+
 namespace skiff {
 namespace machine {
 namespace system {
 
 namespace {
+
+enum class command_e {
+  CREATE = 0,
+  OPEN = 1,
+  CLOSE = 2,
+  WRITE = 3,
+  READ = 4
+};
 
 class file_c {
 public:
@@ -119,17 +131,53 @@ io_disk_c::~io_disk_c() { delete _manager; }
 
 void io_disk_c::execute(skiff::types::view_t &view)
 {
+  // Assume failure
+  view.op_register = 0;
 
-  // TODO:
-  /*
-      Figure out a way to encode the operations of creating / grabbing a file id
-      and reading / writing it
+  auto slot = view.memory_manager.get_slot(view.integer_registers[0]);
+  if (!slot) {
+    return;
+  }
 
-      use _manager for everything
+  auto command_offset = view.integer_registers[1];
+  auto [okay, command] = slot->get_word(command_offset);
+  if (!okay) {
+    return;
+  }
 
+  switch(static_cast<command_e>(command)) {
+    case command_e::CREATE: return create(slot, view);
+    case command_e::OPEN:   return open(slot, view);
+    case command_e::CLOSE:  return close(slot, view);
+    case command_e::WRITE: return write(slot, view);
+    case command_e::READ: return read(slot, view);
+  };
 
+}
 
-  */
+void io_disk_c::create(skiff::machine::memory::memory_c* slot, skiff::types::view_t &view)
+{
+  std::cout << "CREATE\n";
+}
+
+void io_disk_c::open(skiff::machine::memory::memory_c* slot, skiff::types::view_t &view)
+{
+  std::cout << "OPEN\n";
+}
+
+void io_disk_c::close(skiff::machine::memory::memory_c* slot, skiff::types::view_t &view)
+{
+  std::cout << "CLOSE\n";
+}
+
+void io_disk_c::write(skiff::machine::memory::memory_c* slot, skiff::types::view_t &view)
+{
+  std::cout << "WRITE\n";
+}
+
+void io_disk_c::read(skiff::machine::memory::memory_c* slot, skiff::types::view_t &view)
+{
+  std::cout << "READ\n";
 }
 
 } // namespace system
