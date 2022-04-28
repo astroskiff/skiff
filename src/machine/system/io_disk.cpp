@@ -1,152 +1,121 @@
 #include "io_disk.hpp"
 
+#include <fstream>
+#include <memory>
+#include <mutex>
+#include <queue>
 #include <string>
 #include <tuple>
-#include <unordered_map>
-#include <fstream>
-#include <filesystem>
-#include <queue>
-#include <mutex>
-#include <memory>
+#include <vector>
 
 namespace skiff {
 namespace machine {
 namespace system {
 
 namespace {
-enum class status_e {
-  UNKNOWN_ERROR = 0,
-  OKAY = 1,
-  FILE_NOT_FOUND = 2,
-  CANT_OPEN_FILE = 3,
-  UNKNOWN_ID = 4,
-};
 
-enum class flags_e {
-  INPUT,
-  OUTPUT,
-  BINARY,
-  AT_END,
-  TRUNC,
-  APPEND
-};
-
-class file_c
-{
+class file_c {
 public:
-  file_c(const uint64_t id, const std::string file_path, const unsigned int flags) : 
-    id{id}, _file_path{file_path}, _flags{flags} {
-  }
+  file_c(const std::string file_path) : _file_path{file_path} {}
 
-  bool open();
-
+  bool open(const unsigned int flags);
   const bool is_open() { return _fs.is_open(); }
-  void close() {  _fs.close(); }
-  const bool is_read_only() { return _flags == std::fstream::in; }
-
-  void write(const char * data, std::size_t len);
-
-  uint64_t id{0};
+  void close() { _fs.close(); }
+  void write(const char *data, std::size_t len);
+  std::vector<uint8_t> read(const std::size_t len);
 
 private:
   std::fstream _fs;
-  unsigned int _flags;
   std::string _file_path;
-  std::mutex _mutex;
 };
 
-bool file_c::open()
+bool file_c::open(const unsigned int flags)
 {
-  if (_fs.is_open()) { return true; }
-  _fs.open(_file_path, _flags);
+  if (_fs.is_open()) {
+    return true;
+  }
+  _fs.open(_file_path, flags);
   return _fs.is_open();
 }
 
-void file_c::write(const char * data, std::size_t len)
+void file_c::write(const char *data, std::size_t len) { _fs.write(data, len); }
+
+std::vector<uint8_t> file_c::read(const std::size_t len)
 {
-  std::lock_guard<std::mutex> lock(_mutex);
-  _fs.write(data, len);
+  std::vector<uint8_t> in(len);
+  _fs.read(reinterpret_cast<char *>(in.data()), len);
+  return in;
 }
 
-} // End anonymous ns
+} // namespace
 
 class file_manager_c {
 public:
-  file_manager_c(){}
-
-  // Open a file in a certain mode
-  std::tuple<status_e, uint64_t> open(const unsigned int flags, const std::string file_path);
-
-  // Close and remove a file
-  bool close(const uint64_t id);
-  bool write(const uint64_t id, const char * data, std::size_t length);
+  file_manager_c() {}
+  ~file_manager_c()
+  {
+    for (auto i = 0; i < _files.size(); i++) {
+      if (nullptr != _files.at(i)) {
+        delete _files.at(i);
+      }
+    }
+  }
+  uint64_t create(const std::string file_path);
+  bool remove(const uint64_t id);
+  file_c *get_file(const uint64_t id);
 
 private:
   uint64_t _next_id{0};
-
   std::mutex _mutex;
   std::queue<uint64_t> _id_recycle_bin;
-  std::unordered_map<uint64_t, std::unique_ptr<file_c>>  _file_map;
+  std::vector<file_c *> _files;
 };
 
-std::tuple<status_e, uint64_t> file_manager_c::open(const unsigned int flags, const std::string file_path)
+uint64_t file_manager_c::create(const std::string file_path)
 {
   std::lock_guard<std::mutex> lock(_mutex);
-
-  uint64_t id{0};
-  if (!_id_recycle_bin.empty()) {
-    id = _id_recycle_bin.front();
+  if (_id_recycle_bin.empty()) {
+    _files.push_back(new file_c(file_path));
+    return _files.size() - 1;
+  }
+  else {
+    auto idx = _id_recycle_bin.front();
+    _files[idx] = new file_c(file_path);
     _id_recycle_bin.pop();
-  } else {
-    id = _next_id++;
+    return idx;
   }
-
-  file_c *file = new file_c(id, file_path, flags);
-
-  if (!file->open()) {
-    delete file;
-    return { status_e::CANT_OPEN_FILE, 0};
-  }
-
-  _file_map.insert(std::make_pair(id, std::move(std::unique_ptr<file_c>(file))));
-
-  return { status_e::OKAY, id };
 }
 
-bool file_manager_c::close(const uint64_t id)
+bool file_manager_c::remove(const uint64_t id)
 {
   std::lock_guard<std::mutex> lock(_mutex);
-  auto it = _file_map.find(id);
-  if (it == _file_map.end()){
-    return true;
+  if (id >= _files.size() || nullptr == _files[id]) {
+    return false;
   }
-  _file_map[id].get()->close();
-  _file_map.erase(it);
+
+  if (_files.at(id)->is_open()) {
+    return false;
+  }
+
+  _files.at(id)->close();
+  delete _files.at(id);
+  _files.at(id) = nullptr;
   _id_recycle_bin.push(id);
   return true;
 }
 
-bool file_manager_c::write(const uint64_t id, const char * data, std::size_t length)
+file_c *file_manager_c::get_file(const uint64_t id)
 {
   std::lock_guard<std::mutex> lock(_mutex);
-  if (!data || length == 0) {
-    return false;
+  if (id >= _files.size() || nullptr == _files[id]) {
+    return nullptr;
   }
-  if(_file_map.find(id) == _file_map.end()) {
-    return false;
-  }
-  _file_map[id].get()->write(data, length);
-  return true;
+  return _files.at(id);
 }
 
-io_disk_c::io_disk_c() : _manager(new file_manager_c())
-{
-}
+io_disk_c::io_disk_c() : _manager(new file_manager_c()) {}
 
-io_disk_c::~io_disk_c()
-{
-  delete _manager;
-}
+io_disk_c::~io_disk_c() { delete _manager; }
 
 void io_disk_c::execute(skiff::types::view_t &view)
 {
@@ -157,12 +126,12 @@ void io_disk_c::execute(skiff::types::view_t &view)
       and reading / writing it
 
       use _manager for everything
-  
-  
-  
+
+
+
   */
 }
 
-}
-}
-}
+} // namespace system
+} // namespace machine
+} // namespace skiff

@@ -193,11 +193,11 @@ void io_user_c::perform_output(skiff::types::view_t &view,
     std::string out;
     auto num = offset;
     while (num != length + offset) {
-      auto [okay, c_word] = slot->get_word(num++);
+      auto [okay, c_word] = slot->get_hword(num++);
       if (!okay) {
         break;
       }
-      out += static_cast<char>(c_word >> 8);
+      out += static_cast<char>(c_word);
     }
     output_data<std::string>(out, destination, newline);
     break;
@@ -270,7 +270,7 @@ void io_user_c::perform_input(skiff::types::view_t &view,
     auto actual_length =
         std::min(static_cast<std::size_t>(length), value.size());
     for (auto i = 0; i < actual_length; i++) {
-      if (!slot->put_word(i, static_cast<uint16_t>(value[i]) << 8)) {
+      if (!slot->put_hword(i, value[i])) {
         return;
       }
     }

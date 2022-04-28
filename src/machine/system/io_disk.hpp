@@ -8,6 +8,19 @@ namespace skiff {
 namespace machine {
 namespace system {
 
+/*
+
+Command
+
+WORD [Create = 0 | Load = 1 | Close = 2 ]
+
+Create
+  QWORD [Filename Length]
+  
+
+
+*/
+
 // fwd 
 class file_manager_c;
 
