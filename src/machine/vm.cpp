@@ -7,6 +7,7 @@
 #include "logging/aixlog.hpp"
 #include "machine/system/callable.hpp"
 #include "machine/system/io_user.hpp"
+#include "machine/system/io_disk.hpp"
 #include "machine/system/timer.hpp"
 #include "machine/vm.hpp"
 #include "types.hpp"
@@ -39,6 +40,7 @@ vm_c::vm_c()
       _memman)); // Syscall 0
 
   _system_callables.emplace_back(new system::io_user_c()); // Syscall 1
+  _system_callables.emplace_back(new system::io_disk_c()); // Syscall 2
 }
 
 vm_c::~vm_c() {}

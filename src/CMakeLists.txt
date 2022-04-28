@@ -64,6 +64,7 @@ set(PROJECT_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/machine/memory/memory.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/machine/memory/stack.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/machine/system/io_user.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/machine/system/io_disk.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/machine/system/timer.cpp
 )
 
