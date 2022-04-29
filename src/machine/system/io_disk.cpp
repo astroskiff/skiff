@@ -161,7 +161,6 @@ void io_disk_c::execute(skiff::types::view_t &view)
     case command_e::WRITE: return write(slot, view);
     case command_e::READ: return read(slot, view);
   };
-
 }
 
 void io_disk_c::create(skiff::machine::memory::memory_c* slot, skiff::types::view_t &view)
@@ -193,7 +192,31 @@ void io_disk_c::create(skiff::machine::memory::memory_c* slot, skiff::types::vie
 
   std::cout << "Path len: " << file_path_len << std::endl;
 
+  auto path_slot = view.memory_manager.get_slot(file_path_source_slot_id);
+  if (!path_slot) {
+    return;
+  }
 
+  if (path_slot->size() < file_path_source_slot_offset + file_path_len) {
+    return;
+  }
+
+  // Pull the path out of memory - this would be a lot faster if we had a 'slice' 
+  // function on the memory object
+  std::string path;
+  for( int i = 0; i < file_path_len; i++) {
+    auto [byte_okay, value] = path_slot->get_hword(file_path_source_slot_offset++);
+    if (!byte_okay) {
+      return;
+    }
+    path += static_cast<char>(value);
+  }
+
+  std::cout << "Path: " << path << std::endl;
+
+  // Set i0 to the file id and set op register to 1 to indicate success
+  view.integer_registers[0] = _manager->create(path);
+  view.op_register = 1;
 }
 
 void io_disk_c::open(skiff::machine::memory::memory_c* slot, skiff::types::view_t &view)
