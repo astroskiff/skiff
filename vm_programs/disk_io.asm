@@ -1,5 +1,4 @@
 .init fn_main
-.debug 3
 .string prompt    "Read in data : "
 .string file_data "This is some file data that should get written to file!"
 .string file_path "/tmp/file.txt"
@@ -218,6 +217,7 @@ fn_read_from_disk:
 
   mov i3 #file_data   ; Allocate a new slot the size of the string
   alloc i3 i3
+  push_qw i3
 
   ; Load source slot 
   ;
@@ -245,11 +245,65 @@ fn_read_from_disk:
   mov i4 #file_data
   aseq i4 op          ; Ensure that all data was read in
 
-  ; i3 contains address of slot with data read in
-
-  debug 1
+  call fn_print_data
 
   free i8             ; Free the command slot memory
+  ret
+
+; i5 Type
+; i6 Location
+; i7 Length
+; i3 source slot
+fn_print_item:
+  mov i0 @0
+  mov i1 @2       ; Word size in bytes  
+  sw i8 i0 i0     ; Store `0` into command slot 
+  
+  add i0 i0 i1    ; Increase slot index 
+  sw i8 i0 i3     ; Indicate source slot is `0` (data directive)
+  
+  add i0 i0 i1  
+  sw i8 i0 i6     ; Load Location
+
+  add i0 i0 i1  
+  sw i8 i0 i5     ; Load type
+
+  add i0 i0 i1  
+  sw i8 i0 i7     ; Load length
+
+  add i0 i0 i1  
+  mov i2 @1       ; Send to stdout
+  sw i8 i0 i2
+
+  add i0 i0 i1
+  mov i2 @1       ; Print new line
+  sw i8 i0 i2
+
+  push_qw i8      ; Load command slot into i0 
+  pop_qw i0 
+
+  mov i1 @0       ; Load command offset
+
+  syscall 1
+  ret
+
+; Print read-in data
+;
+fn_print_data:
+
+  ; Print prompt
+
+  mov i3 @0         ; Source slot 0
+  mov i5 @9         ; ASCII
+  mov i6 &prompt    ; Address
+  mov i7 #prompt    ; Len
+  call fn_print_item
+
+  pop_qw i3         ; Retrieve slot with read-in data
+  mov i5 @9         ; ASCII
+  mov i6 @0         ; Address
+  mov i7 #file_data ; Len
+  call fn_print_item
   ret
 
 fn_main:

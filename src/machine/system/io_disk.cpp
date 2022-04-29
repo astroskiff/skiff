@@ -9,10 +9,8 @@
 #include <tuple>
 #include <vector>
 
-
 //#include <bitset>
-#include <iostream>
-
+//#include <iostream>
 
 namespace skiff {
 namespace machine {
@@ -133,11 +131,11 @@ io_disk_c::~io_disk_c() { delete _manager; }
 
 void io_disk_c::execute(skiff::types::view_t &view)
 {
-  std::cout << "execute disk | i0: " 
-            << view.integer_registers[0] 
-            << " i1: "
-            << view.integer_registers[1]
-            << std::endl;
+  //std::cout << "execute disk | i0: " 
+  //          << view.integer_registers[0] 
+  //          << " i1: "
+  //          << view.integer_registers[1]
+  //          << std::endl;
 
   // Assume failure
   view.op_register = 0;
@@ -153,7 +151,7 @@ void io_disk_c::execute(skiff::types::view_t &view)
     return;
   }
 
-  std::cout << "Command : " << command << std::endl;
+  //std::cout << "Command : " << command << std::endl;
 
   switch(static_cast<command_e>(command)) {
     case command_e::CREATE: return create(slot, view);
@@ -219,7 +217,7 @@ void io_disk_c::create(skiff::machine::memory::memory_c* slot, skiff::types::vie
   view.integer_registers[0] = _manager->create(path);
   view.op_register = 1;
 
-  std::cout << "NEW FD: " << view.integer_registers[0] << std::endl;
+  //std::cout << "NEW FD: " << view.integer_registers[0] << std::endl;
 }
 
 void io_disk_c::open(skiff::machine::memory::memory_c* slot, skiff::types::view_t &view)
@@ -251,7 +249,7 @@ void io_disk_c::open(skiff::machine::memory::memory_c* slot, skiff::types::view_
 
 void io_disk_c::close(skiff::machine::memory::memory_c* slot, skiff::types::view_t &view)
 {
-  std::cout << "CLOSE\n";
+  //std::cout << "CLOSE\n";
 
   auto offset = view.integer_registers[1] + skiff::config::word_size_bytes;
   auto [fd_okay, fd] = slot->get_qword(offset);
@@ -405,15 +403,12 @@ void io_disk_c::read(skiff::machine::memory::memory_c* slot, skiff::types::view_
   //std::cout << "Read : " << str_in << std::endl;
 
   for(auto b : data) {
-    std::cout << (int) b << " ";
-
+    //std::cout << (int) b << " ";
     if (!ds->put_hword(dest_offset++, b)) {
       return;
     }
   }
-  std::cout << std::endl;
-
-
+  //std::cout << std::endl;
   view.op_register = data.size();
 }
 
