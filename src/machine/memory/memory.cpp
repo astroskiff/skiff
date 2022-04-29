@@ -117,12 +117,27 @@ std::tuple<bool, uint64_t> memory_c::get_qword(const uint64_t index)
   return {true, d};
 }
 
-bool memory_c::import(const std::vector<uint8_t> &data)
+std::vector<uint8_t> memory_c::get_n_bytes(const uint64_t start,
+                                           const uint64_t n)
 {
-  if (data.size() > _size) {
+  if (start + n > _size) {
+    return {};
+  }
+  std::vector<uint8_t> result;
+  result.resize(n);
+
+  std::memcpy(&result[0], (_data + start), n);
+  return result;
+}
+
+bool memory_c::put_n_bytes(const std::vector<uint8_t> data,
+                           const uint64_t start)
+{
+  if (start + data.size() > _size) {
     return false;
   }
-  std::memcpy(_data, &data[0], _size);
+
+  std::memcpy(_data + start, &data[0], data.size());
   return true;
 }
 

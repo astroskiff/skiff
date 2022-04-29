@@ -68,13 +68,19 @@ public:
   //!          from the stack.
   [[nodiscard]] std::tuple<bool, uint64_t> get_qword(const uint64_t index);
 
-  //! \brief Import data as a chunk from a vector
-  //! \param data The data to import
-  [[nodiscard]] bool import(const std::vector<uint8_t> &data);
-
   //! \brief Retrieve the size of the data
   //! \returns Allocated size
   [[nodiscard]] uint64_t size() const { return _size; };
+
+  //! \brief Retrieve 'n' bytes from memory
+  //! \returns 'n' bytes from index of start iff range of [start, n] is valid
+  [[nodiscard]] std::vector<uint8_t> get_n_bytes(const uint64_t start,
+                                                 const uint64_t n);
+
+  //! \brief Put bytes at position
+  //! \returns true iff bytes will fit
+  [[nodiscard]] bool put_n_bytes(const std::vector<uint8_t> data,
+                                 const uint64_t start);
 
 private:
   uint64_t _size;

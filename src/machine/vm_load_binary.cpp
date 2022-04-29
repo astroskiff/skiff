@@ -84,8 +84,8 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
         return false;
       }
 
-      if (!memory_slot->import(constant_bytes)) {
-        issue_forced_error("Unable to import constants into memory slot");
+      if (!memory_slot->put_n_bytes(constant_bytes, 0)) {
+        issue_forced_error("Unable to put constants into memory slot");
         return false;
       }
     }
