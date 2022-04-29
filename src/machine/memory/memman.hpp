@@ -3,6 +3,7 @@
 
 #include "machine/memory/memory.hpp"
 #include <cstdint>
+#include <mutex>
 #include <optional>
 #include <queue>
 #include <tuple>
@@ -36,11 +37,12 @@ public:
   //! \brief Retrieve a slot
   //! \param id The id of the slot to retrive
   //! \returns Memory slot iff the id was valid, nullptr otherwise
-  skiff::machine::memory::memory_c *get_slot(const uint64_t id) const;
+  skiff::machine::memory::memory_c *get_slot(const uint64_t id);
 
 private:
   std::vector<skiff::machine::memory::memory_c *> _slots;
   std::queue<std::size_t> _available_ids;
+  std::mutex _mutex;
 };
 
 } // namespace memory

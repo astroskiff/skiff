@@ -17,6 +17,7 @@ memman_c::~memman_c()
 
 std::tuple<bool, uint64_t> memman_c::alloc(const uint64_t size)
 {
+  std::lock_guard<std::mutex> lock(_mutex);
   // Determine if the list needs to grow, or if there is an available index
   if (_available_ids.empty()) {
     _slots.push_back(new skiff::machine::memory::memory_c(size));
@@ -35,6 +36,7 @@ std::tuple<bool, uint64_t> memman_c::alloc(const uint64_t size)
 
 bool memman_c::free(const uint64_t id)
 {
+  std::lock_guard<std::mutex> lock(_mutex);
   if (id >= _slots.size() || nullptr == _slots[id]) {
     return false;
   }
@@ -44,8 +46,9 @@ bool memman_c::free(const uint64_t id)
   return true;
 }
 
-skiff::machine::memory::memory_c *memman_c::get_slot(const uint64_t id) const
+skiff::machine::memory::memory_c *memman_c::get_slot(const uint64_t id)
 {
+  std::lock_guard<std::mutex> lock(_mutex);
   if (id >= _slots.size() || nullptr == _slots[id]) {
     return nullptr;
   }
