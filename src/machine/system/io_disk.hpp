@@ -42,17 +42,17 @@ Close
 
 Write
   QWORD [File Descriptor]
+  QWORD [Source slot]
+  QWORD [Source slot offset]
   QWORD [Number of bytes]
-  QWORD [Destination Slot]
-  QWORD [Destination Slot Offset]
 
-  Results with op register to the number of bytes written
+  Results with op register set to `1` if success, 0 otherwise
 
 Read
   QWORD [File Descriptor]
+  QWORD [Destination slot]
+  QWORD [Destination slot offset]
   QWORD [Number of bytes]
-  QWORD [Destination Slot]
-  QWORD [Destination Slot Offset]
 
   Results with op register to the number of bytes read in
 */
