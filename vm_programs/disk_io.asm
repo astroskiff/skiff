@@ -7,15 +7,17 @@
 
 
 fn_create_fd:
-  mov i0 @24
+  mov i0 @1024
   alloc i8 i0         ; Make some room for a command 
 
   mov i0 @0           ; Index into command 
-  mov i2 @8           ; Inc value
+  mov i2 @2           ; Inc value
   mov i3 @0           ; Command to create file descriptor '0'
-  sqw i8 x0 i3  
+  sw i8 x0 i3
 
-  add i0 i0 i2        ; Move over 8 to load next parameter
+  add i0 i0 i2        ; Move over 2 to load next parameter
+
+  mov i2 @8           ; Inc value
   
   sqw i8 i0 x0        ; Indicate that the source slot is slot '0'
 
@@ -28,6 +30,9 @@ fn_create_fd:
 
   mov i3 #file_path
   sqw i8 i0 i3        ; Load string length of file_path 
+
+  mov i0 @1
+  mov i1 @0
 
   syscall 2           ; Call the disk device
 

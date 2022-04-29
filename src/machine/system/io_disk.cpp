@@ -1,4 +1,5 @@
 #include "io_disk.hpp"
+#include "config.hpp"
 
 #include <fstream>
 #include <memory>
@@ -131,6 +132,12 @@ io_disk_c::~io_disk_c() { delete _manager; }
 
 void io_disk_c::execute(skiff::types::view_t &view)
 {
+  std::cout << "execute disk | i0: " 
+            << view.integer_registers[0] 
+            << " i1: "
+            << view.integer_registers[1]
+            << std::endl;
+
   // Assume failure
   view.op_register = 0;
 
@@ -145,6 +152,8 @@ void io_disk_c::execute(skiff::types::view_t &view)
     return;
   }
 
+  std::cout << "Command : " << command << std::endl;
+
   switch(static_cast<command_e>(command)) {
     case command_e::CREATE: return create(slot, view);
     case command_e::OPEN:   return open(slot, view);
@@ -158,6 +167,33 @@ void io_disk_c::execute(skiff::types::view_t &view)
 void io_disk_c::create(skiff::machine::memory::memory_c* slot, skiff::types::view_t &view)
 {
   std::cout << "CREATE\n";
+
+  // Skip the command word
+  auto offset = view.integer_registers[1] + skiff::config::word_size_bytes;
+  auto [path_okay, file_path_source_slot_id] = slot->get_qword(offset);
+  if (!path_okay) {
+    return;
+  }
+
+  std::cout << "Path source slot : " << file_path_source_slot_id << std::endl;
+
+  offset += skiff::config::q_word_size_bytes;
+  auto [offset_okay, file_path_source_slot_offset] = slot->get_qword(offset);
+  if (!offset_okay) {
+    return;
+  }
+
+  std::cout << "Path source offset: " << file_path_source_slot_offset << std::endl;
+
+  offset += skiff::config::q_word_size_bytes;
+  auto [len_okay, file_path_len] = slot->get_qword(offset);
+  if (!len_okay) {
+    return;
+  }
+
+  std::cout << "Path len: " << file_path_len << std::endl;
+
+
 }
 
 void io_disk_c::open(skiff::machine::memory::memory_c* slot, skiff::types::view_t &view)
