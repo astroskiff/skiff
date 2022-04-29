@@ -20,6 +20,11 @@ public:
   //! \brief Destroy the memory
   ~memory_c();
 
+  //! \brief Store half word
+  //! \param destination The location in memory to store the word
+  //! \param value The value to store in memory at the location
+  [[nodiscard]] bool put_hword(const uint64_t index, const uint8_t data);
+
   //! \brief Store word
   //! \param destination The location in memory to store the word
   //! \param value The value to store in memory at the location
@@ -34,6 +39,13 @@ public:
   //! \param destination The location in memory to store the qword
   //! \param value The value to store in memory at the location
   [[nodiscard]] bool put_qword(const uint64_t index, const uint64_t data);
+
+  //! \brief Get half word
+  //! \param index The location to read the half word from
+  //! \returns tuple containing boolean indicating if
+  //!          the operation was a success, and a value
+  //!          from the stack.
+  [[nodiscard]] std::tuple<bool, uint8_t> get_hword(const uint64_t index);
 
   //! \brief Get word
   //! \param index The location to read the word from
