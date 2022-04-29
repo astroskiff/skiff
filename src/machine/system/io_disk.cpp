@@ -32,7 +32,7 @@ class file_c {
 public:
   file_c(const std::string file_path) : _file_path{file_path} {}
 
-  bool open(const unsigned int flags);
+  bool open(std::ios_base::openmode flags);
   const bool is_open() { return _fs.is_open(); }
   void close() { _fs.close(); }
   void write(const char *data, std::size_t len);
@@ -43,7 +43,7 @@ private:
   std::string _file_path;
 };
 
-bool file_c::open(const unsigned int flags)
+bool file_c::open(std::ios_base::openmode flags)
 {
   if (_fs.is_open()) {
     return true;
@@ -246,7 +246,7 @@ void io_disk_c::open(skiff::machine::memory::memory_c* slot, skiff::types::view_
     return;
   }
 
-  view.op_register = static_cast<uint64_t>(file->open(flags & 0xFF));
+  view.op_register = static_cast<uint64_t>(file->open(static_cast<std::ios_base::openmode>(flags & 0xFF)));
 }
 
 void io_disk_c::close(skiff::machine::memory::memory_c* slot, skiff::types::view_t &view)
@@ -349,14 +349,14 @@ void io_disk_c::write(skiff::machine::memory::memory_c* slot, skiff::types::view
 
 void io_disk_c::read(skiff::machine::memory::memory_c* slot, skiff::types::view_t &view)
 {
-  std::cout << "READ\n";
+  //std::cout << "READ\n";
   auto offset = view.integer_registers[1] + skiff::config::word_size_bytes;
   auto [fd_okay, fd] = slot->get_qword(offset);
   if (!fd_okay) {
     return;
   }
 
-  std::cout << "FD: " << fd << std::endl;
+  //std::cout << "FD: " << fd << std::endl;
 
   offset += skiff::config::q_word_size_bytes;
   auto [dest_slot_okay, dest_slot] = slot->get_qword(offset);
@@ -364,7 +364,7 @@ void io_disk_c::read(skiff::machine::memory::memory_c* slot, skiff::types::view_
     return;
   }
 
-  std::cout << "DEST SLOT: " << dest_slot << std::endl;
+  //std::cout << "DEST SLOT: " << dest_slot << std::endl;
 
   offset += skiff::config::q_word_size_bytes;
   auto [dest_offset_okay, dest_offset] = slot->get_qword(offset);
@@ -372,7 +372,7 @@ void io_disk_c::read(skiff::machine::memory::memory_c* slot, skiff::types::view_
     return;
   }
   
-  std::cout << "DEST OFFSET: " << dest_offset << std::endl;
+  //std::cout << "DEST OFFSET: " << dest_offset << std::endl;
 
   offset += skiff::config::q_word_size_bytes;
   auto [len_okay, len] = slot->get_qword(offset);
@@ -380,20 +380,20 @@ void io_disk_c::read(skiff::machine::memory::memory_c* slot, skiff::types::view_
     return;
   }
   
-  std::cout << "DEST LEN: " << len << std::endl;
+  //std::cout << "DEST LEN: " << len << std::endl;
 
   auto ds = view.memory_manager.get_slot(dest_slot);
   if (!ds) {
     return;
   }
 
-  std::cout << "Got source slot\n";
+  //std::cout << "Got source slot\n";
 
   if (ds->size() < dest_offset + len) {
     return;
   }
 
-  std::cout << "Getting file\n";
+  //std::cout << "Getting file\n";
 
   auto file = _manager->get_file(fd);
   if (!file) {
@@ -401,11 +401,8 @@ void io_disk_c::read(skiff::machine::memory::memory_c* slot, skiff::types::view_
   }
 
   std::vector<uint8_t> data = file->read(len);
-
-
-
-  std::string str_in(reinterpret_cast<const char*>(data.data()), data.size());
-  std::cout << "Read : " << str_in << std::endl;
+  //std::string str_in(reinterpret_cast<const char*>(data.data()), data.size());
+  //std::cout << "Read : " << str_in << std::endl;
 
   for(auto b : data) {
     std::cout << (int) b << " ";

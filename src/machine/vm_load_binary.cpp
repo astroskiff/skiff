@@ -109,7 +109,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
     return {true, value};
   };
 
-  auto decode_ins_with_one_reg = [=](std::vector<uint8_t> &data)
+  auto decode_ins_with_one_reg = [&, this](std::vector<uint8_t> &data)
       -> std::tuple<bool, skiff::types::vm_register *> {
     if (data.size() != 1) {
       LOG(FATAL) << TAG("vm") << "Insufficent data to construct instruction\n";
@@ -123,7 +123,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
     return {true, targeted_register};
   };
 
-  auto decode_ins_with_two_reg = [=](std::vector<uint8_t> &data)
+  auto decode_ins_with_two_reg = [&, this](std::vector<uint8_t> &data)
       -> std::tuple<bool, skiff::types::vm_register *,
                     skiff::types::vm_register *> {
     if (data.size() != 2) {
@@ -146,7 +146,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
     return {true, lhs, rhs};
   };
 
-  auto decode_ins_with_three_reg = [=](std::vector<uint8_t> &data)
+  auto decode_ins_with_three_reg = [&, this](std::vector<uint8_t> &data)
       -> std::tuple<bool, skiff::types::vm_register *,
                     skiff::types::vm_register *, skiff::types::vm_register *> {
     if (data.size() != 3) {
@@ -175,7 +175,7 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
     return {true, one, two, three};
   };
 
-  auto decode_branch_instruction = [=](std::vector<uint8_t> &data)
+  auto decode_branch_instruction = [&, this](std::vector<uint8_t> &data)
       -> std::tuple<bool, skiff::types::vm_register *,
                     skiff::types::vm_register *, uint64_t> {
     if (data.size() != 10) {
