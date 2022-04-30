@@ -32,20 +32,28 @@ fn_print_item:
   sw i8 i0 i0     ; Store `0` into command slot 
   
   add i0 i0 i1    ; Increase slot index 
-  sw i8 i0 i3     ; Indicate source slot is `0` (data directive)
+  sqw i8 i0 i3    ; Indicate source slot is `0` (data directive)
   
+  mov i1 @8       ; Q Word size in bytes  
+
   add i0 i0 i1  
-  sw i8 i0 i6     ; Load Location
+  sqw i8 i0 i6     ; Load Location
 
   add i0 i0 i1  
   sw i8 i0 i5     ; Load type
 
+  mov i1 @2       ; Word size in bytes  
+
   add i0 i0 i1  
-  sw i8 i0 i7     ; Load length
+  sqw i8 i0 i7    ; Load length
+
+  mov i1 @8       ; Q Word size in bytes  
 
   add i0 i0 i1  
   mov i2 @1       ; Send to stdout
   sw i8 i0 i2
+
+  mov i1 @2       ; Word size in bytes  
 
   add i0 i0 i1
   mov i2 @1       ; Print new line
@@ -143,16 +151,20 @@ fn_get_item:
   sw i8 i0 x1     ; Store `1` into command slot 
   
   add i0 i0 i1    ; Increase slot index 
-  sw i8 i0 i9     ; Indicate input buffer (i9)
+  sqw i8 i0 i9    ; Indicate input buffer (i9)
   
+  mov i1 @8       ; Q Word size in bytes  
+
   add i0 i0 i1  
-  sw i8 i0 x0     ; Load offset to start placing in buffer (0)
+  sqw i8 i0 x0    ; Load offset to start placing in buffer (0)
 
   add i0 i0 i1  
   sw i8 i0 i5     ; Load type
 
+  mov i1 @2       ; Word size in bytes  
+
   add i0 i0 i1  
-  sw i8 i0 i7     ; Load length
+  sqw i8 i0 i7    ; Load length
 
   push_qw i8      ; Load command slot into i0 
   pop_qw i0 
@@ -250,7 +262,7 @@ fn_get_int:
 
 fn_main:
 
-  mov i0 @16    ; 16 Bytes for command slot 
+  mov i0 @1024  ; 16 Bytes for command slot 
   alloc i8 i0   ; Allocate slot and get id in i8 
 
   call fn_print_items
