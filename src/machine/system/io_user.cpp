@@ -56,31 +56,31 @@ void io_user_c::execute(skiff::types::view_t &view)
   }
 
   command_offset += skiff::config::word_size_bytes;
-  auto [b, target_slot] = slot->get_word(command_offset);
+  auto [b, target_slot] = slot->get_qword(command_offset);
   if (!b) {
     return;
   }
 
-  command_offset += skiff::config::word_size_bytes;
-  auto [c, target_offset] = slot->get_word(command_offset);
+  command_offset += skiff::config::q_word_size_bytes ;
+  auto [c, target_offset] = slot->get_qword(command_offset);
   if (!c) {
     return;
   }
 
-  command_offset += skiff::config::word_size_bytes;
+  command_offset += skiff::config::q_word_size_bytes;
   auto [d, data_type] = slot->get_word(command_offset);
   if (!d) {
     return;
   }
 
   command_offset += skiff::config::word_size_bytes;
-  auto [e, length] = slot->get_word(command_offset);
+  auto [e, length] = slot->get_qword(command_offset);
   if (!e) {
     return;
   }
 
   if (command == 0) {
-    command_offset += skiff::config::word_size_bytes;
+    command_offset += skiff::config::q_word_size_bytes;
     auto [f, destination] = slot->get_word(command_offset);
     if (!f) {
       return;
@@ -99,9 +99,9 @@ void io_user_c::execute(skiff::types::view_t &view)
 }
 
 void io_user_c::perform_output(skiff::types::view_t &view,
-                               const uint16_t source, const uint16_t offset,
-                               const uint16_t data_type, const uint16_t length,
-                               const uint16_t destination,
+                               const uint64_t source, const uint64_t offset,
+                               const uint16_t data_type, const uint64_t length,
+                               const uint64_t destination,
                                const uint16_t newline)
 {
   auto slot = view.memory_manager.get_slot(source);
@@ -205,8 +205,8 @@ void io_user_c::perform_output(skiff::types::view_t &view,
 }
 
 void io_user_c::perform_input(skiff::types::view_t &view,
-                              const uint16_t destination, const uint16_t offset,
-                              const uint16_t data_type, const uint16_t length)
+                              const uint64_t destination, const uint64_t offset,
+                              const uint16_t data_type, const uint64_t length)
 {
   auto slot = view.memory_manager.get_slot(destination);
   if (!slot) {
