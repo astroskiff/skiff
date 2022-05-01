@@ -96,7 +96,7 @@ TEST(memory_c, chonker)
       Every item is added to the stack and then removed. This will
       ensure that there are no issues with "mixed" types within the stack.
   */
-  enum class type_t { WORD = 0, DWORD = 1, QWORD = 2 };
+  enum class type_t { WORD = 0, DWORD = 1, QWORD = 2, HWORD = 3 };
 
   struct tc {
     type_t type;
@@ -129,6 +129,12 @@ TEST(memory_c, chonker)
               std::numeric_limits<uint64_t>::min(),
               std::numeric_limits<uint64_t>::max());
       break;
+    case type_t::HWORD:
+      test_case.value =
+          libutil::random::generate_random_c<uint8_t>().get_range(
+              std::numeric_limits<uint8_t>::min(),
+              std::numeric_limits<uint8_t>::max());
+      break;
     default:
       FAIL("Random number gen broke the freakin tests");
       break;
@@ -154,6 +160,10 @@ TEST(memory_c, chonker)
     case type_t::QWORD:
       CHECK_TRUE(skiff_memory.put_qword(idx, i.value));
       idx += skiff::config::q_word_size_bytes;
+      break;
+    case type_t::HWORD:
+      CHECK_TRUE(skiff_memory.put_hword(idx, i.value));
+      idx += skiff::config::h_word_size_bytes;
       break;
     default:
       FAIL("Random number gen broke the freakin tests");

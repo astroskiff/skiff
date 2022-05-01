@@ -28,14 +28,14 @@ main:
 
   ; BYTE
   mov i4 @42
-  push_w i4
+  push_hw i4
 
-  mov i9 @16  ; Check SP updated - Word pushed, not just byte (+2)
+  mov i9 @15  ; Check SP updated - Word pushed, not just byte (+2)
   aseq i9 sp
 
   ; Pop off values and ensure they are the same 
 
-  pop_w i0 
+  pop_hw i0 
   aseq i4 i0  ; Ensure the same value
 
   mov i9 @14  ; Check SP updated

@@ -433,6 +433,15 @@ void vm_c::accept(instruction_push_w_c &ins)
   _ip++;
 }
 
+void vm_c::accept(instruction_push_hw_c &ins)
+{
+  if (!_stack.push_hword(ins.source)) {
+    kill_with_error(skiff::types::runtime_error_e::STACK_PUSH_ERROR,
+                    "Unable to push data to stack. Out of memory?");
+  }
+  _ip++;
+}
+
 void vm_c::accept(instruction_push_dw_c &ins)
 {
   if (!_stack.push_dword(ins.source)) {
@@ -454,6 +463,17 @@ void vm_c::accept(instruction_push_qw_c &ins)
 void vm_c::accept(instruction_pop_w_c &ins)
 {
   auto [okay, value] = _stack.pop_word();
+  if (!okay) {
+    kill_with_error(skiff::types::runtime_error_e::STACK_POP_ERROR,
+                    "Unable to pop data from stack. Stack empty?");
+  }
+  ins.dest = value;
+  _ip++;
+}
+
+void vm_c::accept(instruction_pop_hw_c &ins)
+{
+  auto [okay, value] = _stack.pop_hword();
   if (!okay) {
     kill_with_error(skiff::types::runtime_error_e::STACK_POP_ERROR,
                     "Unable to pop data from stack. Stack empty?");
@@ -526,6 +546,24 @@ void vm_c::accept(instruction_store_word_c &ins)
   _op_register = 1;
 }
 
+void vm_c::accept(instruction_store_hword_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
+  _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  if (!slot->put_hword(ins.offset, ins.data)) {
+    _op_register = 0;
+    return;
+  }
+
+  _op_register = 1;
+}
+
 void vm_c::accept(instruction_store_dword_c &ins)
 {
   auto slot = _memman.get_slot(ins.idx);
@@ -573,6 +611,25 @@ void vm_c::accept(instruction_load_word_c &ins)
   }
 
   auto [okay, value] = slot->get_word(ins.offset);
+  if (!okay) {
+    _op_register = 0;
+    return;
+  }
+  _op_register = 1;
+  ins.dest = value;
+}
+
+void vm_c::accept(instruction_load_hword_c &ins)
+{
+  auto slot = _memman.get_slot(ins.idx);
+  _ip++;
+
+  if (!slot) {
+    _op_register = 0;
+    return;
+  }
+
+  auto [okay, value] = slot->get_hword(ins.offset);
   if (!okay) {
     _op_register = 0;
     return;
