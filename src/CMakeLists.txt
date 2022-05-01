@@ -49,14 +49,6 @@ if(WITH_ASAN)
   set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 endif()
 
-if(WITH_GRAPHICS)
-  find_file(SDL2_INCLUDE_DIR NAME SDL.h HINTS SDL2)
-  find_library(SDL2_LIBRARY NAME SDL2)
-  add_executable(ChickenShooter main.cpp)
-  target_include_directories(ChickenShooter ${SDL2_INCLUDE_DIR})
-  target_link_libraries(ChickenShooter ${SDL2_LIBRARY})  
-endif()
-
 #
 # Build 
 #
@@ -88,6 +80,13 @@ if(SKIFF_USE_THREADS)
   target_link_libraries(${PROJECT_NAME}
     Threads::Threads
   )
+endif()
+
+if(WITH_GRAPHICS)
+  find_file(SDL2_INCLUDE_DIR NAME SDL.h HINTS SDL2)
+  find_library(SDL2_LIBRARY NAME SDL2)
+  include_directories(${SDL2_INCLUDE_DIR})
+  target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY})  
 endif()
 
 target_link_libraries(${PROJECT_NAME}
