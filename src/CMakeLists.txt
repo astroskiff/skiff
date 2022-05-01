@@ -8,9 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 # Options
 #
 option(COMPILE_TESTS "Execute unit tests" ON)
-option(SKIFF_USE_THREADS "Allow threads"  ON)
-option(WITH_ASAN     "Compile with ASAN"  OFF)
-option(WITH_GRAPHICS "Enable VM Graphics" OFF)
+option(WITH_ASAN     "Compile with ASAN" OFF)
 
 #
 # Find libskiff
@@ -75,18 +73,10 @@ add_executable(${PROJECT_NAME}
         skiffd.cpp)
 
 if(SKIFF_USE_THREADS)
-  add_compile_definitions(SKIFF_USE_THREADS)
   find_package (Threads REQUIRED)
   target_link_libraries(${PROJECT_NAME}
     Threads::Threads
   )
-endif()
-
-if(WITH_GRAPHICS)
-  find_file(SDL2_INCLUDE_DIR NAME SDL.h HINTS SDL2)
-  find_library(SDL2_LIBRARY NAME SDL2)
-  include_directories(${SDL2_INCLUDE_DIR})
-  target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY})  
 endif()
 
 target_link_libraries(${PROJECT_NAME}
