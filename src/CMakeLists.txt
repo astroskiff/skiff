@@ -9,7 +9,8 @@ set(CMAKE_CXX_STANDARD 20)
 #
 option(COMPILE_TESTS "Execute unit tests" ON)
 option(SKIFF_USE_THREADS "Allow threads"  ON)
-option(WITH_ASAN     "Compile with ASAN" OFF)
+option(WITH_ASAN     "Compile with ASAN"  OFF)
+option(WITH_GRAPHICS "Enable VM Graphics" OFF)
 
 #
 # Find libskiff
@@ -46,6 +47,14 @@ if(WITH_ASAN)
   set(CMAKE_CX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
   set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+endif()
+
+if(WITH_GRAPHICS)
+  find_file(SDL2_INCLUDE_DIR NAME SDL.h HINTS SDL2)
+  find_library(SDL2_LIBRARY NAME SDL2)
+  add_executable(ChickenShooter main.cpp)
+  target_include_directories(ChickenShooter ${SDL2_INCLUDE_DIR})
+  target_link_libraries(ChickenShooter ${SDL2_LIBRARY})  
 endif()
 
 #
