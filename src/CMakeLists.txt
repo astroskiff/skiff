@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 # Options
 #
 option(COMPILE_TESTS "Execute unit tests" ON)
+option(SKIFF_USE_THREADS "Allow threads"  ON)
 option(WITH_ASAN     "Compile with ASAN" OFF)
 
 #
@@ -73,6 +74,7 @@ add_executable(${PROJECT_NAME}
         skiffd.cpp)
 
 if(SKIFF_USE_THREADS)
+  add_compile_definitions(SKIFF_USE_THREADS)
   find_package (Threads REQUIRED)
   target_link_libraries(${PROJECT_NAME}
     Threads::Threads
