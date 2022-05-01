@@ -12,21 +12,56 @@
 .string str_interrupt_4   "60 second interrupt fired - exiting"
 
 #macro SYSCALL_TIMER      "syscall 0" ; Timer call id '0'
-#macro SYSCALL_PRINTER    "syscall 1" ; Printer id '1'
-#macro PRINTER_LOAD_ASCII "mov i3 @9"
-#macro PRINTER_DO_NEWLINE "mov i4 @1" ; Tell printer to add newline
-#macro PRINTER_SLOT_ZERO  "mov i0 @0" ; Tell printer to use memory slot 0 for data
-
+#macro SYSCALL_USERIO     "syscall 1" ; Printer id '1'
 .code 
 
-; Assumes i1 i2 and i3 are already populated
-; with offset, length, and print type 
-;
+; i5 Type
+; i6 Location
+; i7 Length
+; i3 source slot
 fn_print_item:
-  #PRINTER_SLOT_ZERO
-  #PRINTER_DO_NEWLINE
-  #SYSCALL_PRINTER
-  aseq x1 op        ; Ensure it worked
+  mov i0 @1024  ; 16 Bytes for command slot 
+  alloc i8 i0   ; Allocate slot and get id in i8 
+
+  mov i0 @0
+  mov i1 @2       ; Word size in bytes  
+  sw i8 i0 i0     ; Store `0` into command slot 
+  
+  add i0 i0 i1    ; Increase slot index 
+  sqw i8 i0 i3    ; Indicate source slot is `0` (data directive)
+  
+  mov i1 @8       ; Q Word size in bytes  
+
+  add i0 i0 i1  
+  sqw i8 i0 i6     ; Load Location
+
+  add i0 i0 i1  
+  sw i8 i0 i5     ; Load type
+
+  mov i1 @2       ; Word size in bytes  
+
+  add i0 i0 i1  
+  sqw i8 i0 i7    ; Load length
+
+  mov i1 @8       ; Q Word size in bytes  
+
+  add i0 i0 i1  
+  mov i2 @1       ; Send to stdout
+  sw i8 i0 i2
+
+  mov i1 @2       ; Word size in bytes  
+
+  add i0 i0 i1
+  mov i2 @1       ; Print new line
+  sw i8 i0 i2
+
+  push_qw i8      ; Load command slot into i0 
+  pop_qw i0 
+
+  mov i1 @0       ; Load command offset
+
+  #SYSCALL_USERIO ; Call timer 
+  free i8
   ret
 
 ; Save registers used for printing 
@@ -37,11 +72,21 @@ fn_save_registers:
   push_qw i2
   push_qw i3
   push_qw i4
+  push_qw i5
+  push_qw i6
+  push_qw i7
+  push_qw i8
+  push_qw i9
   ret
 
 ; Restore the registers used for printing
 ;
 fn_restore_registers:
+  pop_qw i9
+  pop_qw i8
+  pop_qw i7
+  pop_qw i6
+  pop_qw i5
   pop_qw i4
   pop_qw i3
   pop_qw i2
@@ -58,9 +103,11 @@ interrupt_0:
 
   ; indicate that the interrupt was fired 
   ;
-  mov i1 &str_interrupt_0       ; Offset
-  mov i2 #str_interrupt_0       ; Length of item in words 
-  #PRINTER_LOAD_ASCII
+
+  mov i3 @0
+  mov i5 @9                 ; ASCII
+  mov i6 &str_interrupt_0   ; Address
+  mov i7 #str_interrupt_0   ; Len
   call fn_print_item
 
   ; Re-queue the interrupt 
@@ -80,9 +127,10 @@ interrupt_1:
 
   ; indicate that the interrupt was fired 
   ;
-  mov i1 &str_interrupt_1       ; Offset
-  mov i2 #str_interrupt_1       ; Length of item in words 
-  #PRINTER_LOAD_ASCII
+  mov i3 @0
+  mov i5 @9                 ; ASCII
+  mov i6 &str_interrupt_1   ; Address
+  mov i7 #str_interrupt_1   ; Len
   call fn_print_item
 
   ; Re-queue the interrupt 
@@ -101,9 +149,10 @@ interrupt_4:
 
   ; indicate that the interrupt was fired 
   ;
-  mov i1 &str_interrupt_4       ; Offset
-  mov i2 #str_interrupt_4       ; Length of item in words 
-  #PRINTER_LOAD_ASCII
+  mov i3 @0
+  mov i5 @9                 ; ASCII
+  mov i6 &str_interrupt_4   ; Address
+  mov i7 #str_interrupt_4   ; Len
   call fn_print_item
 
   ; Exit
@@ -140,9 +189,9 @@ fn_create_60_sec_timer:
 ; Main
 ;
 fn_main:
- call fn_create_three_sec_timer
- call fn_create_five_sec_timer
- call fn_create_60_sec_timer
+  call fn_create_three_sec_timer
+  call fn_create_five_sec_timer
+  call fn_create_60_sec_timer
 
   ; Infinite loop
 l_loop_top:
