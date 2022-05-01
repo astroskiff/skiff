@@ -34,6 +34,12 @@ public:
   //!          from the stack.
   std::tuple<bool, uint16_t> pop_word();
 
+  //! \brief   Pop half word
+  //! \returns tuple containing boolean indicating if
+  //!          the operation was a success, and a value
+  //!          from the stack.
+  std::tuple<bool, uint8_t> pop_hword();
+
   //! \brief   Pop double word
   //! \returns tuple containing boolean indicating if
   //!          the operation was a success, and a value
@@ -50,6 +56,11 @@ public:
   //! \param word The word to push
   //! \returns true iff the operation was a success
   bool push_word(const uint16_t word);
+
+  //! \brief Push half word
+  //! \param word The word to push
+  //! \returns true iff the operation was a success
+  bool push_hword(const uint8_t dword);
 
   //! \brief Push double word
   //! \param word The word to push

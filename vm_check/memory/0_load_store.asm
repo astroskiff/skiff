@@ -64,6 +64,12 @@ load_data:
   ret 
 
 store_data:
+  mov i9 @112       ; Expected value
+  mov i0 &a         ; Address to spot in mem 
+  shw x0 i0 i9      ; Store i9 into address 
+  lhw x0 i0 i8      ; Load data from address to i8 
+  aseq i9 i8        ; Ensure equal
+
   mov i9 @20        ; Expected value
   mov i0 &a         ; Address to spot in mem 
   sw x0 i0 i9       ; Store i9 into address 

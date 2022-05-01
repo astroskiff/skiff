@@ -342,12 +342,21 @@ public:
   virtual void visit(executor_if &e) override;
   types::vm_register &source;
 };
+
+class instruction_push_hw_c : public instruction_c {
+public:
+  instruction_push_hw_c(types::vm_register &source) : source(source) {}
+  virtual void visit(executor_if &e) override;
+  types::vm_register &source;
+};
+
 class instruction_push_dw_c : public instruction_c {
 public:
   instruction_push_dw_c(types::vm_register &source) : source(source) {}
   virtual void visit(executor_if &e) override;
   types::vm_register &source;
 };
+
 class instruction_push_qw_c : public instruction_c {
 public:
   instruction_push_qw_c(types::vm_register &source) : source(source) {}
@@ -358,6 +367,13 @@ public:
 class instruction_pop_w_c : public instruction_c {
 public:
   instruction_pop_w_c(types::vm_register &dest) : dest(dest) {}
+  virtual void visit(executor_if &e) override;
+  types::vm_register &dest;
+};
+
+class instruction_pop_hw_c : public instruction_c {
+public:
+  instruction_pop_hw_c(types::vm_register &dest) : dest(dest) {}
   virtual void visit(executor_if &e) override;
   types::vm_register &dest;
 };
@@ -407,6 +423,19 @@ public:
   types::vm_register &data;
 };
 
+class instruction_store_hword_c : public instruction_c {
+public:
+  instruction_store_hword_c(types::vm_register &idx, types::vm_register &offset,
+                            types::vm_register &data)
+      : idx(idx), offset(offset), data(data)
+  {
+  }
+  virtual void visit(executor_if &e) override;
+  types::vm_register &idx;
+  types::vm_register &offset;
+  types::vm_register &data;
+};
+
 class instruction_store_dword_c : public instruction_c {
 public:
   instruction_store_dword_c(types::vm_register &idx, types::vm_register &offset,
@@ -437,6 +466,19 @@ class instruction_load_word_c : public instruction_c {
 public:
   instruction_load_word_c(types::vm_register &idx, types::vm_register &offset,
                           types::vm_register &dest)
+      : idx(idx), offset(offset), dest(dest)
+  {
+  }
+  virtual void visit(executor_if &e) override;
+  types::vm_register &idx;
+  types::vm_register &offset;
+  types::vm_register &dest;
+};
+
+class instruction_load_hword_c : public instruction_c {
+public:
+  instruction_load_hword_c(types::vm_register &idx, types::vm_register &offset,
+                           types::vm_register &dest)
       : idx(idx), offset(offset), dest(dest)
   {
   }
@@ -530,17 +572,21 @@ public:
   virtual void accept(instruction_aseq_c &ins) = 0;
   virtual void accept(instruction_asne_c &ins) = 0;
   virtual void accept(instruction_push_w_c &ins) = 0;
+  virtual void accept(instruction_push_hw_c &ins) = 0;
   virtual void accept(instruction_push_dw_c &ins) = 0;
   virtual void accept(instruction_push_qw_c &ins) = 0;
   virtual void accept(instruction_pop_w_c &ins) = 0;
+  virtual void accept(instruction_pop_hw_c &ins) = 0;
   virtual void accept(instruction_pop_dw_c &ins) = 0;
   virtual void accept(instruction_pop_qw_c &ins) = 0;
   virtual void accept(instruction_alloc_c &ins) = 0;
   virtual void accept(instruction_free_c &ins) = 0;
   virtual void accept(instruction_store_word_c &ins) = 0;
+  virtual void accept(instruction_store_hword_c &ins) = 0;
   virtual void accept(instruction_store_dword_c &ins) = 0;
   virtual void accept(instruction_store_qword_c &ins) = 0;
   virtual void accept(instruction_load_word_c &ins) = 0;
+  virtual void accept(instruction_load_hword_c &ins) = 0;
   virtual void accept(instruction_load_dword_c &ins) = 0;
   virtual void accept(instruction_load_qword_c &ins) = 0;
   virtual void accept(instruction_syscall_c &ins) = 0;

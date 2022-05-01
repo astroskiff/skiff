@@ -28,6 +28,18 @@ std::tuple<bool, uint16_t> stack_c::pop_word()
   return _mem.get_word(_end);
 }
 
+std::tuple<bool, uint8_t> stack_c::pop_hword()
+{
+  if (_end < skiff::config::h_word_size_bytes) {
+    return {false, 0};
+  }
+  _end -= skiff::config::h_word_size_bytes;
+  if (_sp) {
+    (*_sp) = _end;
+  }
+  return _mem.get_hword(_end);
+}
+
 std::tuple<bool, uint32_t> stack_c::pop_dword()
 {
   if (_end < skiff::config::d_word_size_bytes) {
@@ -62,6 +74,22 @@ bool stack_c::push_word(const uint16_t word)
     return false;
   }
   _end += skiff::config::word_size_bytes;
+  if (_sp) {
+    (*_sp) = _end;
+  }
+  return true;
+}
+
+bool stack_c::push_hword(const uint8_t hword)
+{
+  if (_end + skiff::config::h_word_size_bytes >=
+      skiff::config::stack_size_bytes) {
+    return false;
+  }
+  if (!_mem.put_hword(_end, hword)) {
+    return false;
+  }
+  _end += skiff::config::h_word_size_bytes;
   if (_sp) {
     (*_sp) = _end;
   }

@@ -338,6 +338,18 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
               *target_register));
       break;
     }
+    case libskiff::bytecode::instructions::PUSH_HW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `PUSH_HW`\n";
+      auto [success, target_register] =
+          decode_ins_with_one_reg(instruction_data);
+      if (!success) {
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<skiff::machine::instruction_push_hw_c>(
+              *target_register));
+      break;
+    }
     case libskiff::bytecode::instructions::PUSH_DW: {
       LOG(DEBUG) << TAG("vm") << "Decoded `PUSH_DW`\n";
       auto [success, target_register] =
@@ -371,6 +383,18 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_pop_w_c>(
+              *target_register));
+      break;
+    }
+    case libskiff::bytecode::instructions::POP_HW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `POP_HW`\n";
+      auto [success, target_register] =
+          decode_ins_with_one_reg(instruction_data);
+      if (!success) {
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<skiff::machine::instruction_pop_hw_c>(
               *target_register));
       break;
     }
@@ -611,6 +635,18 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
               *idx, *offset, *data));
       break;
     }
+    case libskiff::bytecode::instructions::SHW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `SHW`\n";
+      auto [success, idx, offset, data] =
+          decode_ins_with_three_reg(instruction_data);
+      if (!success) {
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<skiff::machine::instruction_store_hword_c>(
+              *idx, *offset, *data));
+      break;
+    }
     case libskiff::bytecode::instructions::SDW: {
       LOG(DEBUG) << TAG("vm") << "Decoded `SDW`\n";
       auto [success, idx, offset, data] =
@@ -644,6 +680,18 @@ bool vm_c::load(std::unique_ptr<libskiff::bytecode::executable_c> executable)
       }
       _instructions.emplace_back(
           std::make_unique<skiff::machine::instruction_load_word_c>(
+              *idx, *offset, *data));
+      break;
+    }
+    case libskiff::bytecode::instructions::LHW: {
+      LOG(DEBUG) << TAG("vm") << "Decoded `LHW`\n";
+      auto [success, idx, offset, data] =
+          decode_ins_with_three_reg(instruction_data);
+      if (!success) {
+        return false;
+      }
+      _instructions.emplace_back(
+          std::make_unique<skiff::machine::instruction_load_hword_c>(
               *idx, *offset, *data));
       break;
     }

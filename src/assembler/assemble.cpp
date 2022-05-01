@@ -68,7 +68,11 @@ inline std::unordered_map<std::string, uint8_t> get_string_to_instruction_map()
           {"syscall", libskiff::bytecode::instructions::SYSCALL},
           {"debug", libskiff::bytecode::instructions::DEBUG},
           {"eirq", libskiff::bytecode::instructions::EIRQ},
-          {"dirq", libskiff::bytecode::instructions::DIRQ}};
+          {"dirq", libskiff::bytecode::instructions::DIRQ},
+          {"push_hw", libskiff::bytecode::instructions::PUSH_HW},
+          {"pop_hw", libskiff::bytecode::instructions::POP_HW},
+          {"shw", libskiff::bytecode::instructions::SHW},
+          {"lhw", libskiff::bytecode::instructions::LHW}};
 }
 
 template <class T> std::optional<T> get_number(const std::string value)
@@ -1177,6 +1181,17 @@ bool build_push_w(const instruction_data_t &ins, assembler_data_t &adt)
   return true;
 }
 
+bool build_push_hw(const instruction_data_t &ins, assembler_data_t &adt)
+{
+  LOG(DEBUG) << TAG("assembler:func") << __func__ << "\n";
+  auto [success, val] = validate_one_reg_instruction("PUSH_HW", ins, adt);
+  if (!success) {
+    return false;
+  }
+  adt.bin_generator.add_instruction(adt.ins_generator.gen_push_hw(val));
+  return true;
+}
+
 bool build_push_dw(const instruction_data_t &ins, assembler_data_t &adt)
 {
   LOG(DEBUG) << TAG("assembler:func") << __func__ << "\n";
@@ -1207,6 +1222,17 @@ bool build_pop_w(const instruction_data_t &ins, assembler_data_t &adt)
     return false;
   }
   adt.bin_generator.add_instruction(adt.ins_generator.gen_pop_w(val));
+  return true;
+}
+
+bool build_pop_hw(const instruction_data_t &ins, assembler_data_t &adt)
+{
+  LOG(DEBUG) << TAG("assembler:func") << __func__ << "\n";
+  auto [success, val] = validate_one_reg_instruction("POP_HW", ins, adt);
+  if (!success) {
+    return false;
+  }
+  adt.bin_generator.add_instruction(adt.ins_generator.gen_pop_hw(val));
   return true;
 }
 
@@ -1282,6 +1308,19 @@ bool build_store_w(const instruction_data_t &ins, assembler_data_t &adt)
   return true;
 }
 
+bool build_store_hw(const instruction_data_t &ins, assembler_data_t &adt)
+{
+  LOG(DEBUG) << TAG("assembler:func") << __func__ << "\n";
+  auto [success, idx, offset, data] =
+      validate_three_reg_instruction("STORE_HW", ins, adt);
+  if (!success) {
+    return false;
+  }
+  adt.bin_generator.add_instruction(
+      adt.ins_generator.gen_store_hword(idx, offset, data));
+  return true;
+}
+
 bool build_store_dw(const instruction_data_t &ins, assembler_data_t &adt)
 {
   LOG(DEBUG) << TAG("assembler:func") << __func__ << "\n";
@@ -1318,6 +1357,19 @@ bool build_load_w(const instruction_data_t &ins, assembler_data_t &adt)
   }
   adt.bin_generator.add_instruction(
       adt.ins_generator.gen_load_word(idx, offset, data));
+  return true;
+}
+
+bool build_load_hw(const instruction_data_t &ins, assembler_data_t &adt)
+{
+  LOG(DEBUG) << TAG("assembler:func") << __func__ << "\n";
+  auto [success, idx, offset, data] =
+      validate_three_reg_instruction("LOAD_HW", ins, adt);
+  if (!success) {
+    return false;
+  }
+  adt.bin_generator.add_instruction(
+      adt.ins_generator.gen_load_hword(idx, offset, data));
   return true;
 }
 
@@ -1760,6 +1812,8 @@ bool phase_4(assembler_data_t &adt)
       {"sw", build_store_w},      {"sdw", build_store_dw},
       {"sqw", build_store_qw},    {"lw", build_load_w},
       {"ldw", build_load_dw},     {"lqw", build_load_qw},
+      {"lhw", build_load_hw},     {"shw", build_store_hw},
+      {"pop_hw", build_pop_hw},   {"push_hw", build_push_hw},
   };
 
   /*
